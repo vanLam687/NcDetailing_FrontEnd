@@ -1,1 +1,23 @@
-<p>login works!</p>
+<div class="login-wrapper">
+  <div class="login-card card bg-dark text-white border-light shadow p-4">
+    <h4 class="text-center mb-4">Login</h4>
+
+    <div class="mb-3">
+      <label class="form-label">User</label>
+      <input type="text" class="form-control" placeholder="Ingresa tu usuario" [(ngModel)]="username">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Passsword</label>
+      <input type="password" class="form-control" placeholder="Ingresa tu contraseña" [(ngModel)]="password">
+    </div>
+
+    <div class="d-grid">
+      <button class="btn btn-primary btn-sm" (click)="Login()">Enter</button>
+    </div>
+
+    <div class="text-center mt-3">
+      <p class="text-danger" *ngIf="message">{{ message }}</p>
+    </div>
+  </div>
+</div>
