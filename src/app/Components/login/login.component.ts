@@ -34,11 +34,11 @@ export class LoginComponent implements OnInit {
 
           this.router.navigate(['/home/']);
         } else {
-          this.message = x?.message || 'Invalid credentials';
+          this.message = x?.mensaje || 'Invalid credentials';
         }
       },
       (err) => {
-        this.message = err?.error?.message || 'Login error';
+        this.message = err?.error?.mensaje || 'Login error';
       }
     );
   }
