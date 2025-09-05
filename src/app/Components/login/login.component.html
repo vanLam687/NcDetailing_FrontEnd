@@ -1,22 +1,38 @@
-<div class="login-wrapper">
-  <div class="login-card card bg-dark text-white border-light shadow p-4">
-    <h4 class="text-center mb-4">Login</h4>
+<div class="login-wrapper d-flex align-items-center justify-content-center vh-100"
+     style="background: url('/assets/autonc.jpg') no-repeat center center; background-size: cover;">
 
-    <div class="mb-3">
-      <label class="form-label">User</label>
-      <input type="text" class="form-control" placeholder="Ingresa tu usuario" [(ngModel)]="username">
+  <div class="login-card card shadow-lg p-5 rounded" style="width: 360px; background-color: rgba(255, 255, 255, 0.95);">
+    <h4 class="text-center mb-5 text-dark">Log In</h4>
+
+    <div class="mb-4">
+      <div class="input-group">
+        <span class="input-group-text bg-light text-dark">
+          <i class="bi bi-envelope"></i>
+        </span>
+        <input type="email" class="form-control" placeholder="Usuario" [(ngModel)]="username">
+      </div>
     </div>
 
-    <div class="mb-3">
-      <label class="form-label">Passsword</label>
-      <input type="password" class="form-control" placeholder="Ingresa tu contraseña" [(ngModel)]="password">
+    <div class="mb-4">
+      <div class="input-group">
+        <span class="input-group-text bg-light text-dark">
+          <i class="bi bi-lock"></i>
+        </span>
+        <input id="passwordInput" type="password" class="form-control" placeholder="Contraseña" [(ngModel)]="password">
+      </div>
     </div>
 
-    <div class="d-grid">
-      <button class="btn btn-primary btn-sm" (click)="Login()">Enter</button>
+    <div class="d-grid mb-4">
+      <button class="btn btn-primary btn-lg" (click)="Login()">Enter</button>
     </div>
 
-    <div class="text-center mt-3">
+    <div class="text-center mb-3">
+      <small>Don’t have an account? 
+        <a href="#" class="text-primary">Sign up</a>
+      </small>
+    </div>
+
+    <div class="text-center">
       <p class="text-danger" *ngIf="message">{{ message }}</p>
     </div>
   </div>
