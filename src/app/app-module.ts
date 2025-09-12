@@ -7,7 +7,6 @@ import { AppComponent } from './app.component';
 import { ContainerComponent } from './Components/container/container.component';
 import { NavbarComponent } from './Components/navbar/navbar.component';
 import { LockComponent } from './Components/lock/lock.component';
-import { RegisterComponent } from './Components/register/register.component';
 import { LoginComponent } from './Components/login/login.component';
 
 @NgModule({
@@ -16,7 +15,6 @@ import { LoginComponent } from './Components/login/login.component';
     ContainerComponent,
     NavbarComponent,
     LockComponent,
-    RegisterComponent,
     LoginComponent
   ],
   imports: [

@@ -11,13 +11,12 @@ import { AuthService } from '../../Services/auth-service';
 })
 export class LoginComponent implements OnInit {
   constructor( private service: UsersService, private auth: AuthService, private router: Router) {}
+  username: string = '';
+  password: string = '';
+  message: string = '';
+  err: string = '';
 
-  username: any;
-  password: any;
-  message: any;
-  err: any;
-
- ngOnInit(): void {
+  ngOnInit(): void {
     this.auth.clearToken();
   }
 
@@ -28,13 +27,13 @@ export class LoginComponent implements OnInit {
     };
 
     this.service.Login(obj).subscribe(
-      (x: any) => {
-        if (x?.login === true && x.token) {
+      (res) => {
+        const x = res as { login: boolean; token?: string; mensaje?: string }; // 🔹 casteo acá
+        if (x.login === true && x.token) {
           this.auth.setToken(x.token);
-
           this.router.navigate(['/home/']);
         } else {
-          this.message = x?.mensaje || 'Invalid credentials';
+          this.message = x.mensaje || 'Invalid credentials';
         }
       },
       (err) => {
