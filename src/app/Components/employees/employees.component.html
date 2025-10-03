@@ -1,0 +1,197 @@
+<div class="container-fluid p-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom">
+          <div class="d-flex justify-content-between align-items-center">
+            <h3 class="text-primary mb-0">Gestión de Empleados</h3>
+            <button 
+              class="btn btn-primary"
+              data-bs-toggle="modal" 
+              data-bs-target="#createEmployeeModal">
+              <i nz-icon nzType="plus"></i>
+              Nuevo Empleado
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Esta es la tabla de empleadós -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="text-primary mb-0">Lista de Empleados</h5>
+        </div>
+        <div class="card-body">
+          <nz-table #employeesTable [nzData]="DataSourceEmployees" class="w-100">
+            <thead>
+              <tr class="bg-primary text-white">
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let employee of employeesTable.data" class="border-bottom">
+                <td class="align-middle">{{ employee.id }}</td>
+                <td class="align-middle">{{ employee.name }}</td>
+                <td class="align-middle">{{ employee.username }}</td>
+                <td class="align-middle">{{ employee.email }}</td>
+                <td class="align-middle text-center">
+                  <button 
+                    class="btn btn-outline-primary btn-sm me-2"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#editEmployeeModal"
+                    (click)="DatosEdit(employee)">
+                    <i nz-icon nzType="edit"></i>
+                    Editar
+                  </button>
+                  <button 
+                    class="btn btn-outline-danger btn-sm"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#deleteEmployeeModal"
+                    (click)="DatosDelete(employee)">
+                    <i nz-icon nzType="delete"></i>
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- el modal para crear un nuevfo empleado -->
+  <div class="modal fade" id="createEmployeeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Crear Nuevo Empleado</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Nombre</label>
+              <input 
+                type="text" 
+                class="form-control border-primary"
+                [(ngModel)]="Name"
+                placeholder="Ingrese el nombre">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Usuario</label>
+              <input 
+                type="text" 
+                class="form-control border-primary"
+                [(ngModel)]="Username"
+                placeholder="Ingrese el usuario">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Email</label>
+              <input 
+                type="email" 
+                class="form-control border-primary"
+                [(ngModel)]="Email"
+                placeholder="Ingrese el email">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Contraseña</label>
+              <input 
+                type="password" 
+                class="form-control border-primary"
+                [(ngModel)]="Password"
+                placeholder="Ingrese la contraseña">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="CreateEmployee()" data-bs-dismiss="modal">
+            Crear Empleado
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- modal para editar el empleado -->
+  <div class="modal fade" id="editEmployeeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Editar Empleado</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Nombre</label>
+              <input 
+                type="text" 
+                class="form-control border-primary"
+                [(ngModel)]="NameEdit"
+                placeholder="Ingrese el nombre">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Usuario</label>
+              <input 
+                type="text" 
+                class="form-control border-primary"
+                [(ngModel)]="UsernameEdit"
+                placeholder="Ingrese el usuario">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Email</label>
+              <input 
+                type="email" 
+                class="form-control border-primary"
+                [(ngModel)]="EmailEdit"
+                placeholder="Ingrese el email">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Nueva Contraseña</label>
+              <input 
+                type="password" 
+                class="form-control border-primary"
+                [(ngModel)]="PasswordEdit"
+                placeholder="Dejar vacío para no cambiar">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="EditEmployee()" data-bs-dismiss="modal">
+            Guardar Cambios
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- esto es para eliminar al empleado, primero tiene que preguntar -->
+  <div class="modal fade" id="deleteEmployeeModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title">Confirmar Eliminación</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted">
+            ¿Estás seguro de que deseas eliminar este empleado? Esta acción no se puede deshacer.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" (click)="DeleteEmployee()" data-bs-dismiss="modal">
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
