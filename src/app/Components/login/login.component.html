@@ -1,39 +1,83 @@
-<div class="login-wrapper d-flex align-items-center justify-content-center vh-100"
-     style="background: url('/assets/autonc.jpg') no-repeat center center; background-size: cover;">
-
-  <div class="login-card card shadow-lg p-5 rounded" style="width: 360px; background-color: rgba(255, 255, 255, 0.95);">
-    <h4 class="text-center mb-5 text-dark">Log In</h4>
-
-    <div class="mb-4">
-      <div class="input-group">
-        <span class="input-group-text bg-light text-dark">
-          <i class="bi bi-envelope"></i>
-        </span>
-        <input type="email" class="form-control" placeholder="Usuario" [(ngModel)]="username">
+<div class="d-flex min-vh-100 align-items-center justify-content-center p-3" style="background-color: #f8f9fa;">
+  <div class="card shadow-sm border-0" style="width: 100%; max-width: 400px;">
+    <div class="card-body p-4">
+      <div class="text-center mb-4">
+        <!-- Titulo pro -->
+        <div class="mb-3">
+          <i nz-icon nzType="car" class="text-primary" style="font-size: 48px;"></i>
+        </div>
+        <h3 class="card-title text-primary mb-2">NC Detailing</h3>
+        <p class="text-secondary">Ingresa a tu cuenta</p>
       </div>
-    </div>
 
-    <div class="mb-4">
-      <div class="input-group">
-        <span class="input-group-text bg-light text-dark">
-          <i class="bi bi-lock"></i>
-        </span>
-        <input id="passwordInput" type="password" class="form-control" placeholder="Contraseña" [(ngModel)]="password">
+      <form nz-form (ngSubmit)="Login()">
+        <!-- ussssser -->
+        <div class="mb-3">
+          <nz-form-item>
+            <nz-form-control>
+              <nz-input-group nzPrefixIcon="user" nzSize="large">
+                <input 
+                  type="text" 
+                  nz-input 
+                  [(ngModel)]="username" 
+                  name="username"
+                  placeholder="Usuario" 
+                  required
+                />
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <!-- passssword -->
+        <div class="mb-3">
+          <nz-form-item>
+            <nz-form-control>
+              <nz-input-group nzPrefixIcon="lock" nzSize="large">
+                <input 
+                  type="password" 
+                  nz-input 
+                  [(ngModel)]="password" 
+                  name="password"
+                  placeholder="Contraseña" 
+                  required
+                  (keyup.enter)="Login()"
+                />
+              </nz-input-group>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <!-- error handler pa-->
+        <div *ngIf="errorMessage" class="mb-3">
+          <nz-alert 
+            nzType="error" 
+            [nzMessage]="errorMessage" 
+            nzShowIcon
+          ></nz-alert>
+        </div>
+
+        <!--  login -->
+        <button 
+          nz-button 
+          nzType="primary" 
+          nzSize="large" 
+          nzBlock 
+          type="submit"
+          class="mb-3"
+          [disabled]="!username || !password"
+        >
+          <i nz-icon nzType="login" class="me-2"></i>
+          Ingresar
+        </button>
+      </form>
+
+      <!-- para que no quede tan seco -->
+      <div class="text-center">
+        <small class="text-muted">
+          Sistema de gestión de detailing automotriz
+        </small>
       </div>
-    </div>
-
-    <div class="d-grid mb-4">
-      <button class="btn btn-primary btn-lg" (click)="Login()">Enter</button>
-    </div>
-
-    <div class="text-center mb-3">
-      <small>Don’t have an account? 
-        <a href="#" class="text-primary">Sign up</a>
-      </small>
-    </div>
-
-    <div class="text-center">
-      <p class="text-danger" *ngIf="message">{{ message }}</p>
     </div>
   </div>
 </div>

@@ -1,63 +1,82 @@
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Mi Dashboard</a>
-    <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
-      ☰ Menu
-    </button>
-  </div>
-</nav>
+<div class="d-flex flex-column vh-100">
+  <!-- Navbar superior -->
+  <nav class="navbar navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+      <div class="navbar-brand d-flex align-items-center">
+        <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center me-2" 
+             style="width: 40px; height: 40px;">
+          <strong>NC</strong>
+        </div>
+        <span class="h5 mb-0 text-white">Detailing</span>
+      </div>
 
-<!-- Sidebar (Offcanvas) -->
-<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="sidebarMenuLabel">Menú</h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
-  </div>
-  <div class="offcanvas-body p-0">
-    <ul class="nav flex-column">
-      <li class="nav-item">
-        <a class="nav-link text-dark" href="#home">Inicio</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-dark" href="#clientes">Clientes</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-dark" href="#ventas">Ventas</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-dark" href="#servicios">Servicios</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link text-dark" href="#metricas">Métricas</a>
-      </li>
-    </ul>
+      <button class="btn btn-light btn-sm" (click)="toggleSidebar()">
+        <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'" class="text-primary"></i>
+      </button>
+    </div>
+  </nav>
+
+  <div class="d-flex flex-grow-1">
+    <!-- sidebar only logos -->
+    <div class="bg-light border-end d-flex flex-column" 
+         [style.width]="isCollapsed ? '60px' : '250px'"
+         style="transition: width 0.3s ease;">
+      
+      <div class="flex-grow-1 py-3">
+        <!-- el incio -->
+        <a class="d-flex align-items-center px-3 py-2 text-decoration-none text-dark" 
+           routerLink="/home" 
+           routerLinkActive="active bg-primary text-white"
+           [nz-tooltip]="isCollapsed ? 'Inicio' : null">
+          <i nz-icon nzType="home" [class.me-3]="!isCollapsed"></i>
+          <span *ngIf="!isCollapsed" class="fw-medium">Inicio</span>
+        </a>
+
+        <!-- Empleados -->
+        <a *ngIf="isAdmin"
+           class="d-flex align-items-center px-3 py-2 text-decoration-none text-dark" 
+           routerLink="/home/employees" 
+           routerLinkActive="active bg-primary text-white"
+           [nz-tooltip]="isCollapsed ? 'Empleados' : null">
+          <i nz-icon nzType="team" [class.me-3]="!isCollapsed"></i>
+          <span *ngIf="!isCollapsed" class="fw-medium">Empleados</span>
+        </a>
+
+        <!-- Clientes -->
+        <a class="d-flex align-items-center px-3 py-2 text-decoration-none text-dark" 
+           routerLink="/home/clients" 
+           routerLinkActive="active bg-primary text-white"
+           [nz-tooltip]="isCollapsed ? 'Clientes' : null">
+          <i nz-icon nzType="user" [class.me-3]="!isCollapsed"></i>
+          <span *ngIf="!isCollapsed" class="fw-medium">Clientes</span>
+        </a>
+
+        <!-- Servicios -->
+        <a class="d-flex align-items-center px-3 py-2 text-decoration-none text-dark" 
+           routerLink="/home/services" 
+           routerLinkActive="active bg-primary text-white"
+           [nz-tooltip]="isCollapsed ? 'Servicios' : null">
+          <i nz-icon nzType="tool" [class.me-3]="!isCollapsed"></i>
+          <span *ngIf="!isCollapsed" class="fw-medium">Servicios</span>
+        </a>
+      </div>
+
+      <!-- logoiut -->
+      <div class="mt-auto border-top">
+        <a class="d-flex align-items-center px-3 py-3 text-decoration-none text-danger" 
+           (click)="logout()"
+           [nz-tooltip]="isCollapsed ? 'Cerrar sesión' : null">
+          <i nz-icon nzType="logout" [class.me-3]="!isCollapsed"></i>
+          <span *ngIf="!isCollapsed" class="fw-medium">Cerrar sesión</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- aca va la pagina en si con info-->
+    <div class="flex-grow-1 p-4 bg-white">
+      <div class="container-fluid">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
   </div>
 </div>
-
-<!-- Contenido principal -->
-<div class="container mt-4">
-  <section id="home">
-    <h2>Inicio</h2>
-    <p>Contenido de inicio...</p>
-  </section>
-
-  <section id="clientes">
-    <h2>Clientes</h2>
-    <p>Contenido de clientes...</p>
-  </section>
-
-  <section id="ventas">
-    <h2>Ventas</h2>
-    <p>Contenido de ventas...</p>
-  </section>
-
-  <section id="servicios">
-    <h2>Servicios</h2>
-    <p>Contenido de servicios...</p>
-  </section>
-
-  <section id="metricas">
-    <h2>Métricas</h2>
-    <p>Contenido de métricas...</p>
-    </section>

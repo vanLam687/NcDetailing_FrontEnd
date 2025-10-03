@@ -10,14 +10,15 @@ import { AuthService } from '../../Services/auth-service';
   styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit {
-  constructor( private service: UsersService, private auth: AuthService, private router: Router) {}
+  
+  constructor(private service: UsersService, private auth: AuthService, private router: Router) {}
+  
   username: string = '';
   password: string = '';
-  message: string = '';
-  err: string = '';
+  errorMessage: string = '';
 
   ngOnInit(): void {
-    this.auth.clearToken();
+    this.auth.logout();
   }
 
   Login(): void {
@@ -26,19 +27,39 @@ export class LoginComponent implements OnInit {
       password: this.password
     };
 
-    this.service.Login(obj).subscribe(
-      (res) => {
-        const x = res as { login: boolean; token?: string; mensaje?: string }; // 🔹 casteo acá
-        if (x.login === true && x.token) {
-          this.auth.setToken(x.token);
+    this.service.Login(obj).subscribe({
+      next: (res: any) => {
+        if (res.login === true && res.token) {
+          this.auth.setToken(res.token);
+          this.clearError();
           this.router.navigate(['/home/']);
         } else {
-          this.message = x.mensaje || 'Invalid credentials';
+          this.errorMessage = res.mensaje || 'Usuario o contraseña incorrectos';
         }
       },
-      (err) => {
-        this.message = err?.error?.mensaje || 'Login error';
+      error: (error) => {
+        this.handleError(error);
       }
-    );
+    });
+  }
+
+handleError(error: any): void {
+    if (error.error?.message) {
+    this.errorMessage = error.error.message;
+  } 
+  else if (typeof error.error === 'string') {
+    this.errorMessage = error.error;
+  }
+  else if (error.message) {
+    this.errorMessage = error.message;
+  }
+  else if (error.status === 0) {
+    this.errorMessage = 'Error de conexión. Verifique su internet.';
+  } else {
+    this.errorMessage = 'Ha ocurrido un error inesperado.';
+  }
+}
+clearError(): void {
+    this.errorMessage = '';
   }
 }
