@@ -1,0 +1,407 @@
+<div class="container-fluid p-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- btn -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom">
+          <div class="d-flex justify-content-between align-items-center">
+            <h3 class="text-primary mb-0">Gestión de Clientes</h3>
+            <button 
+              class="btn btn-primary"
+              data-bs-toggle="modal" 
+              data-bs-target="#createClientModal">
+              <i nz-icon nzType="plus"></i>
+              Nuevo Cliente
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="text-primary mb-0">Lista de Clientes</h5>
+        </div>
+        <div class="card-body">
+          <nz-table #clientsTable [nzData]="DataSourceClients" class="w-100">
+            <thead>
+              <tr class="bg-primary text-white">
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Vehículos</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let client of clientsTable.data" class="border-bottom">
+                <td class="align-middle">
+                  <strong>{{ getFullName(client) }}</strong>
+                </td>
+                <td class="align-middle">{{ client.email }}</td>
+                <td class="align-middle">{{ client.phone }}</td>
+                <td class="align-middle">
+                  <!-- vehículos del cliente -->
+                  <div *ngIf="client.vehicles && client.vehicles.length > 0">
+                    <div *ngFor="let vehicle of client.vehicles" class="vehicle-badge">
+                      <small class="badge bg-secondary me-1">
+                        {{ vehicle.brand }} {{ vehicle.model }} ({{ vehicle.license_plate }})
+                      </small>
+                    </div>
+                  </div>
+                  <div *ngIf="!client.vehicles || client.vehicles.length === 0">
+                    <small class="text-muted">Sin vehículos</small>
+                  </div>
+                </td>
+                <td class="align-middle text-center">
+                  <!-- Botón Ver Detalles -->
+                  <button 
+                    class="btn btn-outline-info btn-sm me-1"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#viewClientModal"
+                    (click)="ViewClientDetails(client)">
+                    <i nz-icon nzType="eye"></i>
+                    Ver
+                  </button>
+                  <button 
+                    class="btn btn-outline-primary btn-sm me-1"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#editClientModal"
+                    (click)="DatosEdit(client)">
+                    <i nz-icon nzType="edit"></i>
+                    Editar
+                  </button>
+                  <button 
+                    class="btn btn-outline-danger btn-sm"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#deleteClientModal"
+                    (click)="DatosDelete(client)">
+                    <i nz-icon nzType="delete"></i>
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Crear Cliente -->
+  <div class="modal fade" id="createClientModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Crear Nuevo Cliente</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Datos -->
+          <h6 class="text-primary mb-3">Datos del Cliente</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Nombre</label>
+              <input 
+                type="text" 
+                class="form-control border-primary"
+                [(ngModel)]="FirstName"
+                placeholder="Ingrese el nombre">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Apellido</label>
+              <input 
+                type="text" 
+                class="form-control border-primary"
+                [(ngModel)]="LastName"
+                placeholder="Ingrese el apellido">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Email</label>
+              <input 
+                type="email" 
+                class="form-control border-primary"
+                [(ngModel)]="Email"
+                placeholder="Ingrese el email">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Teléfono</label>
+              <input 
+                type="text" 
+                class="form-control border-primary"
+                [(ngModel)]="Phone"
+                placeholder="Ingrese el teléfono">
+            </div>
+          </div>
+
+          <h6 class="text-primary mb-3">Vehículos</h6>
+          
+          <!-- Lista de vehículos agregados -->
+          <div class="mb-3">
+            <div *ngIf="Vehicles.length === 0" class="alert alert-warning">
+              <small>Debe agregar al menos un vehículo</small>
+            </div>
+            <div *ngFor="let vehicle of Vehicles; let i = index" class="card mb-2">
+              <div class="card-body py-2">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong><br>
+                    <small class="text-muted">
+                      Año: {{ vehicle.year }} | Color: {{ vehicle.color }} | Patente: {{ vehicle.license_plate }}
+                    </small>
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-danger" (click)="RemoveVehicle(i)">
+                      <i nz-icon nzType="delete"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- nuevo vehículo -->
+          <div class="card">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Agregar Vehículo</h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-2">
+                <div class="col-md">
+                  <input 
+                    type="text" 
+                    class="form-control"
+                    [(ngModel)]="NewVehicleBrand"
+                    placeholder="Marca">
+                </div>
+                <div class="col-md">
+                  <input 
+                    type="text" 
+                    class="form-control"
+                    [(ngModel)]="NewVehicleModel"
+                    placeholder="Modelo">
+                </div>
+                <div class="col-md">
+                  <input 
+                    type="number" 
+                    class="form-control"
+                    [(ngModel)]="NewVehicleYear"
+                    placeholder="Año"
+                    min="1900">
+                </div>
+                <div class="col-md">
+                  <input 
+                    type="text" 
+                    class="form-control"
+                    [(ngModel)]="NewVehicleColor"
+                    placeholder="Color">
+                </div>
+                <div class="col-md">
+                  <input 
+                    type="text" 
+                    class="form-control"
+                    [(ngModel)]="NewVehicleLicensePlate"
+                    placeholder="Patente">
+                </div>
+                <div class="col-md-auto">
+                  <button class="btn btn-primary" (click)="AddVehicle()">
+                    <i nz-icon nzType="plus"></i>
+                    Agregar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" 
+                  (click)="CreateClient()" 
+                  data-bs-dismiss="modal"
+                  [disabled]="Vehicles.length === 0">
+            Crear Cliente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ver Detalles del Cliente -->
+  <div class="modal fade" id="viewClientModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-info text-white">
+          <h5 class="modal-title">Detalles del Cliente</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6 class="text-primary">Información Personal</h6>
+              <p><strong>Nombre:</strong> {{ SelectedClient?.first_name }} {{ SelectedClient?.last_name }}</p>
+              <p><strong>Email:</strong> {{ SelectedClient?.email }}</p>
+              <p><strong>Teléfono:</strong> {{ SelectedClient?.phone }}</p>
+            </div>
+          </div>
+          
+          <h6 class="text-primary">Vehículos</h6>
+          <div *ngIf="SelectedClient?.vehicles && SelectedClient.vehicles.length > 0" class="row">
+            <div *ngFor="let vehicle of SelectedClient.vehicles" class="col-md-6 mb-3">
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="card-title">{{ vehicle.brand }} {{ vehicle.model }}</h6>
+                  <p class="card-text mb-1"><small>Año: {{ vehicle.year }}</small></p>
+                  <p class="card-text mb-1"><small>Color: {{ vehicle.color }}</small></p>
+                  <p class="card-text mb-0"><small>Patente: {{ vehicle.license_plate }}</small></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!SelectedClient?.vehicles || SelectedClient.vehicles.length === 0" class="alert alert-info">
+            No hay vehículos registrados para este cliente.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Editar Cliente -->
+  <div class="modal fade" id="editClientModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Editar Cliente</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Datos del client -->
+          <h6 class="text-primary mb-3">Datos del Cliente</h6>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Nombre</label>
+              <input 
+                type="text" 
+                class="form-control border-primary"
+                [(ngModel)]="FirstNameEdit"
+                placeholder="Ingrese el nombre">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Apellido</label>
+              <input 
+                type="text" 
+                class="form-control border-primary"
+                [(ngModel)]="LastNameEdit"
+                placeholder="Ingrese el apellido">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Email</label>
+              <input 
+                type="email" 
+                class="form-control border-primary"
+                [(ngModel)]="EmailEdit"
+                placeholder="Ingrese el email">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-primary fw-bold">Teléfono</label>
+              <input 
+                type="text" 
+                class="form-control border-primary"
+                [(ngModel)]="PhoneEdit"
+                placeholder="Ingrese el teléfono">
+            </div>
+          </div>
+
+          <h6 class="text-primary mb-3">Vehículos</h6>
+          
+          <!-- vehículos agregados -->
+          <div class="mb-3">
+            <div *ngIf="Vehicles.length === 0" class="alert alert-warning">
+              <small>Debe agregar al menos un vehículo</small>
+            </div>
+            <div *ngFor="let vehicle of Vehicles; let i = index" class="card mb-2">
+              <div class="card-body py-2">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong><br>
+                    <small class="text-muted">
+                      Año: {{ vehicle.year }} | Color: {{ vehicle.color }} | Patente: {{ vehicle.license_plate }}
+                    </small>
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-danger" (click)="RemoveVehicle(i)">
+                      <i nz-icon nzType="delete"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- nuevo vehículo -->
+          <div class="card">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Agregar Vehículo</h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-2">
+                <div class="col-md">
+                  <input type="text" class="form-control" [(ngModel)]="NewVehicleBrand" placeholder="Marca">
+                </div>
+                <div class="col-md">
+                  <input type="text" class="form-control" [(ngModel)]="NewVehicleModel" placeholder="Modelo">
+                </div>
+                <div class="col-md">
+                  <input type="number" class="form-control" [(ngModel)]="NewVehicleYear" placeholder="Año">
+                </div>
+                <div class="col-md">
+                  <input type="text" class="form-control" [(ngModel)]="NewVehicleColor" placeholder="Color">
+                </div>
+                <div class="col-md">
+                  <input type="text" class="form-control" [(ngModel)]="NewVehicleLicensePlate" placeholder="Patente">
+                </div>
+                <div class="col-md-auto">
+                  <button class="btn btn-primary" (click)="AddVehicle()">
+                    <i nz-icon nzType="plus"></i>
+                    Agregar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="EditClient()" data-bs-dismiss="modal">
+            Guardar Cambios
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Eliminar Cliente -->
+  <div class="modal fade" id="deleteClientModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title">Confirmar Eliminación</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted">
+            ¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" (click)="DeleteClient()" data-bs-dismiss="modal">
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
