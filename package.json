@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --host 0.0.0.0 --poll 1000",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -20,6 +20,8 @@
     "@angular/router": "^20.0.0",
     "@ant-design/icons": "^6.0.2",
     "@ant-design/icons-angular": "^20.0.0",
+    "apexcharts": "^5.3.5",
+    "ng-apexcharts": "^2.0.3",
     "ng-zorro-antd": "^20.3.1",
     "primeicons": "^7.0.0",
     "primeng": "^20.1.2",
