@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 // NG-ZORRO Modules
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -44,6 +45,9 @@ import { LoginComponent } from './Components/login/login.component';
 import { EmployeesComponent } from './Components/employees/employees.component';
 import { ClientsComponent } from './Components/clients/clients.component';
 import { ServicesComponent } from './Components/services/services.component';
+import { ProductsComponent } from './Components/products/products.component';
+import { SalesComponent } from './Components/sales/sales.component';
+import { MetricsComponent } from './Components/metrics/metrics.component';
 
 registerLocaleData(es);
 
@@ -70,6 +74,9 @@ const icons: IconDefinition[] = Object.keys(antDesignIcons).map(key => {
     EmployeesComponent,
     ClientsComponent,
     ServicesComponent,
+    ProductsComponent,
+    SalesComponent,
+    MetricsComponent,
   ],
   imports: [
     BrowserModule,
@@ -101,7 +108,7 @@ const icons: IconDefinition[] = Object.keys(antDesignIcons).map(key => {
     NzInputNumberModule,
     NzListItemComponent,
     NzSelectComponent,
-
+    NgApexchartsModule
   ],
   providers: [
     { provide: NZ_I18N, useValue: es_ES },
