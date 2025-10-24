@@ -1,0 +1,21 @@
+/* Estilos específicos para el módulo de ventas */
+.cart-item {
+  border-left: 4px solid #007bff;
+  padding-left: 10px;
+  margin-bottom: 10px;
+}
+
+.total-amount {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #28a745;
+}
+
+.service-badge {
+  font-size: 0.75rem;
+}
+
+.status-badge {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+}

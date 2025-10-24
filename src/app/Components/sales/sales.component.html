@@ -1,0 +1,491 @@
+<div class="container-fluid p-4">
+  <div class="row">
+    <div class="col-12">
+      
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom">
+          <div class="d-flex justify-content-between align-items-center">
+            <h3 class="text-success mb-0">Gestión de Ventas</h3>
+            <div>
+              <button 
+                class="btn btn-outline-success me-2"
+                data-bs-toggle="modal" 
+                data-bs-target="#createServiceSaleModal"
+                (click)="ResetServiceSaleModal()">
+                <i nz-icon nzType="car"></i>
+                Nueva Venta (Servicio)
+              </button>
+              <button 
+                class="btn btn-success"
+                data-bs-toggle="modal" 
+                data-bs-target="#createProductSaleModal"
+                (click)="ResetProductSaleModal()">
+                <i nz-icon nzType="shopping-cart"></i>
+                Nueva Venta (Producto)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <input 
+                type="text" 
+                class="form-control"
+                [(ngModel)]="FilterClientName"
+                placeholder="Buscar por cliente...">
+            </div>
+            <div class="col-md-2">
+              <input type="date" class="form-control" [(ngModel)]="FilterStartDate">
+            </div>
+            <div class="col-md-2">
+              <input type="date" class="form-control" [(ngModel)]="FilterEndDate">
+            </div>
+            <div class="col-md-2">
+              <select class="form-select" [(ngModel)]="FilterPaymentStatus">
+                <option value="">Todo Estado (Pago)</option>
+                <option value="1">Pendiente</option>
+                <option value="2">Pagado</option>
+                <option value="3">Cancelado</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <button class="btn btn-primary me-2" (click)="ApplyFilters()">
+                <i nz-icon nzType="search"></i>
+                Aplicar
+              </button>
+              <button class="btn btn-secondary" (click)="ClearFilters()">
+                <i nz-icon nzType="clear"></i>
+                Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-header bg-light p-0 border-bottom-0">
+          <ul class="nav nav-tabs nav-fill">
+            <li class="nav-item">
+              <a class="nav-link" 
+                 [class.active]="currentTab === 'products'" 
+                 (click)="selectTab('products')"
+                 href="javascript:void(0)">
+                <i nz-icon nzType="shopping-cart"></i> Ventas de Productos
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" 
+                 [class.active]="currentTab === 'services'" 
+                 (click)="selectTab('services')"
+                 href="javascript:void(0)">
+                <i nz-icon nzType="car"></i> Ventas de Servicios
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="card-body">
+          <div *ngIf="errorMessage" class="alert alert-danger" (click)="clearError()">
+            {{ errorMessage }}
+          </div>
+
+          <div *ngIf="currentTab === 'products'">
+            <nz-table #salesProductsTable [nzData]="DataSourceSalesProducts" class="w-100">
+              <thead>
+                <tr class="bg-success text-white">
+                  <th>ID Venta</th>
+                  <th>Cliente</th>
+                  <th>Detalles (Productos)</th>
+                  <th>Total</th>
+                  <th>Método Pago</th>
+                  <th>Estado Pago</th>
+                  <th>Fecha</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let sale of salesProductsTable.data" class="border-bottom">
+                  <td class="align-middle"><strong>#{{ sale.sale_id }}</strong></td>
+                  <td class="align-middle">{{ sale.client_name }}</td>
+                  <td class="align-middle">
+                    <div *ngFor="let item of sale.products">
+                      <small class="badge bg-secondary me-1">
+                        {{ item.product_name }} (x{{ item.quantity }})
+                      </small>
+                    </div>
+                  </td>
+                  <td class="align-middle"><strong>${{ sale.sale_total | number:'1.2-2' }}</strong></td>
+                  <td class="align-middle">{{ sale.payment_method }}</td>
+                  <td class="align-middle">
+                    <span class="badge" 
+                          [class.bg-warning]="sale.payment_status === 'Pendiente'"
+                          [class.bg-success]="sale.payment_status === 'Pagado'"
+                          [class.bg-danger]="sale.payment_status === 'Cancelado'">
+                      {{ sale.payment_status }}
+                    </span>
+                  </td>
+                  <td class="align-middle">{{ sale.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td class="align-middle text-center">
+                    <button class="btn btn-outline-info btn-sm me-1" data-bs-toggle="modal" data-bs-target="#viewSaleModal" (click)="ViewSaleDetails(sale)">
+                      <i nz-icon nzType="eye"></i> Ver
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#updatePaymentModal" (click)="DatosUpdatePayment(sale)">
+                      <i nz-icon nzType="dollar"></i> Pago
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </div>
+
+          <div *ngIf="currentTab === 'services'">
+            <nz-table #salesServicesTable [nzData]="DataSourceSalesServices" class="w-100">
+              <thead>
+                <tr class="bg-success text-white">
+                  <th>ID Venta</th>
+                  <th>Cliente</th>
+                  <th>Detalles (Servicios)</th>
+                  <th>Total</th>
+                  <th>Método Pago</th>
+                  <th>Estado Pago</th>
+                  <th>Fecha</th>
+                  <th class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let sale of salesServicesTable.data" class="border-bottom">
+                  <td class="align-middle"><strong>#{{ sale.sale_id }}</strong></td>
+                  <td class="align-middle">{{ sale.client_name }}</td>
+                  <td class="align-middle">
+                    <div *ngFor="let item of sale.services">
+                      <small class="badge bg-primary me-1">
+                        {{ item.service_name }}
+                      </small>
+                    </div>
+                  </td>
+                  <td class="align-middle"><strong>${{ sale.sale_total | number:'1.2-2' }}</strong></td>
+                  <td class="align-middle">{{ sale.payment_method }}</td>
+                  <td class="align-middle">
+                    <span class="badge" 
+                          [class.bg-warning]="sale.payment_status === 'Pendiente'"
+                          [class.bg-success]="sale.payment_status === 'Pagado'"
+                          [class.bg-danger]="sale.payment_status === 'Cancelado'">
+                      {{ sale.payment_status }}
+                    </span>
+                  </td>
+                  <td class="align-middle">{{ sale.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td class="align-middle text-center">
+                    <button class="btn btn-outline-info btn-sm me-1" data-bs-toggle="modal" data-bs-target="#viewSaleModal" (click)="ViewSaleDetails(sale)">
+                      <i nz-icon nzType="eye"></i> Ver
+                    </button>
+                    <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#updatePaymentModal" (click)="DatosUpdatePayment(sale)">
+                      <i nz-icon nzType="dollar"></i> Pago
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="createProductSaleModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">Crear Venta de Productos</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="errorMessage" class="alert alert-danger" (click)="clearError()">
+            {{ errorMessage }}
+          </div>
+
+          <h6 class="text-success mb-3">Datos Principales</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-success fw-bold">Cliente</label>
+              <select class="form-select" [(ngModel)]="NewProdSale_ClientId">
+                <option [ngValue]="0">Seleccionar cliente...</option>
+                <option *ngFor="let client of DataSourceClients" [ngValue]="client.id">
+                  {{ client.first_name }} {{ client.last_name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-success fw-bold">Método de Pago</label>
+              <select class="form-select" [(ngModel)]="NewProdSale_PaymentMethodId">
+                <option [ngValue]="0">Seleccionar método...</option>
+                <option *ngFor="let method of DataSourcePaymentMethods" [ngValue]="method.id">
+                  {{ method.name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-success fw-bold">Estado de Pago</label>
+              <select class="form-select" [(ngModel)]="NewProdSale_PaymentStatusId">
+                <option [ngValue]="1">Pendiente</option>
+                <option [ngValue]="2">Pagado</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label text-success fw-bold">Observaciones</label>
+              <textarea class="form-control" [(ngModel)]="NewProdSale_Observations" rows="2"></textarea>
+            </div>
+          </div>
+          
+          <hr>
+          <h6 class="text-success mb-3">Agregar Productos</h6>
+          <div class="mb-3">
+            <div *ngIf="NewProdSale_ProductsList.length === 0" class="alert alert-warning py-2">
+              <small>No hay productos agregados a la venta.</small>
+            </div>
+            <div *ngFor="let item of NewProdSale_ProductsList; let i = index" class="card mb-2">
+              <div class="card-body py-2">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <strong>{{ item.name }}</strong><br>
+                    <small class="text-muted">
+                      {{ item.quantity }} x ${{ item.price | number:'1.2-2' }} = <strong>${{ (item.quantity * item.price) | number:'1.2-2' }}</strong>
+                    </small>
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-danger" (click)="RemoveProductFromSale(i)">
+                      <i nz-icon nzType="delete"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body bg-light">
+              <div class="row g-2 align-items-end">
+                <div class="col-md-7">
+                  <label class="form-label small">Producto</label>
+                  
+                  <select class="form-select" [(ngModel)]="Temp_ProductId">
+                    <option [ngValue]="0">Seleccionar producto...</option>
+                    <option *ngFor="let prod of DataSourceMasterProducts" [ngValue]="prod.id">
+                      {{ prod.name }} (Stock: {{ prod.stock }})
+                    </option>
+                  </select>
+
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small">Cantidad</label>
+                  <input type="number" class="form-control" [(ngModel)]="Temp_ProductQty" min="1">
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-primary w-100" (click)="AddProductToSale()">
+                    <i nz-icon nzType="plus"></i> Agregar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-between">
+          <h4 class="text-success">TOTAL: ${{ calculateTotal(NewProdSale_ProductsList) | number:'1.2-2' }}</h4>
+          <div>
+            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-success" (click)="CreateProductSale()" data-bs-dismiss="modal">
+              Crear Venta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="createServiceSaleModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title">Crear Venta de Servicios</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="errorMessage" class="alert alert-danger" (click)="clearError()">
+            {{ errorMessage }}
+          </div>
+
+          <h6 class="text-success mb-3">Datos Principales</h6>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label text-success fw-bold">Cliente</label>
+              <select class="form-select" [(ngModel)]="NewSvcSale_ClientId" (ngModelChange)="OnClientChangeForServices($event)">
+                <option [ngValue]="0">Seleccionar cliente...</option>
+                <option *ngFor="let client of DataSourceClients" [ngValue]="client.id">
+                  {{ client.first_name }} {{ client.last_name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-success fw-bold">Vehículo del Cliente</label>
+              <select class="form-select" [(ngModel)]="NewSvcSale_VehicleId" [disabled]="ClientVehiclesList.length === 0">
+                <option [ngValue]="0">Seleccionar vehículo...</option>
+                <option *ngFor="let v of ClientVehiclesList" [ngValue]="v.id">
+                  {{ v.brand }} {{ v.model }} ({{ v.license_plate }})
+                </option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-success fw-bold">Método de Pago</label>
+              <select class="form-select" [(ngModel)]="NewSvcSale_PaymentMethodId">
+                <option [ngValue]="0">Seleccionar método...</option>
+                <option *ngFor="let method of DataSourcePaymentMethods" [ngValue]="method.id">
+                  {{ method.name }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-success fw-bold">Estado de Pago</label>
+              <select class="form-select" [(ngModel)]="NewSvcSale_PaymentStatusId">
+                <option [ngValue]="1">Pendiente</option>
+                <option [ngValue]="2">Pagado</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label text-success fw-bold">Observaciones</label>
+              <textarea class="form-control" [(ngModel)]="NewSvcSale_Observations" rows="2"></textarea>
+            </div>
+          </div>
+          
+          <hr>
+          <h6 class="text-success mb-3">Agregar Servicios</h6>
+          <div class="mb-3">
+            <div *ngIf="NewSvcSale_ServicesList.length === 0" class="alert alert-warning py-2">
+              <small>No hay servicios agregados a la venta.</small>
+            </div>
+            <div *ngFor="let item of NewSvcSale_ServicesList; let i = index" class="card mb-2">
+              <div class="card-body py-2">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <strong>{{ item.name }}</strong>
+                    <small class="text-muted"> - ${{ item.price | number:'1.2-2' }}</small>
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-danger" (click)="RemoveServiceFromSale(i)">
+                      <i nz-icon nzType="delete"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body bg-light">
+              <div class="row g-2 align-items-end">
+                <div class="col-md-9">
+                  <label class="form-label small">Servicio</label>
+
+                  <select class="form-select" [(ngModel)]="Temp_ServiceId">
+                    <option [ngValue]="0">Seleccionar servicio...</option>
+                    <option *ngFor="let srv of DataSourceMasterServices" [ngValue]="srv.id">
+                      {{ srv.name }} (${{ srv.price }})
+                    </option>
+                  </select>
+
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-primary w-100" (click)="AddServiceToSale()">
+                    <i nz-icon nzType="plus"></i> Agregar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-between">
+          <h4 class="text-success">TOTAL: ${{ calculateTotal(NewSvcSale_ServicesList) | number:'1.2-2' }}</h4>
+          <div>
+            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-success" (click)="CreateServiceSale()" data-bs-dismiss="modal">
+              Crear Venta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="viewSaleModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-info text-white">
+          <h5 class="modal-title">Detalles de la Venta #{{ SelectedSale?.sale_id }}</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" *ngIf="SelectedSale">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6 class="text-primary">Información General</h6>
+              <p><strong>Cliente:</strong> {{ SelectedSale.client_name }}</p>
+              <p><strong>Fecha:</strong> {{ SelectedSale.created_at | date:'full' }}</p>
+              <p><strong>Método Pago:</strong> {{ SelectedSale.payment_method }}</p>
+              <p><strong>Estado Pago:</strong> {{ SelectedSale.payment_status }}</p>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-primary">Monto Total</h6>
+              <h2 class="text-success fw-bold">${{ SelectedSale.sale_total | number:'1.2-2' }}</h2>
+            </div>
+          </div>
+          
+          <h6 class="text-primary">Items de la Venta</h6>
+          <ul class="list-group" *ngIf="SelectedSale.products?.length > 0">
+            <li *ngFor="let item of SelectedSale.products" class="list-group-item d-flex justify-content-between align-items-center">
+              {{ item.product_name }}
+              <span class="badge bg-success">${{ item.subtotal | number:'1.2-2' }} ({{ item.quantity }}x)</span>
+            </li>
+          </ul>
+          <ul class="list-group" *ngIf="SelectedSale.services?.length > 0">
+            <li *ngFor="let item of SelectedSale.services" class="list-group-item d-flex justify-content-between align-items-center">
+              {{ item.service_name }}
+              <span class="badge bg-success">${{ item.price | number:'1.2-2' }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="updatePaymentModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title">Actualizar Estado de Pago</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Actualizar pago para la venta <strong>#{{ IdUpdatePayment }}</strong> del cliente <strong>{{ ClientNameUpdatePayment }}</strong>.</p>
+          <div class="mb-3">
+            <label class="form-label text-primary fw-bold">Nuevo Estado</label>
+            <select class="form-select" [(ngModel)]="NewPaymentStatusId">
+              <option [ngValue]="1">Pendiente</option>
+              <option [ngValue]="2">Pagado</option>
+              <option [ngValue]="3">Cancelado</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-warning" (click)="UpdatePaymentStatus()" data-bs-dismiss="modal">
+            Actualizar Estado
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
