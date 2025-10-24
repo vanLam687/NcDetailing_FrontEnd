@@ -88,143 +88,139 @@
     </div>
   </div>
 
-  <!-- Modal Crear Cliente -->
-  <div class="modal fade" id="createClientModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title">Crear Nuevo Cliente</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<!-- Modal Crear Cliente -->
+<div class="modal fade" id="createClientModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Crear Nuevo Cliente</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Datos -->
+        <h6 class="text-primary mb-3">Datos del Cliente</h6>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label text-primary fw-bold">Nombre</label>
+            <input 
+              type="text" 
+              class="form-control border-primary"
+              [(ngModel)]="FirstName"
+              placeholder="Ingrese el nombre">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-primary fw-bold">Apellido</label>
+            <input 
+              type="text" 
+              class="form-control border-primary"
+              [(ngModel)]="LastName"
+              placeholder="Ingrese el apellido">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-primary fw-bold">Email</label>
+            <input 
+              type="email" 
+              class="form-control border-primary"
+              [(ngModel)]="Email"
+              placeholder="Ingrese el email">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-primary fw-bold">Teléfono</label>
+            <input 
+              type="text" 
+              class="form-control border-primary"
+              [(ngModel)]="Phone"
+              placeholder="Ingrese el teléfono">
+          </div>
         </div>
-        <div class="modal-body">
-          <!-- Datos -->
-          <h6 class="text-primary mb-3">Datos del Cliente</h6>
-          <div class="row g-3 mb-4">
-            <div class="col-md-6">
-              <label class="form-label text-primary fw-bold">Nombre</label>
-              <input 
-                type="text" 
-                class="form-control border-primary"
-                [(ngModel)]="FirstName"
-                placeholder="Ingrese el nombre">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-primary fw-bold">Apellido</label>
-              <input 
-                type="text" 
-                class="form-control border-primary"
-                [(ngModel)]="LastName"
-                placeholder="Ingrese el apellido">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-primary fw-bold">Email</label>
-              <input 
-                type="email" 
-                class="form-control border-primary"
-                [(ngModel)]="Email"
-                placeholder="Ingrese el email">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-primary fw-bold">Teléfono</label>
-              <input 
-                type="text" 
-                class="form-control border-primary"
-                [(ngModel)]="Phone"
-                placeholder="Ingrese el teléfono">
-            </div>
-          </div>
 
-          <h6 class="text-primary mb-3">Vehículos</h6>
-          
-          <!-- Lista de vehículos agregados -->
-          <div class="mb-3">
-            <div *ngIf="Vehicles.length === 0" class="alert alert-warning">
-              <small>Debe agregar al menos un vehículo</small>
-            </div>
-            <div *ngFor="let vehicle of Vehicles; let i = index" class="card mb-2">
-              <div class="card-body py-2">
-                <div class="row align-items-center">
-                  <div class="col">
-                    <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong><br>
-                    <small class="text-muted">
-                      Año: {{ vehicle.year }} | Color: {{ vehicle.color }} | Patente: {{ vehicle.license_plate }}
-                    </small>
-                  </div>
-                  <div class="col-auto">
-                    <button class="btn btn-sm btn-outline-danger" (click)="RemoveVehicle(i)">
-                      <i nz-icon nzType="delete"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <h6 class="text-primary mb-3">Vehículos</h6>
 
-          <!-- nuevo vehículo -->
-          <div class="card">
-            <div class="card-header bg-light">
-              <h6 class="mb-0">Agregar Vehículo</h6>
-            </div>
-            <div class="card-body">
-              <div class="row g-2">
-                <div class="col-md">
-                  <input 
-                    type="text" 
-                    class="form-control"
-                    [(ngModel)]="NewVehicleBrand"
-                    placeholder="Marca">
+        <!-- Lista de vehículos agregados -->
+        <div class="mb-3">
+          <div *ngFor="let vehicle of Vehicles; let i = index" class="card mb-2">
+            <div class="card-body py-2">
+              <div class="row align-items-center">
+                <div class="col">
+                  <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong><br>
+                  <small class="text-muted">
+                    Año: {{ vehicle.year }} | Color: {{ vehicle.color }} | Patente: {{ vehicle.license_plate }}
+                  </small>
                 </div>
-                <div class="col-md">
-                  <input 
-                    type="text" 
-                    class="form-control"
-                    [(ngModel)]="NewVehicleModel"
-                    placeholder="Modelo">
-                </div>
-                <div class="col-md">
-                  <input 
-                    type="number" 
-                    class="form-control"
-                    [(ngModel)]="NewVehicleYear"
-                    placeholder="Año"
-                    min="1900">
-                </div>
-                <div class="col-md">
-                  <input 
-                    type="text" 
-                    class="form-control"
-                    [(ngModel)]="NewVehicleColor"
-                    placeholder="Color">
-                </div>
-                <div class="col-md">
-                  <input 
-                    type="text" 
-                    class="form-control"
-                    [(ngModel)]="NewVehicleLicensePlate"
-                    placeholder="Patente">
-                </div>
-                <div class="col-md-auto">
-                  <button class="btn btn-primary" (click)="AddVehicle()">
-                    <i nz-icon nzType="plus"></i>
-                    Agregar
+                <div class="col-auto">
+                  <button class="btn btn-sm btn-outline-danger" (click)="RemoveVehicle(i)">
+                    <i nz-icon nzType="delete"></i>
                   </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary" 
-                  (click)="CreateClient()" 
-                  data-bs-dismiss="modal"
-                  [disabled]="Vehicles.length === 0">
-            Crear Cliente
-          </button>
+
+        <!-- nuevo vehículo -->
+        <div class="card">
+          <div class="card-header bg-light">
+            <h6 class="mb-0">Agregar Vehículo</h6>
+          </div>
+          <div class="card-body">
+            <div class="row g-2">
+              <div class="col-md">
+                <input 
+                  type="text" 
+                  class="form-control"
+                  [(ngModel)]="NewVehicleBrand"
+                  placeholder="Marca">
+              </div>
+              <div class="col-md">
+                <input 
+                  type="text" 
+                  class="form-control"
+                  [(ngModel)]="NewVehicleModel"
+                  placeholder="Modelo">
+              </div>
+              <div class="col-md">
+                <input 
+                  type="number" 
+                  class="form-control"
+                  [(ngModel)]="NewVehicleYear"
+                  placeholder="Año"
+                  min="1900">
+              </div>
+              <div class="col-md">
+                <input 
+                  type="text" 
+                  class="form-control"
+                  [(ngModel)]="NewVehicleColor"
+                  placeholder="Color">
+              </div>
+              <div class="col-md">
+                <input 
+                  type="text" 
+                  class="form-control"
+                  [(ngModel)]="NewVehicleLicensePlate"
+                  placeholder="Patente">
+              </div>
+              <div class="col-md-auto">
+                <button class="btn btn-primary" (click)="AddVehicle()">
+                  <i nz-icon nzType="plus"></i>
+                  Agregar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" 
+                (click)="CreateClient()" 
+                data-bs-dismiss="modal">
+          Crear Cliente
+        </button>
       </div>
     </div>
   </div>
+</div>
 
   <!-- ver Detalles del Cliente -->
   <div class="modal fade" id="viewClientModal" tabindex="-1">
@@ -318,9 +314,9 @@
           
           <!-- vehículos agregados -->
           <div class="mb-3">
-            <div *ngIf="Vehicles.length === 0" class="alert alert-warning">
+            <!-- <div *ngIf="Vehicles.length === 0" class="alert alert-warning">
               <small>Debe agregar al menos un vehículo</small>
-            </div>
+            </div> -->
             <div *ngFor="let vehicle of Vehicles; let i = index" class="card mb-2">
               <div class="card-body py-2">
                 <div class="row align-items-center">
