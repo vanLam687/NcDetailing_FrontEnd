@@ -1,0 +1,179 @@
+<div class="container-fluid p-4">
+
+  <!-- Header -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-white border-bottom">
+      <h3 class="text-primary mb-0" style="color: white !important;">
+        <i nz-icon nzType="dashboard"></i> Dashboard Principal
+      </h3>
+      <small class="text-muted" style="color: white !important;">Resumen de actividades y ventas recientes</small>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center p-5">
+    <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+    <p class="mt-2">Cargando dashboard...</p>
+  </div>
+
+  <!-- Error del Servidor -->
+  <div *ngIf="hasError && !isLoading" class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h5 class="alert-heading">
+          <i nz-icon nzType="warning" class="me-2"></i>
+          Información temporal
+        </h5>
+        <p class="mb-1">Estamos experimentando problemas técnicos. Mostrando datos de ejemplo.</p>
+        <small class="text-muted">Error: {{ errorMessage }}</small>
+      </div>
+      <button type="button" class="btn btn-outline-warning btn-sm" (click)="retryLoad()">
+        <i nz-icon nzType="reload"></i> Reintentar
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div *ngIf="!isLoading && dashboardData">
+    
+    <!-- Tarjetas de Resumen -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card text-white bg-primary shadow-sm h-100 summary-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="card-title" style="color: white !important;"><i nz-icon nzType="shopping-cart"></i> Ventas Totales</h5>
+                <p class="card-text display-6">{{ dashboardData.summary?.totalSales || 0 }}</p>
+              </div>
+              <i nz-icon nzType="rise" style="font-size: 2rem; opacity: 0.7;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="card text-white bg-success shadow-sm h-100 summary-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="card-title"><i nz-icon nzType="check-circle"></i> Pagos Confirmados</h5>
+                <p class="card-text display-6">{{ dashboardData.summary?.confirmedPayments || 0 }}</p>
+              </div>
+              <i nz-icon nzType="dollar" style="font-size: 2rem; opacity: 0.7;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="card text-white bg-warning shadow-sm h-100 summary-card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="card-title"><i nz-icon nzType="clock-circle"></i> Pagos Pendientes</h5>
+                <p class="card-text display-6">{{ dashboardData.summary?.pendingPayments || 0 }}</p>
+              </div>
+              <i nz-icon nzType="exclamation-circle" style="font-size: 2rem; opacity: 0.7;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actividad Reciente -->
+    <div class="row">
+      
+      <!-- Ventas de Servicios Recientes -->
+      <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h6 class="mb-0" style="color: white !important;">
+              <i nz-icon nzType="car" class="text-primary" style="color: white !important;"></i> Servicios Recientes
+            </h6>
+            <span class="badge bg-primary">{{ dashboardData.recentActivity?.services?.length || 0 }}</span>
+          </div>
+          <div class="card-body p-0">
+            <div *ngIf="!dashboardData.recentActivity?.services?.length" class="text-center text-muted p-4">
+              <i nz-icon nzType="info-circle" style="font-size: 2rem;"></i>
+              <p class="mt-2">No hay servicios recientes</p>
+            </div>
+            <div class="list-group list-group-flush" *ngIf="dashboardData.recentActivity?.services?.length">
+              <div *ngFor="let service of dashboardData.recentActivity.services" 
+                   class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-1">#{{ service.sale_id }} - {{ service.client_name }}</h6>
+                    <p class="mb-1 text-muted small">{{ service.services }}</p>
+                    <small class="text-muted">
+                      <span class="badge" 
+                            [class.bg-success]="service.service_status === 'Completed'"
+                            [class.bg-warning]="service.service_status === 'In Progress'"
+                            [class.bg-secondary]="service.service_status === 'Pending'">
+                        {{ service.service_status }}
+                      </span>
+                    </small>
+                  </div>
+                  <div class="text-end">
+                    <strong class="text-success">${{ service.sale_total | number:'1.2-2' }}</strong>
+                    <br>
+                    <small class="text-muted">{{ formatTime(service.sale_time) }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ventas de Productos Recientes -->
+      <div class="col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h6 class="mb-0" style="color: white !important;">
+              <i nz-icon nzType="shopping" class="text-info" style="color: white !important;"></i> Productos Recientes
+            </h6>
+            <span class="badge bg-info">{{ dashboardData.recentActivity?.products?.length || 0 }}</span>
+          </div>
+          <div class="card-body p-0">
+            <div *ngIf="!dashboardData.recentActivity?.products?.length" class="text-center text-muted p-4">
+              <i nz-icon nzType="info-circle" style="font-size: 2rem;"></i>
+              <p class="mt-2">No hay ventas de productos recientes</p>
+            </div>
+            <div class="list-group list-group-flush" *ngIf="dashboardData.recentActivity?.products?.length">
+              <div *ngFor="let product of dashboardData.recentActivity.products" 
+                   class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-1">#{{ product.sale_id }} - {{ product.client_name }}</h6>
+                    <div class="mb-1">
+                      <small *ngFor="let item of product.products" class="badge bg-secondary me-1">
+                        {{ item.product_name }} (x{{ item.quantity }})
+                      </small>
+                    </div>
+                    <small class="text-muted">
+                      <span class="badge" 
+                            [class.bg-success]="product.payment_status === 'Paid'"
+                            [class.bg-warning]="product.payment_status === 'Pending'"
+                            [class.bg-danger]="product.payment_status === 'Cancelled'">
+                        {{ product.payment_status }}
+                      </span>
+                    </small>
+                  </div>
+                  <div class="text-end">
+                    <strong class="text-success">${{ product.sale_total | number:'1.2-2' }}</strong>
+                    <br>
+                    <small class="text-muted">{{ formatTime(product.sale_time) }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

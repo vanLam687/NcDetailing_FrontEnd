@@ -1,279 +1,304 @@
-<div class="container-fluid p-4">
+<div class="container-fluid">
   <div class="row">
     <div class="col-12">
-      <!-- botones -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white border-bottom">
+      <!-- Header super compacto -->
+      <div class="card shadow-sm mb-2">
+        <div class="card-body py-1 px-3">
           <div class="d-flex justify-content-between align-items-center">
-            <h3 class="text-primary mb-0">Gestión de Productos</h3>
-            <div>
+            <div class="d-flex align-items-center gap-2">
+              <h5 class="mb-0" style="color: #333;">Gestión de Productos</h5>
+              <div class="vr" style="height: 16px;"></div>
+              <div class="btn-group" role="group">
+                <button 
+                  type="button" 
+                  class="btn btn-sm" 
+                  [class.btn-primary]="activeView === 'list'"
+                  [class.btn-outline-primary]="activeView !== 'list'"
+                  (click)="showListView()">
+                  <i nz-icon nzType="unordered-list"></i>
+                  Lista
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm" 
+                  [class.btn-primary]="activeView === 'form'"
+                  [class.btn-outline-primary]="activeView !== 'form'"
+                  (click)="showCreateForm()">
+                  <i nz-icon nzType="plus"></i>
+                  Nuevo Producto
+                </button>
+              </div>
+            </div>
+            
+            <div class="d-flex gap-1" *ngIf="activeView === 'list'">
               <button 
-                class="btn btn-outline-primary me-2"
+                class="btn btn-outline-primary btn-sm"
                 data-bs-toggle="modal" 
                 data-bs-target="#createCategoryModal">
                 <i nz-icon nzType="folder-add"></i>
                 Nueva Categoría
               </button>
-              <button 
-                class="btn btn-primary"
-                data-bs-toggle="modal" 
-                data-bs-target="#createProductModal">
-                <i nz-icon nzType="plus"></i>
-                Nuevo Producto
-              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- el filtrado -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-4">
-              <input 
-                type="text" 
-                class="form-control"
-                [(ngModel)]="SearchName"
-                placeholder="Buscar por nombre...">
+      <!-- Mensaje de error general -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
+        {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="clearError()"></button>
+      </div>
+
+      <!-- VISTA: Lista de Productos -->
+      <div *ngIf="activeView === 'list'">
+        
+        <!-- Filtros ultra compactos -->
+        <div class="card shadow-sm mb-2">
+          <div class="card-body py-1 px-3">
+            <div class="row g-1 align-items-center">
+              <div class="col-md-4">
+                <input 
+                  type="text" 
+                  class="form-control form-control-sm"
+                  [(ngModel)]="SearchName"
+                  placeholder="Buscar...">
+              </div>
+              <div class="col-md-4">
+                <select class="form-select form-select-sm" [(ngModel)]="SelectedCategory">
+                  <option value="">Todas las categorías</option>
+                  <option *ngFor="let category of DataSourceCategories" [value]="category.id">
+                    {{ category.name }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <button class="btn btn-primary btn-sm me-1" (click)="ApplyFilters()">
+                  <i nz-icon nzType="search"></i>
+                </button>
+                <button class="btn btn-secondary btn-sm" (click)="ClearFilters()">
+                  <i nz-icon nzType="clear"></i>
+                </button>
+              </div>
             </div>
-            <div class="col-md-4">
-              <select class="form-select" [(ngModel)]="SelectedCategory">
-                <option value="">Todas las categorías</option>
-                <option *ngFor="let category of DataSourceCategories" [value]="category.id">
-                  {{ category.name }}
-                </option>
-              </select>
-            </div>
-            <div class="col-md-4">
-              <button class="btn btn-primary me-2" (click)="ApplyFilters()">
-                <i nz-icon nzType="search"></i>
-                Aplicar
-              </button>
-              <button class="btn btn-secondary" (click)="ClearFilters()">
-                <i nz-icon nzType="clear"></i>
-                Limpiar
-              </button>
-            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de productos -->
+        <div class="card shadow-sm">
+          <div class="card-header py-2 px-3">
+            <h6 class="mb-0">Productos</h6>
+          </div>
+          <div class="card-body p-0">
+            <nz-table #productsTable [nzData]="DataSourceProducts" class="w-100 compact-table" nzSize="small">
+              <thead>
+                <tr>
+                  <th class="ps-2" style="color: #333;">Nombre</th>
+                  <th style="color: #333;">Descripción</th>
+                  <th style="color: #333;">Categoría</th>
+                  <th style="color: #333;">Precio</th>
+                  <th style="color: #333;">Stock</th>
+                  <th style="color: #333;">Estado</th>
+                  <th class="text-center pe-2" style="color: #333;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let product of productsTable.data" class="table-row">
+                  <td class="ps-2" style="color: #333;"><strong>{{ product.name }}</strong></td>
+                  <td class="truncate" style="color: #333;">{{ product.description || 'Sin descripción' }}</td>
+                  <td style="color: #333;">{{ product.category || '-' }}</td>
+                  <td style="color: #333;"><strong>${{ product.price }}</strong></td>
+                  <td style="color: #333;">
+                    <span [class.text-danger]="product.stock === 0" [class.text-warning]="product.stock < 10">
+                      {{ product.stock }}
+                    </span>
+                  </td>
+                  <td style="color: #333;">
+                    <span *ngIf="product.lowStock" class="badge bg-danger">Stock Bajo</span>
+                    <span *ngIf="!product.lowStock" class="badge bg-success">Normal</span>
+                  </td>
+                  <td class="text-center pe-2">
+                    <button 
+                      class="btn btn-outline-primary btn-sm me-1"
+                      (click)="showEditForm(product)">
+                      <i nz-icon nzType="edit"></i>
+                    </button>
+                    <button 
+                      class="btn btn-outline-danger btn-sm"
+                      data-bs-toggle="modal" 
+                      data-bs-target="#deleteProductModal"
+                      (click)="DatosDelete(product)">
+                      <i nz-icon nzType="delete"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
           </div>
         </div>
       </div>
 
-      <!-- productos -->
-      <div class="card shadow-sm">
-        <div class="card-header bg-light">
-          <h5 class="text-primary mb-0">Lista de Productos</h5>
-        </div>
-        <div class="card-body">
-          <nz-table #productsTable [nzData]="DataSourceProducts" class="w-100">
-            <thead>
-              <tr class="bg-primary text-white">
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Categoría</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Stock Mínimo</th>
-                <th>Estado</th>
-                <th class="text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let product of productsTable.data" class="border-bottom">
-                <td class="align-middle">
-                  <strong>{{ product.name }}</strong>
-                </td>
-                <td class="align-middle">{{ product.description || 'Sin descripción' }}</td>
-                <td class="align-middle">
-                  <span class="badge bg-secondary">{{ product.category }}</span>
-                </td>
-                <td class="align-middle">
-                  <strong>${{ product.price }}</strong>
-                </td>
-                <td class="align-middle">
-                  <span [class.text-danger]="product.stock === 0" [class.text-warning]="product.stock < 10">
-                    {{ product.stock }}
-                  </span>
-                </td>
-                <td class="align-middle">
-                  {{ product.min_stock }}
-                </td>
-                <td class="align-middle">
-                  <span *ngIf="product.lowStock" class="badge bg-danger">Stock Bajo</span>
-                  <span *ngIf="!product.lowStock" class="badge bg-success">Normal</span>
-                </td>
-                <td class="align-middle text-center">
-                  <button 
-                    class="btn btn-outline-primary btn-sm me-1"
-                    data-bs-toggle="modal" 
-                    data-bs-target="#editProductModal"
-                    (click)="DatosEdit(product)">
-                    <i nz-icon nzType="edit"></i>
-                    Editar
-                  </button>
-                  <button 
-                    class="btn btn-outline-warning btn-sm me-1"
-                    data-bs-toggle="modal" 
-                    data-bs-target="#updateMinStockModal"
-                    (click)="DatosUpdateMinStock(product)">
-                    <i nz-icon nzType="stock"></i>
-                    Stock Min
-                  </button>
-                  <button 
-                    class="btn btn-outline-danger btn-sm"
-                    data-bs-toggle="modal" 
-                    data-bs-target="#deleteProductModal"
-                    (click)="DatosDelete(product)">
-                    <i nz-icon nzType="delete"></i>
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </nz-table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal para crear el producto -->
-  <div class="modal fade" id="createProductModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title">Crear Nuevo Producto</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label text-primary fw-bold">Nombre</label>
-              <input type="text" class="form-control" [(ngModel)]="ProductName" placeholder="Nombre del producto">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-primary fw-bold">Categoría</label>
-              <select class="form-select" [(ngModel)]="ProductCategoryId">
-                <option value="0">Seleccionar categoría</option>
-                <option *ngFor="let category of DataSourceCategories" [value]="category.id">
-                  {{ category.name }}
-                </option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label text-primary fw-bold">Precio</label>
-              <input type="number" class="form-control" [(ngModel)]="ProductPrice" placeholder="0.00" step="0.01">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label text-primary fw-bold">Stock</label>
-              <input type="number" class="form-control" [(ngModel)]="ProductStock" placeholder="0" min="0">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-primary fw-bold">Stock Mínimo</label>
-              <input type="number" class="form-control" [(ngModel)]="ProductMinStock" placeholder="0" min="0">
-            </div>
-            <div class="col-12">
-              <label class="form-label text-primary fw-bold">Descripción</label>
-              <textarea class="form-control" [(ngModel)]="ProductDescription" placeholder="Descripción del producto" rows="3"></textarea>
-            </div>
+      <!-- VISTA: Formulario de Producto -->
+      <div *ngIf="activeView === 'form'">
+        <div class="card shadow-sm">
+          <div class="card-header py-2 px-3">
+            <h6 class="mb-0">
+              <i nz-icon [nzType]="isEditMode ? 'edit' : 'plus'"></i>
+              {{ isEditMode ? 'Editar Producto' : 'Nuevo Producto' }}
+            </h6>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary" (click)="CreateProduct()" data-bs-dismiss="modal">
-            Crear Producto
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+          <div class="card-body">
+            <!-- Mensaje de error del formulario -->
+            <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
+              {{ modalError }}
+              <button type="button" class="btn-close" (click)="clearModalError()"></button>
+            </div>
 
-  <!-- Modal para editar el producto -->
-  <div class="modal fade" id="editProductModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title">Editar Producto</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-12">
-              <label class="form-label text-primary fw-bold">Nombre</label>
-              <input type="text" class="form-control" [(ngModel)]="ProductNameEdit" placeholder="Nombre del producto">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label text-primary fw-bold">Categoría</label>
-              <select class="form-select" [(ngModel)]="ProductCategoryIdEdit">
-                <option value="0">Seleccionar categoría</option>
-                <option *ngFor="let category of DataSourceCategories" [value]="category.id">
-                  {{ category.name }}
-                </option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label text-primary fw-bold">Precio</label>
-              <input type="number" class="form-control" [(ngModel)]="ProductPriceEdit" placeholder="0.00" step="0.01">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label text-primary fw-bold">Stock</label>
-              <input type="number" class="form-control" [(ngModel)]="ProductStockEdit" placeholder="0" min="0">
-            </div>
-            <div class="col-12">
-              <label class="form-label text-primary fw-bold">Descripción</label>
-              <textarea class="form-control" [(ngModel)]="ProductDescriptionEdit" placeholder="Descripción del producto" rows="3"></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary" (click)="EditProduct()" data-bs-dismiss="modal">
-            Guardar Cambios
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+            <form (ngSubmit)="isEditMode ? EditProduct() : CreateProduct()">
+              <div class="row g-2">
+                <!-- Nombre del Producto -->
+                <div class="col-12">
+                  <label class="form-label fw-bold mb-1">Nombre *</label>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    [(ngModel)]="currentProductName" 
+                    name="productName"
+                    placeholder="Ej: Producto Premium"
+                    required>
+                </div>
 
-  <!-- Modal para actualizar stock mínimo -->
-  <div class="modal fade" id="updateMinStockModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header bg-warning text-dark">
-          <h5 class="modal-title">Actualizar Stock Mínimo</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label text-primary fw-bold">Nuevo Stock Mínimo</label>
-            <input type="number" class="form-control" [(ngModel)]="NewMinStock" placeholder="0" min="0">
+                <!-- Precio y Stock -->
+                <div class="col-md-4">
+                  <label class="form-label fw-bold mb-1">Precio *</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">$</span>
+                    <input 
+                      type="number" 
+                      class="form-control" 
+                      [(ngModel)]="currentProductPrice" 
+                      name="productPrice"
+                      placeholder="0.00" 
+                      step="0.01"
+                      min="0"
+                      required>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label fw-bold mb-1">Stock *</label>
+                  <input 
+                    type="number" 
+                    class="form-control form-control-sm" 
+                    [(ngModel)]="currentProductStock" 
+                    name="productStock"
+                    placeholder="0" 
+                    min="0"
+                    required>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label fw-bold mb-1">Stock Mínimo</label>
+                  <input 
+                    type="number" 
+                    class="form-control form-control-sm" 
+                    [(ngModel)]="currentProductMinStock" 
+                    name="productMinStock"
+                    placeholder="0" 
+                    min="0">
+                </div>
+
+                <!-- Categoría -->
+                <div class="col-12">
+                  <label class="form-label fw-bold mb-1">Categoría *</label>
+                  <div class="dropdown">
+                    <input 
+                      type="text" 
+                      class="form-control form-control-sm" 
+                      [(ngModel)]="currentProductCategoryName"
+                      (input)="filterCategories($event)"
+                      name="productCategory"
+                      placeholder="Buscar categoría..."
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                      required>
+                    <ul class="dropdown-menu w-100" style="max-height: 140px; overflow-y: auto;">
+                      <li *ngFor="let category of filteredCategories">
+                        <a class="dropdown-item" href="javascript:void(0)" (click)="selectCategory(category)">
+                          {{ category.name }}
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Descripción -->
+                <div class="col-12">
+                  <label class="form-label fw-bold mb-1">Descripción</label>
+                  <textarea 
+                    class="form-control form-control-sm" 
+                    [(ngModel)]="currentProductDescription" 
+                    name="productDescription"
+                    placeholder="Describe el producto..."
+                    rows="2"
+                    maxlength="500"></textarea>
+                  <small class="text-muted">{{ currentProductDescription.length }}/500</small>
+                </div>
+
+                <!-- Botones del formulario -->
+                <div class="col-12">
+                  <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-secondary btn-sm"
+                      (click)="showListView()">
+                      <i nz-icon nzType="arrow-left"></i>
+                      Volver
+                    </button>
+                    
+                    <div class="d-flex gap-1">
+                      <button 
+                        type="button" 
+                        class="btn btn-outline-danger btn-sm"
+                        (click)="clearForm()"
+                        *ngIf="!isEditMode">
+                        Limpiar
+                      </button>
+                      <button 
+                        type="submit" 
+                        class="btn btn-primary btn-sm">
+                        {{ isEditMode ? 'Guardar' : 'Crear' }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-warning" (click)="UpdateMinStock()" data-bs-dismiss="modal">
-            Actualizar
-          </button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Modal para crear categoría -->
-  <div class="modal fade" id="createCategoryModal" tabindex="-1">
-    <div class="modal-dialog">
+  <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title">Crear Nueva Categoría</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-header">
+          <h5 class="modal-title" id="createCategoryModalLabel">Crear Nueva Categoría</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError()"></button>
         </div>
         <div class="modal-body">
+          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            {{ modalError }}
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
+          </div>
           <div class="mb-3">
-            <label class="form-label text-primary fw-bold">Nombre de la categoría</label>
-            <input type="text" class="form-control" [(ngModel)]="CategoryName" placeholder="Nombre de la categoría">
+            <label class="form-label fw-bold">Nombre de la categoría</label>
+            <input type="text" class="form-control" [(ngModel)]="CategoryName" placeholder="Ingrese el nombre de la categoría">
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError()">Cancelar</button>
           <button type="button" class="btn btn-primary" (click)="CreateCategory()" data-bs-dismiss="modal">
             Crear Categoría
           </button>
@@ -283,22 +308,32 @@
   </div>
 
   <!-- Modal Eliminar Producto -->
-  <div class="modal fade" id="deleteProductModal" tabindex="-1">
-    <div class="modal-dialog">
+  <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header bg-danger text-white">
-          <h5 class="modal-title">Confirmar Eliminación</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-header border-0">
+          <h5 class="modal-title w-100 text-center" id="deleteProductModalLabel" style="font-weight: 600;">
+            Eliminar Producto
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <p class="text-muted">
-            ¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.
+        <div class="modal-body text-center">
+          <div class="mb-4">
+            <i nz-icon nzType="exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i>
+          </div>
+          <p class="mb-3" style="color: #666; line-height: 1.5;">
+            ¿Estás seguro de que deseas eliminar el producto <strong>"{{ ProductToDeleteName }}"</strong>?
+          </p>
+          <p class="text-muted small">
+            Esta acción no se puede deshacer.
           </p>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <div class="modal-footer border-0 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
+            Cancelar
+          </button>
           <button type="button" class="btn btn-danger" (click)="DeleteProduct()" data-bs-dismiss="modal">
-            Eliminar
+            Eliminar Producto
           </button>
         </div>
       </div>

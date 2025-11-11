@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../Services/auth-service';
 import { SalesService } from '../../Services/sales-service';
-
-// Importamos los otros servicios para llenar los dropdowns
 import { ClientsService } from '../../Services/clients-service';
 import { ProductsService } from '../../Services/products-service';
 import { ServicesService } from '../../Services/services-service';
@@ -16,25 +14,26 @@ import { ServicesService } from '../../Services/services-service';
 })
 export class SalesComponent implements OnInit {
 
+  // Datos
+  DataSourceSalesProducts: any[] = [];
+  DataSourceSalesServices: any[] = [];
   DataSourceClients: any[] = [];
   DataSourceMasterProducts: any[] = [];
   DataSourceMasterServices: any[] = [];
   DataSourcePaymentMethods: any[] = [];
   ClientVehiclesList: any[] = [];
 
-  DataSourceSalesProducts: any[] = [];
-  DataSourceSalesServices: any[] = [];
+  // Estados de vista
+  activeView: 'products' | 'services' = 'products';
+  isEditMode: boolean = false;
 
-  currentTab: 'products' | 'services' = 'products';
-  errorMessage: string = '';
-  SelectedSale: any = null;
-
-  // --- Filtros (ngModel) ---
+  // Filtros
   FilterClientName: string = '';
   FilterStartDate: string = '';
   FilterEndDate: string = '';
   FilterPaymentStatus: string = '';
 
+  // Formulario de venta de productos
   NewProdSale_ClientId: number = 0;
   NewProdSale_PaymentMethodId: number = 0;
   NewProdSale_PaymentStatusId: number = 1;
@@ -43,17 +42,34 @@ export class SalesComponent implements OnInit {
   Temp_ProductId: number = 0;
   Temp_ProductQty: number = 1;
 
+  // Formulario de venta de servicios
   NewSvcSale_ClientId: number = 0;
   NewSvcSale_VehicleId: number = 0;
   NewSvcSale_PaymentMethodId: number = 0;
-  NewSvcSale_PaymentStatusId: number = 1; 
+  NewSvcSale_PaymentStatusId: number = 1;
   NewSvcSale_Observations: string = '';
   NewSvcSale_ServicesList: any[] = [];
   Temp_ServiceId: number = 0;
+
+  // Búsqueda en tiempo real
+  filteredClients: any[] = [];
+  filteredProducts: any[] = [];
+  filteredServices: any[] = [];
   
+  // Campos de búsqueda
+  clientSearchTerm: string = '';
+  productSearchTerm: string = '';
+  serviceSearchTerm: string = '';
+
+  // Actualización de pago
   IdUpdatePayment: number = 0;
   NewPaymentStatusId: number = 0;
   ClientNameUpdatePayment: string = '';
+
+  SelectedSale: any = null;
+
+  errorMessage: string = '';
+  modalError: string = '';
 
   constructor(
     private salesService: SalesService,
@@ -72,41 +88,107 @@ export class SalesComponent implements OnInit {
     }
   }
 
+  showProductsView(): void {
+    this.activeView = 'products';
+    this.clearError();
+  }
+
+  showServicesView(): void {
+    this.activeView = 'services';
+    this.clearError();
+  }
+
+  showCreateProductSale(): void {
+    this.clearForm();
+    this.clearError();
+    this.filteredClients = [...this.DataSourceClients];
+    this.filteredProducts = [...this.DataSourceMasterProducts];
+  }
+
+  showCreateServiceSale(): void {
+    this.clearForm();
+    this.clearError();
+    this.filteredClients = [...this.DataSourceClients];
+    this.filteredServices = [...this.DataSourceMasterServices];
+  }
+
   LoadAllData(): void {
     this.GetSalesProducts();
     this.GetSalesServices();
-    
     this.LoadMasterData();
   }
 
-  // --- Carga de Datos Maestros (para los <select> de los modales) ---
   LoadMasterData(): void {
-    // Cargar Clientes
     this.clientsService.getClients().subscribe({
-      next: (data: any) => this.DataSourceClients = data.data,
+      next: (data: any) => {
+        this.DataSourceClients = data.data;
+        this.filteredClients = [...this.DataSourceClients];
+      },
       error: (error) => this.handleError(error)
     });
 
-    // Cargar Productos (usando el servicio que me diste)
     this.productsService.getProducts().subscribe({
-      next: (data: any) => this.DataSourceMasterProducts = data.data,
+      next: (data: any) => {
+        this.DataSourceMasterProducts = data.data;
+        this.filteredProducts = [...this.DataSourceMasterProducts];
+      },
       error: (error) => this.handleError(error)
     });
 
-    // Cargar Servicios (usando el servicio que me diste)
     this.servicesService.getServices().subscribe({
-      next: (data: any) => this.DataSourceMasterServices = data.data,
+      next: (data: any) => {
+        this.DataSourceMasterServices = data.data;
+        this.filteredServices = [...this.DataSourceMasterServices];
+      },
       error: (error) => this.handleError(error)
     });
 
-    // Cargar Métodos de Pago
     this.salesService.getPaymentMethods().subscribe({
       next: (data: any) => this.DataSourcePaymentMethods = data.data,
       error: (error) => this.handleError(error)
     });
   }
 
-  // --- Carga de Datos de las Tablas ---
+  filterClients(event: any): void {
+    const searchTerm = event.target.value.toLowerCase();
+    this.filteredClients = this.DataSourceClients.filter(client => 
+      `${client.first_name} ${client.last_name}`.toLowerCase().includes(searchTerm) ||
+      client.email.toLowerCase().includes(searchTerm) ||
+      client.phone.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  filterProducts(event: any): void {
+    const searchTerm = event.target.value.toLowerCase();
+    this.filteredProducts = this.DataSourceMasterProducts.filter(product => 
+      product.name.toLowerCase().includes(searchTerm) ||
+      (product.description && product.description.toLowerCase().includes(searchTerm))
+    );
+  }
+
+  filterServices(event: any): void {
+    const searchTerm = event.target.value.toLowerCase();
+    this.filteredServices = this.DataSourceMasterServices.filter(service => 
+      service.name.toLowerCase().includes(searchTerm) ||
+      (service.description && service.description.toLowerCase().includes(searchTerm))
+    );
+  }
+
+selectClient(client: any): void {
+  this.NewProdSale_ClientId = client.id;
+  this.NewSvcSale_ClientId = client.id;
+  this.clientSearchTerm = `${client.first_name} ${client.last_name}`;
+  this.OnClientChangeForServices(client.id);
+}
+  selectProduct(product: any): void {
+    this.Temp_ProductId = product.id;
+    this.productSearchTerm = product.name;
+  }
+
+  selectService(service: any): void {
+    this.Temp_ServiceId = service.id;
+    this.serviceSearchTerm = service.name;
+  }
 
   GetSalesProducts(): void {
     const filters = {
@@ -140,13 +222,6 @@ export class SalesComponent implements OnInit {
     });
   }
 
-  // --- Lógica de UI (Tabs y Filtros) ---
-
-  selectTab(tab: 'products' | 'services'): void {
-    this.currentTab = tab;
-    this.ClearFilters(); // Limpiamos filtros al cambiar de pestaña
-  }
-
   ApplyFilters(): void {
     this.GetSalesProducts();
     this.GetSalesServices();
@@ -160,18 +235,15 @@ export class SalesComponent implements OnInit {
     this.ApplyFilters();
   }
 
-  // --- Lógica Modal: CREAR VENTA DE PRODUCTOS ---
-
   AddProductToSale(): void {
     if (!this.Temp_ProductId || this.Temp_ProductQty <= 0) {
-      this.errorMessage = 'Debe seleccionar un producto y una cantidad válida.';
+      this.modalError = 'Debe seleccionar un producto y una cantidad válida.';
       return;
     }
     const product = this.DataSourceMasterProducts.find(p => p.id === this.Temp_ProductId);
     if (product) {
-      // Validar stock
       if (product.stock < this.Temp_ProductQty) {
-        this.errorMessage = `Stock insuficiente para "${product.name}". Disponible: ${product.stock}`;
+        this.modalError = `Stock insuficiente para "${product.name}". Disponible: ${product.stock}`;
         return;
       }
       this.NewProdSale_ProductsList.push({
@@ -180,24 +252,26 @@ export class SalesComponent implements OnInit {
         price: product.price,
         quantity: this.Temp_ProductQty
       });
-      // Reset temp
       this.Temp_ProductId = 0;
       this.Temp_ProductQty = 1;
-      this.clearError();
+      this.productSearchTerm = '';
+      this.filteredProducts = [...this.DataSourceMasterProducts];
+      this.clearModalError();
     }
   }
 
   RemoveProductFromSale(index: number): void {
     this.NewProdSale_ProductsList.splice(index, 1);
+    this.clearModalError();
   }
 
   CreateProductSale(): void {
     if (this.NewProdSale_ProductsList.length === 0) {
-      this.handleError({ error: { message: "Debe agregar al menos un producto." } });
+      this.modalError = "Debe agregar al menos un producto.";
       return;
     }
     if (this.NewProdSale_ClientId === 0 || this.NewProdSale_PaymentMethodId === 0) {
-      this.handleError({ error: { message: "Debe seleccionar un cliente y un método de pago." } });
+      this.modalError = "Debe seleccionar un cliente y un método de pago.";
       return;
     }
 
@@ -209,23 +283,21 @@ export class SalesComponent implements OnInit {
       products: this.NewProdSale_ProductsList.map(p => ({
         product_id: p.product_id,
         quantity: p.quantity
-      })) // El backend solo necesita ID y quantity
+      }))
     };
 
     this.salesService.postSaleProducts(sale).subscribe({
       next: () => {
         this.clearError();
-        location.reload(); // Como en tu ejemplo de Products
+        this.GetSalesProducts();
+        this.clearForm();
       },
-      error: (error) => this.handleError(error)
+      error: (error) => this.handleModalError(error)
     });
   }
 
-  // --- Lógica Modal: CREAR VENTA DE SERVICIOS ---
-
-  // Se llama cuando el usuario cambia el cliente en el modal de servicios
   OnClientChangeForServices(clientId: number): void {
-    this.NewSvcSale_VehicleId = 0; // Resetea el vehículo
+    this.NewSvcSale_VehicleId = 0;
     if (!clientId || clientId === 0) {
       this.ClientVehiclesList = [];
       return;
@@ -233,23 +305,21 @@ export class SalesComponent implements OnInit {
     this.clientsService.getClientVehicles(clientId.toString()).subscribe({
       next: (data: any) => {
         this.ClientVehiclesList = data.data;
-        // Si el cliente solo tiene un vehículo, lo pre-seleccionamos
         if (this.ClientVehiclesList.length === 1) {
           this.NewSvcSale_VehicleId = this.ClientVehiclesList[0].id;
         }
       },
-      error: (error) => this.handleError(error)
+      error: (error) => this.handleModalError(error)
     });
   }
 
   AddServiceToSale(): void {
     if (!this.Temp_ServiceId || this.Temp_ServiceId === 0) {
-      this.errorMessage = 'Debe seleccionar un servicio.';
+      this.modalError = 'Debe seleccionar un servicio.';
       return;
     }
-    // Evitar duplicados
     if (this.NewSvcSale_ServicesList.some(s => s.service_id === this.Temp_ServiceId)) {
-      this.errorMessage = 'El servicio ya ha sido agregado.';
+      this.modalError = 'El servicio ya ha sido agregado.';
       return;
     }
     const service = this.DataSourceMasterServices.find(s => s.id === this.Temp_ServiceId);
@@ -259,22 +329,25 @@ export class SalesComponent implements OnInit {
         name: service.name,
         price: service.price
       });
-      this.Temp_ServiceId = 0; // Reset temp
-      this.clearError();
+      this.Temp_ServiceId = 0;
+      this.serviceSearchTerm = '';
+      this.filteredServices = [...this.DataSourceMasterServices];
+      this.clearModalError();
     }
   }
 
   RemoveServiceFromSale(index: number): void {
     this.NewSvcSale_ServicesList.splice(index, 1);
+    this.clearModalError();
   }
 
   CreateServiceSale(): void {
     if (this.NewSvcSale_ServicesList.length === 0) {
-      this.handleError({ error: { message: "Debe agregar al menos un servicio." } });
+      this.modalError = "Debe agregar al menos un servicio.";
       return;
     }
     if (this.NewSvcSale_ClientId === 0 || this.NewSvcSale_VehicleId === 0 || this.NewSvcSale_PaymentMethodId === 0) {
-      this.handleError({ error: { message: "Debe seleccionar cliente, vehículo y método de pago." } });
+      this.modalError = "Debe seleccionar cliente, vehículo y método de pago.";
       return;
     }
 
@@ -286,30 +359,27 @@ export class SalesComponent implements OnInit {
       observations: this.NewSvcSale_Observations,
       services: this.NewSvcSale_ServicesList.map(s => ({
         service_id: s.service_id
-      })) // El backend solo necesita ID
+      }))
     };
 
     this.salesService.postSalesServices(sale).subscribe({
       next: () => {
         this.clearError();
-        location.reload();
+        this.GetSalesServices();
+        this.clearForm();
       },
-      error: (error) => this.handleError(error)
+      error: (error) => this.handleModalError(error)
     });
   }
 
-
-  // --- Lógica Modal: VER DETALLES ---
   ViewSaleDetails(sale: any): void {
     this.SelectedSale = sale;
     this.clearError();
   }
 
-  // --- Lógica Modal: ACTUALIZAR PAGO ---
   DatosUpdatePayment(sale: any): void {
     this.IdUpdatePayment = sale.sale_id;
     this.ClientNameUpdatePayment = sale.client_name;
-    // Mapeamos el string del estado de pago a su ID
     switch (sale.payment_status.toLowerCase()) {
       case 'pagado':
         this.NewPaymentStatusId = 2;
@@ -318,7 +388,7 @@ export class SalesComponent implements OnInit {
         this.NewPaymentStatusId = 3;
         break;
       default:
-        this.NewPaymentStatusId = 1; // Pendiente
+        this.NewPaymentStatusId = 1;
     }
     this.clearError();
   }
@@ -329,40 +399,13 @@ export class SalesComponent implements OnInit {
     this.salesService.updatePaymentStatus(this.IdUpdatePayment.toString(), this.NewPaymentStatusId).subscribe({
       next: () => {
         this.clearError();
-        location.reload();
+        this.GetSalesProducts();
+        this.GetSalesServices();
       },
-      error: (error) => this.handleError(error)
+      error: (error) => this.handleModalError(error)
     });
   }
 
-  // --- Utilidades (Error Handling) ---
-
-  // Copiado de tu ejemplo de Products
-  handleError(error: any): void {
-    if (error.status === 401) {
-      this.authService.logout();
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    if (error.error?.message) {
-      this.errorMessage = error.error.message;
-    } else if (typeof error.error === 'string') {
-        this.errorMessage = error.error;
-    } else if (error.message) { // Agregado para errores de validación local
-        this.errorMessage = error.message;
-    } else if (error.status === 0) {
-      this.errorMessage = 'Error de conexión. Verifique su internet.';
-    } else {
-      this.errorMessage = 'Ha ocurrido un error inesperado.';
-    }
-  }
-
-  clearError(): void {
-    this.errorMessage = '';
-  }
-
-  // Función para calcular totales en los modales de creación
   calculateTotal(items: any[]): number {
     if (!items || items.length === 0) return 0;
     return items.reduce((sum, item) => {
@@ -371,8 +414,68 @@ export class SalesComponent implements OnInit {
       return sum + (price * quantity);
     }, 0);
   }
-  
-  ResetProductSaleModal(): void {
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  handleError(error: any): void {
+    if (error.error?.mensaje) {
+      this.errorMessage = error.error.mensaje;
+    } 
+    else if (error.error?.message) {
+      this.errorMessage = error.error.message;
+    }
+    else if (error.error?.error) {
+      this.errorMessage = error.error.error;
+    }
+    else if (typeof error.error === 'string') {
+      this.errorMessage = error.error;
+    }
+    else if (error.status === 0) {
+      this.errorMessage = 'Error de conexión. No se puede conectar al servidor.';
+    }
+    else if (error.statusText) {
+      this.errorMessage = `Error ${error.status}: ${error.statusText}`;
+    }
+    else {
+      this.errorMessage = 'Ha ocurrido un error inesperado.';
+    }
+  }
+
+  handleModalError(error: any): void {
+    if (error.error?.mensaje) {
+      this.modalError = error.error.mensaje;
+    } else if (error.error?.message) {
+      this.modalError = error.error.message;
+    } else if (error.error?.error) {
+      this.modalError = error.error.error;
+    } else if (typeof error.error === 'string') {
+      this.modalError = error.error;
+    } else if (error.status === 0) {
+      this.modalError = 'Error de conexión. No se puede conectar al servidor.';
+    } else {
+      this.modalError = 'Ha ocurrido un error inesperado.';
+    }
+  }
+
+  clearError(): void {
+    this.errorMessage = '';
+  }
+
+  clearModalError(): void {
+    this.modalError = '';
+  }
+
+  clearForm(): void {
+    // Limpiar formulario de productos
     this.NewProdSale_ClientId = 0;
     this.NewProdSale_PaymentMethodId = 0;
     this.NewProdSale_PaymentStatusId = 1;
@@ -380,10 +483,10 @@ export class SalesComponent implements OnInit {
     this.NewProdSale_ProductsList = [];
     this.Temp_ProductId = 0;
     this.Temp_ProductQty = 1;
-    this.clearError();
-  }
-  
-  ResetServiceSaleModal(): void {
+    this.clientSearchTerm = '';
+    this.productSearchTerm = '';
+
+    // Limpiar formulario de servicios
     this.NewSvcSale_ClientId = 0;
     this.NewSvcSale_VehicleId = 0;
     this.NewSvcSale_PaymentMethodId = 0;
@@ -392,7 +495,24 @@ export class SalesComponent implements OnInit {
     this.NewSvcSale_ServicesList = [];
     this.ClientVehiclesList = [];
     this.Temp_ServiceId = 0;
-    this.clearError();
-  }
+    this.serviceSearchTerm = '';
 
+    // Resetear filtros
+    this.filteredClients = [...this.DataSourceClients];
+    this.filteredProducts = [...this.DataSourceMasterProducts];
+    this.filteredServices = [...this.DataSourceMasterServices];
+
+    this.modalError = '';
+  }
+getProductsTooltip(products: any[]): string {
+  return products.map(p => 
+    `${p.product_name} (x${p.quantity}) - $${p.price}`
+  ).join('\n');
+}
+
+getServicesTooltip(services: any[]): string {
+  return services.map(s => 
+    `${s.service_name} - $${s.price}`
+  ).join('\n');
+}
 }

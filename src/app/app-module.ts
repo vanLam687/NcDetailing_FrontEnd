@@ -4,8 +4,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgApexchartsModule } from 'ng-apexcharts';
-
-// NG-ZORRO Modules
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';// NG-ZORRO Modules
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -27,6 +27,9 @@ import { NzOptionComponent } from 'ng-zorro-antd/select';
 import { NzSelectComponent } from 'ng-zorro-antd/select';
 import {NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzListItemComponent } from 'ng-zorro-antd/list';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+
 
 //iconos de NG-Zorro
 import { NZ_I18N, es_ES } from 'ng-zorro-antd/i18n';
@@ -48,6 +51,7 @@ import { ServicesComponent } from './Components/services/services.component';
 import { ProductsComponent } from './Components/products/products.component';
 import { SalesComponent } from './Components/sales/sales.component';
 import { MetricsComponent } from './Components/metrics/metrics.component';
+import { DashboardComponent } from './Components/dashboard/dashboard.component';
 
 registerLocaleData(es);
 
@@ -77,6 +81,7 @@ const icons: IconDefinition[] = Object.keys(antDesignIcons).map(key => {
     ProductsComponent,
     SalesComponent,
     MetricsComponent,
+    DashboardComponent,
   ],
   imports: [
     BrowserModule,
@@ -108,7 +113,11 @@ const icons: IconDefinition[] = Object.keys(antDesignIcons).map(key => {
     NzInputNumberModule,
     NzListItemComponent,
     NzSelectComponent,
-    NgApexchartsModule
+    NgApexchartsModule,
+    MatProgressSpinnerModule,
+    MatIconModule,
+    MatTableModule,
+    MatButtonModule
   ],
   providers: [
     { provide: NZ_I18N, useValue: es_ES },

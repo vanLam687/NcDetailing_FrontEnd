@@ -1,99 +1,121 @@
-<div class="d-flex flex-column vh-100">
-  <nav class="navbar navbar-dark bg-primary shadow-sm">
-    <div class="container-fluid">
-      <div class="navbar-brand d-flex align-items-center">
-        <div class="bg-white text-primary rounded-circle d-flex align-items-center justify-content-center me-2"
-             style="width: 40px; height: 40px;">
-          <strong>NC</strong>
+<div class="app-container">
+  <!-- Header superior -->
+  <header class="app-header">
+    <div class="header-content">
+      <div class="brand-section">
+        <div class="brand-logo">
+          <div class="logo-icon">NC</div>
+          <h1 class="brand-name">Detailing</h1>
         </div>
-        <span class="h5 mb-0 text-white">Detailing</span>
+        <button class="sidebar-toggle" (click)="toggleSidebar()">
+          <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>
+        </button>
       </div>
-
-      <button class="btn btn-light btn-sm" (click)="toggleSidebar()">
-        <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'" class="text-primary"></i>
-      </button>
-    </div>
-  </nav>
-
-  <div class="d-flex flex-grow-1">
-    <div class="bg-light border-end d-flex flex-column"
-         [style.width]="isCollapsed ? '60px' : '250px'"
-         style="transition: width 0.3s ease;">
-
-      <div class="flex-grow-1 py-3">
-        <a class="d-flex align-items-center px-3 py-2 text-decoration-none text-dark"
-           routerLink="/home"
-           routerLinkActive="active bg-primary text-white"
-           [nz-tooltip]="isCollapsed ? 'Inicio' : null">
-          <i nz-icon nzType="home" [class.me-3]="!isCollapsed"></i>
-          <span *ngIf="!isCollapsed" class="fw-medium">Inicio</span>
-        </a>
-
-        <a *ngIf="isAdmin"
-           class="d-flex align-items-center px-3 py-2 text-decoration-none text-dark"
-           routerLink="/home/metrics"
-           routerLinkActive="active bg-primary text-white"
-           [nz-tooltip]="isCollapsed ? 'Métricas' : null">
-          <i nz-icon nzType="dashboard" [class.me-3]="!isCollapsed"></i>
-          <span *ngIf="!isCollapsed" class="fw-medium">Métricas</span>
-        </a>
-
-        <a class="d-flex align-items-center px-3 py-2 text-decoration-none text-dark"
-           routerLink="/home/sales"
-           routerLinkActive="active bg-primary text-white"
-           [nz-tooltip]="isCollapsed ? 'Ventas' : null">
-          <i nz-icon nzType="dollar" [class.me-3]="!isCollapsed"></i>
-          <span *ngIf="!isCollapsed" class="fw-medium">Ventas</span>
-        </a>
-
-        <a class="d-flex align-items-center px-3 py-2 text-decoration-none text-dark"
-           routerLink="/home/clients"
-           routerLinkActive="active bg-primary text-white"
-           [nz-tooltip]="isCollapsed ? 'Clientes' : null">
-          <i nz-icon nzType="user" [class.me-3]="!isCollapsed"></i>
-          <span *ngIf="!isCollapsed" class="fw-medium">Clientes</span>
-        </a>
-
-        <a class="d-flex align-items-center px-3 py-2 text-decoration-none text-dark"
-           routerLink="/home/services"
-           routerLinkActive="active bg-primary text-white"
-           [nz-tooltip]="isCollapsed ? 'Servicios' : null">
-          <i nz-icon nzType="tool" [class.me-3]="!isCollapsed"></i>
-          <span *ngIf="!isCollapsed" class="fw-medium">Servicios</span>
-        </a>
-
-        <a class="d-flex align-items-center px-3 py-2 text-decoration-none text-dark"
-           routerLink="/home/products"
-           routerLinkActive="active bg-primary text-white"
-           [nz-tooltip]="isCollapsed ? 'Productos' : null">
-          <i nz-icon nzType="shopping" [class.me-3]="!isCollapsed"></i>
-          <span *ngIf="!isCollapsed" class="fw-medium">Productos</span>
-        </a>
-
-        <a *ngIf="isAdmin"
-           class="d-flex align-items-center px-3 py-2 text-decoration-none text-dark"
-           routerLink="/home/employees"
-           routerLinkActive="active bg-primary text-white"
-           [nz-tooltip]="isCollapsed ? 'Empleados' : null">
-          <i nz-icon nzType="team" [class.me-3]="!isCollapsed"></i>
-          <span *ngIf="!isCollapsed" class="fw-medium">Empleados</span>
-        </a>
-      </div>
-
-      <div class="mt-auto border-top">
-        <a class="d-flex align-items-center px-3 py-3 text-decoration-none text-danger"
-           (click)="logout()"
-           [nz-tooltip]="isCollapsed ? 'Cerrar sesión' : null">
-          <i nz-icon nzType="logout" [class.me-3]="!isCollapsed"></i>
-          <span *ngIf="!isCollapsed" class="fw-medium">Cerrar sesión</span>
-        </a>
+      
+      <div class="user-section">
+        <div class="user-info">
+          <span class="user-greeting">Hola, {{getUserName()}}</span>
+          <span class="user-role" *ngIf="isAdmin">Administrador</span>
+          <span class="user-role" *ngIf="!isAdmin">Usuario</span>
+        </div>
+        <div class="user-avatar">
+          {{getUserInitial()}}
+        </div>
       </div>
     </div>
+  </header>
 
-    <div class="flex-grow-1 p-4 bg-white">
-      <div class="container-fluid">
+  <div class="app-body">
+    <!-- Sidebar mejorado -->
+    <aside class="app-sidebar" [class.collapsed]="isCollapsed">
+      <nav class="sidebar-nav">
+        <div class="user-profile-sidebar" *ngIf="!isCollapsed">
+          <div class="profile-avatar">{{getUserInitial()}}</div>
+          <div class="profile-info">
+            <div class="profile-name">{{getUserName()}}</div>
+            <div class="profile-role">{{isAdmin ? 'Administrador' : 'Usuario'}}</div>
+          </div>
+        </div>
+        
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+              <div class="nav-icon">
+                <i nz-icon nzType="dashboard"></i>
+              </div>
+              <span class="nav-label">Dashboard</span>
+            </a>
+          </li>
+
+          <li class="nav-item" *ngIf="isAdmin">
+            <a class="nav-link" routerLink="/home/metrics" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="bar-chart"></i>
+              </div>
+              <span class="nav-label">Métricas</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/home/sales" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="dollar"></i>
+              </div>
+              <span class="nav-label">Ventas</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/home/clients" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="user"></i>
+              </div>
+              <span class="nav-label">Clientes</span>
+            </a>
+          </li>
+          
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/home/services" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="tool"></i>
+              </div>
+              <span class="nav-label">Servicios</span>
+            </a>
+          </li>
+          
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/home/products" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="shopping"></i>
+              </div>
+              <span class="nav-label">Productos</span>
+            </a>
+          </li>
+
+          <li class="nav-item" *ngIf="isAdmin">
+            <a class="nav-link" routerLink="/home/employees" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="team"></i>
+              </div>
+              <span class="nav-label">Empleados</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <button class="sidebar-logout" (click)="logout()" *ngIf="!isCollapsed">
+          <i nz-icon nzType="logout"></i>
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Área de contenido principal -->
+    <main class="app-main">
+      <div class="main-content">
         <router-outlet></router-outlet>
       </div>
-    </div>
+    </main>
   </div>
 </div>

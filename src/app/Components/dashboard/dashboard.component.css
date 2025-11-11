@@ -1,0 +1,113 @@
+/* Fuerza texto blanco en todas las tarjetas de colores con mayor especificidad */
+.card.bg-primary *,
+.card.bg-success *,
+.card.bg-warning *,
+.card.bg-info * {
+  color: white !important;
+}
+
+/* Específico para las tarjetas de resumen */
+.summary-card,
+.summary-card *,
+.summary-card .card-title,
+.summary-card .card-text,
+.summary-card i,
+.summary-card .display-6 {
+  color: white !important;
+}
+
+/* Reset de colores de Bootstrap */
+.card.bg-primary,
+.card.bg-success, 
+.card.bg-warning {
+  --bs-text-opacity: 1;
+  color: white !important;
+}
+
+.card.bg-primary .card-title,
+.card.bg-success .card-title,
+.card.bg-warning .card-title {
+  color: white !important;
+}
+
+.card.bg-primary .card-text,
+.card.bg-success .card-text,
+.card.bg-warning .card-text {
+  color: white !important;
+}
+
+.card.bg-primary i,
+.card.bg-success i,
+.card.bg-warning i {
+  color: white !important;
+}
+
+/* Estilos generales del dashboard */
+.card {
+  border: none;
+  border-radius: 10px;
+}
+
+.card-header {
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.list-group-item {
+  border: none;
+  border-bottom: 1px solid #eee;
+  transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-1px);
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+.display-6 {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 0.7rem;
+}
+
+/* Gradientes para las tarjetas */
+.bg-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+}
+
+.bg-success {
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%) !important;
+  border: none !important;
+}
+
+.bg-warning {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+  border: none !important;
+}
+
+.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+/* Mejoras visuales adicionales */
+.text-muted {
+  color: #6c757d !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .display-6 {
+    font-size: 1.5rem;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+}

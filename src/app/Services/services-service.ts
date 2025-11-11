@@ -48,6 +48,5 @@ export class ServicesService {
   postCategory(category: any) {
     return this.http.post(this.url + 'categories', category, this.getHeaders());
   }
+  
 }
-
-

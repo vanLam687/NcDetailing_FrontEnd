@@ -12,10 +12,20 @@ export class NavbarComponent {
   
   isCollapsed = false;
 
-  constructor(private router: Router, private authService: AuthService) {}
+  constructor(private router: Router, public authService: AuthService) {}
 
   get isAdmin(): boolean {
     return this.authService.isAdmin();
+  }
+
+  getUserName(): string {
+    const user = this.authService.getCurrentUser();
+    return user?.name || user?.username || 'Usuario';
+  }
+
+  getUserInitial(): string {
+    const userName = this.getUserName();
+    return userName.charAt(0).toUpperCase();
   }
 
   toggleSidebar(): void {
