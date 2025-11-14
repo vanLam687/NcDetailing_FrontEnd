@@ -142,12 +142,12 @@
             </div>
             <div class="list-group list-group-flush" *ngIf="dashboardData.recentActivity?.products?.length">
               <div *ngFor="let product of dashboardData.recentActivity.products" 
-                   class="list-group-item list-group-item-action">
+                  class="list-group-item list-group-item-action">
                 <div class="d-flex w-100 justify-content-between align-items-start">
                   <div class="flex-grow-1">
                     <h6 class="mb-1">#{{ product.sale_id }} - {{ product.client_name }}</h6>
                     <div class="mb-1">
-                      <small *ngFor="let item of product.products" class="badge bg-secondary me-1">
+                      <small *ngFor="let item of product.products" class="badge me-1" style="background-color: transparent; color: #6c757d; border: 1px solid #dee2e6;">
                         {{ item.product_name }} (x{{ item.quantity }})
                       </small>
                     </div>
