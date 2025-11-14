@@ -22,8 +22,7 @@ export class ServicesComponent implements OnInit {
   SelectedCategory: string = '';
 
   // Variables para formulario
-  activeView: 'list' | 'form' = 'list';
-  isEditMode: boolean = false;
+  activeView: 'list' | 'create' | 'edit' = 'list';
   
   ServiceName: string = '';
   ServiceDescription: string = '';
@@ -36,6 +35,10 @@ export class ServicesComponent implements OnInit {
   IdDelete: number = 0;
 
   CategoryName: string = '';
+
+  // Para navegación
+  SelectedService: any = null;
+  private historyStack: string[] = ['list'];
 
   errorMessage: string = '';
   modalError: string = '';
@@ -74,24 +77,26 @@ export class ServicesComponent implements OnInit {
     });
   }
 
+  // Navegación entre vistas
   showListView(): void {
     this.activeView = 'list';
     this.clearError();
     this.clearModalError();
     this.GetServices();
+    this.addToHistory('list');
   }
 
   showCreateForm(): void {
-    this.activeView = 'form';
-    this.isEditMode = false;
+    this.activeView = 'create';
     this.clearForm();
     this.clearError();
     this.clearModalError();
+    this.addToHistory('create');
   }
 
   showEditForm(service: any): void {
-    this.activeView = 'form';
-    this.isEditMode = true;
+    this.activeView = 'edit';
+    this.SelectedService = service;
     this.IdEdit = service.id;
     this.ServiceName = service.name;
     this.ServiceDescription = service.description || '';
@@ -103,6 +108,45 @@ export class ServicesComponent implements OnInit {
     
     this.clearError();
     this.clearModalError();
+    this.addToHistory('edit');
+  }
+
+  // Métodos para navegar desde el header
+  showEditBack(): void {
+    if (this.SelectedService) {
+      this.activeView = 'edit';
+      this.addToHistory('edit');
+    }
+  }
+
+  // Método para verificar si se puede mostrar edición
+  canShowEdit(): boolean {
+    return this.SelectedService !== null;
+  }
+
+  // Métodos auxiliares para manejar el historial de navegación
+  private addToHistory(view: string): void {
+    this.historyStack.push(view);
+    // Mantener solo los últimos 10 elementos en el historial
+    if (this.historyStack.length > 10) {
+      this.historyStack.shift();
+    }
+  }
+
+  // Método para volver atrás
+  goBack(): void {
+    if (this.historyStack.length > 1) {
+      this.historyStack.pop(); // Remover vista actual
+      const previousView = this.historyStack[this.historyStack.length - 1];
+      this.activeView = previousView as 'list' | 'create' | 'edit';
+      
+      // Si volvemos al listado, limpiar el servicio seleccionado
+      if (this.activeView === 'list') {
+        this.SelectedService = null;
+      }
+    } else {
+      this.showListView();
+    }
   }
 
   clearForm(): void {

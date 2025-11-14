@@ -17,8 +17,7 @@ export class ClientsComponent implements OnInit {
   DataSourceClients: any[] = [];
 
   // Estados de vista
-  activeView: 'list' | 'form' | 'history' = 'list';
-  isEditMode: boolean = false;
+  activeView: 'list' | 'create' | 'edit' | 'history' = 'list';
 
   // Filtros
   SearchTerm: string = '';
@@ -54,6 +53,9 @@ export class ClientsComponent implements OnInit {
   errorMessage: string = '';
   modalError: string = '';
 
+  // Historial de navegación
+  private historyStack: string[] = ['list'];
+
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
       this.GetClients();
@@ -67,18 +69,19 @@ export class ClientsComponent implements OnInit {
     this.activeView = 'list';
     this.clearForm();
     this.clearError();
+    this.addToHistory('list');
   }
 
   showCreateForm(): void {
-    this.activeView = 'form';
-    this.isEditMode = false;
+    this.activeView = 'create';
     this.clearForm();
     this.clearError();
+    this.addToHistory('create');
   }
 
   showEditForm(client: any): void {
-    this.activeView = 'form';
-    this.isEditMode = true;
+    this.activeView = 'edit';
+    this.SelectedClient = client;
     
     this.IdEdit = client.id;
     this.FirstNameEdit = client.first_name;
@@ -99,12 +102,63 @@ export class ClientsComponent implements OnInit {
     });
     
     this.clearError();
+    this.addToHistory('edit');
   }
 
   showHistoryView(client: any): void {
     this.activeView = 'history';
     this.SelectedClient = client;
     this.loadClientHistory(client.id);
+    this.addToHistory('history');
+  }
+
+  // Métodos para navegar desde el header
+  showEditBack(): void {
+    if (this.SelectedClient) {
+      this.activeView = 'edit';
+      this.addToHistory('edit');
+    }
+  }
+
+  showHistoryBack(): void {
+    if (this.SelectedClient) {
+      this.activeView = 'history';
+      this.addToHistory('history');
+    }
+  }
+
+  // Métodos para verificar si se puede mostrar edición/historial
+  canShowEdit(): boolean {
+    return this.SelectedClient !== null;
+  }
+
+  canShowHistory(): boolean {
+    return this.SelectedClient !== null;
+  }
+
+  // Métodos auxiliares para manejar el historial de navegación
+  private addToHistory(view: string): void {
+    this.historyStack.push(view);
+    // Mantener solo los últimos 10 elementos en el historial
+    if (this.historyStack.length > 10) {
+      this.historyStack.shift();
+    }
+  }
+
+  // Método para volver atrás
+  goBack(): void {
+    if (this.historyStack.length > 1) {
+      this.historyStack.pop(); // Remover vista actual
+      const previousView = this.historyStack[this.historyStack.length - 1];
+      this.activeView = previousView as 'list' | 'create' | 'edit' | 'history';
+      
+      // Si volvemos al listado, limpiar el cliente seleccionado
+      if (this.activeView === 'list') {
+        this.SelectedClient = null;
+      }
+    } else {
+      this.showListView();
+    }
   }
 
   // Cargar historial del cliente
@@ -205,7 +259,7 @@ export class ClientsComponent implements OnInit {
         license_plate: this.NewVehicleLicensePlate
       };
 
-      if (this.isEditMode) {
+      if (this.activeView === 'edit') {
         this.VehiclesEdit.push(vehicle);
       } else {
         this.Vehicles.push(vehicle);
@@ -225,7 +279,7 @@ export class ClientsComponent implements OnInit {
   }
 
   RemoveVehicle(index: number): void {
-    if (this.isEditMode) {
+    if (this.activeView === 'edit') {
       // Marcar como eliminado si ya tiene ID, o simplemente remover si es nuevo
       if (this.VehiclesEdit[index].id) {
         this.VehiclesEdit[index].deleted = true;
@@ -269,69 +323,20 @@ export class ClientsComponent implements OnInit {
     return products.reduce((total, product) => total + (product.subtotal || 0), 0);
   }
 
-  // Getters para el formulario
-  get currentFirstName(): string {
-    return this.isEditMode ? this.FirstNameEdit : this.FirstName;
-  }
-
-  set currentFirstName(value: string) {
-    if (this.isEditMode) {
-      this.FirstNameEdit = value;
-    } else {
-      this.FirstName = value;
+  // Tooltip para vehículos
+  getVehiclesTooltip(vehicles: any[]): string {
+    if (!vehicles || vehicles.length === 0) {
+      return 'Sin vehículos';
     }
-  }
-
-  get currentLastName(): string {
-    return this.isEditMode ? this.LastNameEdit : this.LastName;
-  }
-
-  set currentLastName(value: string) {
-    if (this.isEditMode) {
-      this.LastNameEdit = value;
-    } else {
-      this.LastName = value;
-    }
-  }
-
-  get currentEmail(): string {
-    return this.isEditMode ? this.EmailEdit : this.Email;
-  }
-
-  set currentEmail(value: string) {
-    if (this.isEditMode) {
-      this.EmailEdit = value;
-    } else {
-      this.Email = value;
-    }
-  }
-
-  get currentPhone(): string {
-    return this.isEditMode ? this.PhoneEdit : this.Phone;
-  }
-
-  set currentPhone(value: string) {
-    if (this.isEditMode) {
-      this.PhoneEdit = value;
-    } else {
-      this.Phone = value;
-    }
-  }
-
-  get currentVehicles(): any[] {
-    return this.isEditMode ? this.VehiclesEdit : this.Vehicles;
+    
+    return vehicles.map(vehicle => 
+      `${vehicle.brand} ${vehicle.model} (${vehicle.license_plate}) - ${vehicle.year}`
+    ).join('\n');
   }
 
   // Helpers
   getFullName(client: any): string {
     return `${client.first_name} ${client.last_name}`;
-  }
-
-  getVehicleSummary(client: any): string {
-    if (client.vehicles && client.vehicles.length > 0) {
-      return client.vehicles.map((v: any) => `${v.brand} ${v.model}`).join(', ');
-    }
-    return client.vehicles ? 'Sin vehículos' : 'Cargando...';
   }
 
   handleError(error: any): void {

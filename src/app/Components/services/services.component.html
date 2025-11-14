@@ -21,11 +21,21 @@
                 <button 
                   type="button" 
                   class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'form'"
-                  [class.btn-outline-primary]="activeView !== 'form'"
+                  [class.btn-primary]="activeView === 'create'"
+                  [class.btn-outline-primary]="activeView !== 'create'"
                   (click)="showCreateForm()">
                   <i nz-icon nzType="plus"></i>
-                  Nuevo servicio pa
+                  Nuevo servicio
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm" 
+                  [class.btn-primary]="activeView === 'edit'"
+                  [class.btn-outline-primary]="activeView !== 'edit'"
+                  (click)="showEditBack()"
+                  [disabled]="!canShowEdit()">
+                  <i nz-icon nzType="edit"></i>
+                  Editar
                 </button>
               </div>
             </div>
@@ -36,7 +46,7 @@
                 data-bs-toggle="modal" 
                 data-bs-target="#createCategoryModal">
                 <i nz-icon nzType="folder-add"></i>
-                Crea una nueva Categoría maestro
+                Crea una nueva Categoría
               </button>
             </div>
           </div>
@@ -126,13 +136,13 @@
         </div>
       </div>
 
-      <!-- VISTA: Formulario de Servicio -->
-      <div *ngIf="activeView === 'form'">
+      <!-- VISTA: Crear Servicio -->
+      <div *ngIf="activeView === 'create'">
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3">
             <h6 class="mb-0">
-              <i nz-icon [nzType]="isEditMode ? 'edit' : 'plus'"></i>
-              {{ isEditMode ? 'Editor Servicio' : 'Nuevo Servicio' }}
+              <i nz-icon nzType="plus"></i>
+              Nuevo Servicio
             </h6>
           </div>
           <div class="card-body">
@@ -142,7 +152,7 @@
               <button type="button" class="btn-close" (click)="clearModalError()"></button>
             </div>
 
-            <form (ngSubmit)="isEditMode ? EditService() : CreateService()">
+            <form (ngSubmit)="CreateService()">
               <div class="row g-2">
                 <!-- Nombre del Servicio -->
                 <div class="col-12">
@@ -214,7 +224,7 @@
                     <button 
                       type="button" 
                       class="btn btn-outline-secondary btn-sm"
-                      (click)="showListView()">
+                      (click)="goBack()">
                       <i nz-icon nzType="arrow-left"></i>
                       Volver
                     </button>
@@ -223,14 +233,121 @@
                       <button 
                         type="button" 
                         class="btn btn-outline-danger btn-sm"
-                        (click)="clearForm()"
-                        *ngIf="!isEditMode">
+                        (click)="clearForm()">
                         Limpiar
                       </button>
                       <button 
                         type="submit" 
                         class="btn btn-primary btn-sm">
-                        {{ isEditMode ? 'Guardar' : 'Crear' }}
+                        Crear
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA: Editar Servicio -->
+      <div *ngIf="activeView === 'edit'">
+        <div class="card shadow-sm">
+          <div class="card-header py-2 px-3">
+            <h6 class="mb-0">
+              <i nz-icon nzType="edit"></i>
+              Editar Servicio - {{ SelectedService?.name }}
+            </h6>
+          </div>
+          <div class="card-body">
+            <!-- Mensaje de error del formulario -->
+            <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
+              {{ modalError }}
+              <button type="button" class="btn-close" (click)="clearModalError()"></button>
+            </div>
+
+            <form (ngSubmit)="EditService()">
+              <div class="row g-2">
+                <!-- Nombre del Servicio -->
+                <div class="col-12">
+                  <label class="form-label fw-bold mb-1">Nombre *</label>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    [(ngModel)]="ServiceName" 
+                    name="serviceName"
+                    placeholder="Ej: Tratamiento Cerámico Premium"
+                    required>
+                </div>
+
+                <!-- Precio y Categoría -->
+                <div class="col-md-6">
+                  <label class="form-label fw-bold mb-1">Precio *</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">$</span>
+                    <input 
+                      type="number" 
+                      class="form-control" 
+                      [(ngModel)]="ServicePrice" 
+                      name="servicePrice"
+                      placeholder="0.00" 
+                      step="0.01"
+                      required>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-bold mb-1">Categoría *</label>
+                  <div class="dropdown">
+                    <input 
+                      type="text" 
+                      class="form-control form-control-sm" 
+                      [(ngModel)]="ServiceCategoryName"
+                      (input)="filterCategories($event)"
+                      name="serviceCategory"
+                      placeholder="Buscar categoría..."
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                      required>
+                    <ul class="dropdown-menu w-100" style="max-height: 140px; overflow-y: auto;">
+                      <li *ngFor="let category of filteredCategories">
+                        <a class="dropdown-item" href="javascript:void(0)" (click)="selectCategory(category)">
+                          {{ category.name }}
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Descripción -->
+                <div class="col-12">
+                  <label class="form-label fw-bold mb-1">Descripción</label>
+                  <textarea 
+                    class="form-control form-control-sm" 
+                    [(ngModel)]="ServiceDescription" 
+                    name="serviceDescription"
+                    placeholder="Describe el servicio..."
+                    rows="2"
+                    maxlength="500"></textarea>
+                  <small class="text-muted">{{ ServiceDescription.length }}/500</small>
+                </div>
+
+                <!-- Botones del formulario -->
+                <div class="col-12">
+                  <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-secondary btn-sm"
+                      (click)="goBack()">
+                      <i nz-icon nzType="arrow-left"></i>
+                      Volver
+                    </button>
+                    
+                    <div class="d-flex gap-1">
+                      <button 
+                        type="submit" 
+                        class="btn btn-primary btn-sm">
+                        Guardar
                       </button>
                     </div>
                   </div>
