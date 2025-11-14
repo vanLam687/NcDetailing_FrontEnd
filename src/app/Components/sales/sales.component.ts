@@ -65,6 +65,8 @@ export class SalesComponent implements OnInit {
   IdUpdatePayment: number = 0;
   NewPaymentStatusId: number = 0;
   ClientNameUpdatePayment: string = '';
+  isSaleFinalized: boolean = false;
+  currentPaymentStatus: string = '';
 
   SelectedSale: any = null;
 
@@ -174,12 +176,13 @@ export class SalesComponent implements OnInit {
     );
   }
 
-selectClient(client: any): void {
-  this.NewProdSale_ClientId = client.id;
-  this.NewSvcSale_ClientId = client.id;
-  this.clientSearchTerm = `${client.first_name} ${client.last_name}`;
-  this.OnClientChangeForServices(client.id);
-}
+  selectClient(client: any): void {
+    this.NewProdSale_ClientId = client.id;
+    this.NewSvcSale_ClientId = client.id;
+    this.clientSearchTerm = `${client.first_name} ${client.last_name}`;
+    this.OnClientChangeForServices(client.id);
+  }
+
   selectProduct(product: any): void {
     this.Temp_ProductId = product.id;
     this.productSearchTerm = product.name;
@@ -380,6 +383,11 @@ selectClient(client: any): void {
   DatosUpdatePayment(sale: any): void {
     this.IdUpdatePayment = sale.sale_id;
     this.ClientNameUpdatePayment = sale.client_name;
+    this.currentPaymentStatus = sale.payment_status;
+    
+    // if esta cancelada o pagada jejeejkksdad
+    this.isSaleFinalized = sale.payment_status === 'Pagado' || sale.payment_status === 'Cancelado';
+    
     switch (sale.payment_status.toLowerCase()) {
       case 'pagado':
         this.NewPaymentStatusId = 2;
@@ -394,6 +402,12 @@ selectClient(client: any): void {
   }
 
   UpdatePaymentStatus(): void {
+    // Validación adicional por seguridad
+    if (this.isSaleFinalized) {
+      this.modalError = `No se puede modificar el estado de una venta ${this.currentPaymentStatus.toLowerCase()}.`;
+      return;
+    }
+
     if (!this.IdUpdatePayment || !this.NewPaymentStatusId) return;
 
     this.salesService.updatePaymentStatus(this.IdUpdatePayment.toString(), this.NewPaymentStatusId).subscribe({
@@ -504,15 +518,16 @@ selectClient(client: any): void {
 
     this.modalError = '';
   }
-getProductsTooltip(products: any[]): string {
-  return products.map(p => 
-    `${p.product_name} (x${p.quantity}) - $${p.price}`
-  ).join('\n');
-}
 
-getServicesTooltip(services: any[]): string {
-  return services.map(s => 
-    `${s.service_name} - $${s.price}`
-  ).join('\n');
-}
+  getProductsTooltip(products: any[]): string {
+    return products.map(p => 
+      `${p.product_name} (x${p.quantity}) - $${p.price}`
+    ).join('\n');
+  }
+
+  getServicesTooltip(services: any[]): string {
+    return services.map(s => 
+      `${s.service_name} - $${s.price}`
+    ).join('\n');
+  }
 }
