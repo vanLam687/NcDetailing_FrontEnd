@@ -29,13 +29,6 @@
     <!-- Sidebar mejorado -->
     <aside class="app-sidebar" [class.collapsed]="isCollapsed">
       <nav class="sidebar-nav">
-        <div class="user-profile-sidebar" *ngIf="!isCollapsed">
-          <div class="profile-avatar">{{getUserInitial()}}</div>
-          <div class="profile-info">
-            <div class="profile-name">{{getUserName()}}</div>
-            <div class="profile-role">{{isAdmin ? 'Administrador' : 'Usuario'}}</div>
-          </div>
-        </div>
         
         <ul class="nav-menu">
           <li class="nav-item">
