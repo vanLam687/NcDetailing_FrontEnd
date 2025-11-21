@@ -164,33 +164,27 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  EditProduct(): void {
-    const product: any = {
-      name: this.ProductNameEdit,
-      description: this.ProductDescriptionEdit,
-      price: this.ProductPriceEdit,
-      stock: this.ProductStockEdit,
-      category_id: this.ProductCategoryIdEdit
-    };
+EditProduct(): void {
+  const product: any = {
+    name: this.ProductNameEdit,
+    description: this.ProductDescriptionEdit,
+    price: this.ProductPriceEdit,
+    stock: this.ProductStockEdit,
+    category_id: this.ProductCategoryIdEdit,
+    min_stock: this.ProductMinStockEdit
+  };
 
-    this.service.putProduct(this.IdEdit.toString(), product).subscribe({
-      next: () => {
-        this.service.updateMinStock(this.IdEdit.toString(), this.ProductMinStockEdit).subscribe({
-          next: () => {
-            this.clearError();
-            this.showListView();
-            this.GetProducts();
-          },
-          error: (error) => {
-            this.handleModalError(error);
-          }
-        });
-      },
-      error: (error) => {
-        this.handleModalError(error);
-      }
-    });
-  }
+  this.service.putProduct(this.IdEdit.toString(), product).subscribe({
+    next: () => {
+      this.clearError();
+      this.showListView();
+      this.GetProducts();
+    },
+    error: (error) => {
+      this.handleModalError(error);
+    }
+  });
+}
 
   DatosDelete(product: any): void {
     this.IdDelete = product.id;
