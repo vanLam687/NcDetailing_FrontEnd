@@ -54,7 +54,12 @@ export class DashboardComponent implements OnInit {
   }
 
   handleError(error: any): void {
-    if (error.status === 401 || error.status === 403) {
+    if (error.status === 401) {
+      this.authService.logout();
+      return;
+    }
+
+    if (error.status === 403) {
       this.authService.logout();
       this.router.navigate(['/login']);
       return;

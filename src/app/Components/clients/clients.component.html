@@ -55,7 +55,10 @@
 
       <!-- Mensaje de error general -->
       <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-        {{ errorMessage }}
+        <div class="d-flex align-items-center">
+          <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
         <button type="button" class="btn-close" (click)="clearError()"></button>
       </div>
 
@@ -161,8 +164,23 @@
           <div class="card-body">
             <!-- Mensaje de error del formulario -->
             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-              {{ modalError }}
+              <div class="d-flex align-items-center">
+                <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+                <span>{{ modalError }}</span>
+              </div>
               <button type="button" class="btn-close" (click)="clearModalError()"></button>
+            </div>
+
+            <!-- Errores de validación del formulario -->
+            <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+              <div class="d-flex align-items-center">
+                <i nz-icon nzType="warning" class="me-2"></i>
+                <span>Por favor, corrige los siguientes errores:</span>
+              </div>
+              <ul class="mb-0 mt-1">
+                <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
+              </ul>
+              <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
             </div>
 
             <form (ngSubmit)="CreateClient()">
@@ -173,10 +191,14 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.firstName"
                     [(ngModel)]="FirstName" 
                     name="firstName"
                     placeholder="Ej: Juan"
                     required>
+                  <div *ngIf="formErrors.firstName" class="invalid-feedback d-block">
+                    {{ formErrors.firstName }}
+                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -184,10 +206,14 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.lastName"
                     [(ngModel)]="LastName" 
                     name="lastName"
                     placeholder="Ej: Pérez"
                     required>
+                  <div *ngIf="formErrors.lastName" class="invalid-feedback d-block">
+                    {{ formErrors.lastName }}
+                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -195,10 +221,14 @@
                   <input 
                     type="email" 
                     class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.email"
                     [(ngModel)]="Email" 
                     name="email"
                     placeholder="Ej: juan@example.com"
                     required>
+                  <div *ngIf="formErrors.email" class="invalid-feedback d-block">
+                    {{ formErrors.email }}
+                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -206,10 +236,14 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.phone"
                     [(ngModel)]="Phone" 
                     name="phone"
                     placeholder="Ej: 1234567890"
                     required>
+                  <div *ngIf="formErrors.phone" class="invalid-feedback d-block">
+                    {{ formErrors.phone }}
+                  </div>
                 </div>
 
                 <!-- Vehículos -->
@@ -226,6 +260,15 @@
                             <small class="text-muted">
                               Año: {{ vehicle.year }} | Color: {{ vehicle.color }} | Patente: {{ vehicle.license_plate }}
                             </small>
+                            <div *ngIf="formErrors['vehicleBrand_' + i]" class="invalid-feedback d-block">
+                              {{ formErrors['vehicleBrand_' + i] }}
+                            </div>
+                            <div *ngIf="formErrors['vehicleModel_' + i]" class="invalid-feedback d-block">
+                              {{ formErrors['vehicleModel_' + i] }}
+                            </div>
+                            <div *ngIf="formErrors['vehicleLicensePlate_' + i]" class="invalid-feedback d-block">
+                              {{ formErrors['vehicleLicensePlate_' + i] }}
+                            </div>
                           </div>
                           <div class="col-auto">
                             <button type="button" class="btn btn-sm btn-outline-danger" (click)="RemoveVehicle(i)">
@@ -249,7 +292,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleBrand"
-                            placeholder="Marca"
+                            placeholder="Marca *"
                             name="vehicleBrand">
                         </div>
                         <div class="col-md">
@@ -257,7 +300,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleModel"
-                            placeholder="Modelo"
+                            placeholder="Modelo *"
                             name="vehicleModel">
                         </div>
                         <div class="col-md">
@@ -265,7 +308,7 @@
                             type="number" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleYear"
-                            placeholder="Año"
+                            placeholder="Año *"
                             min="1900"
                             name="vehicleYear">
                         </div>
@@ -274,7 +317,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleColor"
-                            placeholder="Color"
+                            placeholder="Color *"
                             name="vehicleColor">
                         </div>
                         <div class="col-md">
@@ -282,7 +325,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleLicensePlate"
-                            placeholder="Patente"
+                            placeholder="Patente *"
                             name="vehicleLicensePlate">
                         </div>
                         <div class="col-md-auto">
@@ -340,8 +383,23 @@
           <div class="card-body">
             <!-- Mensaje de error del formulario -->
             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-              {{ modalError }}
+              <div class="d-flex align-items-center">
+                <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+                <span>{{ modalError }}</span>
+              </div>
               <button type="button" class="btn-close" (click)="clearModalError()"></button>
+            </div>
+
+            <!-- Errores de validación del formulario -->
+            <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+              <div class="d-flex align-items-center">
+                <i nz-icon nzType="warning" class="me-2"></i>
+                <span>Por favor, corrige los siguientes errores:</span>
+              </div>
+              <ul class="mb-0 mt-1">
+                <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
+              </ul>
+              <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
             </div>
 
             <form (ngSubmit)="EditClient()">
@@ -352,10 +410,14 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.firstName"
                     [(ngModel)]="FirstNameEdit" 
                     name="firstNameEdit"
                     placeholder="Ej: Juan"
                     required>
+                  <div *ngIf="formErrors.firstName" class="invalid-feedback d-block">
+                    {{ formErrors.firstName }}
+                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -363,10 +425,14 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.lastName"
                     [(ngModel)]="LastNameEdit" 
                     name="lastNameEdit"
                     placeholder="Ej: Pérez"
                     required>
+                  <div *ngIf="formErrors.lastName" class="invalid-feedback d-block">
+                    {{ formErrors.lastName }}
+                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -374,10 +440,14 @@
                   <input 
                     type="email" 
                     class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.email"
                     [(ngModel)]="EmailEdit" 
                     name="emailEdit"
                     placeholder="Ej: juan@example.com"
                     required>
+                  <div *ngIf="formErrors.email" class="invalid-feedback d-block">
+                    {{ formErrors.email }}
+                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -385,10 +455,14 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.phone"
                     [(ngModel)]="PhoneEdit" 
                     name="phoneEdit"
                     placeholder="Ej: 1234567890"
                     required>
+                  <div *ngIf="formErrors.phone" class="invalid-feedback d-block">
+                    {{ formErrors.phone }}
+                  </div>
                 </div>
 
                 <!-- Vehículos -->
@@ -405,6 +479,15 @@
                             <small class="text-muted">
                               Año: {{ vehicle.year }} | Color: {{ vehicle.color }} | Patente: {{ vehicle.license_plate }}
                             </small>
+                            <div *ngIf="formErrors['vehicleBrand_' + i]" class="invalid-feedback d-block">
+                              {{ formErrors['vehicleBrand_' + i] }}
+                            </div>
+                            <div *ngIf="formErrors['vehicleModel_' + i]" class="invalid-feedback d-block">
+                              {{ formErrors['vehicleModel_' + i] }}
+                            </div>
+                            <div *ngIf="formErrors['vehicleLicensePlate_' + i]" class="invalid-feedback d-block">
+                              {{ formErrors['vehicleLicensePlate_' + i] }}
+                            </div>
                           </div>
                           <div class="col-auto">
                             <button type="button" class="btn btn-sm btn-outline-danger" (click)="RemoveVehicle(i)">
@@ -428,7 +511,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleBrand"
-                            placeholder="Marca"
+                            placeholder="Marca *"
                             name="vehicleBrand">
                         </div>
                         <div class="col-md">
@@ -436,7 +519,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleModel"
-                            placeholder="Modelo"
+                            placeholder="Modelo *"
                             name="vehicleModel">
                         </div>
                         <div class="col-md">
@@ -444,7 +527,7 @@
                             type="number" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleYear"
-                            placeholder="Año"
+                            placeholder="Año *"
                             min="1900"
                             name="vehicleYear">
                         </div>
@@ -453,7 +536,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleColor"
-                            placeholder="Color"
+                            placeholder="Color *"
                             name="vehicleColor">
                         </div>
                         <div class="col-md">
@@ -461,7 +544,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleLicensePlate"
-                            placeholder="Patente"
+                            placeholder="Patente *"
                             name="vehicleLicensePlate">
                         </div>
                         <div class="col-md-auto">

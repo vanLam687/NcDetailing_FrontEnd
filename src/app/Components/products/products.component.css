@@ -127,6 +127,11 @@
   font-size: 11px;
 }
 
+.form-control.is-invalid {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
+}
+
 .form-label {
   font-weight: 600;
   color: #333;
@@ -200,6 +205,14 @@
   font-weight: 600;
 }
 
+.input-group-sm .form-control.is-invalid {
+  border-left: none;
+}
+
+.input-group-sm .form-control.is-invalid + .input-group-text {
+  border-color: #e74c3c;
+}
+
 /* Alertas */
 .alert {
   border-radius: 6px;
@@ -212,12 +225,76 @@
 .alert-danger {
   background: linear-gradient(135deg, #ffeaea 0%, #ffdbdb 100%);
   color: #e74c3c;
+  border-left: 4px solid #e74c3c;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff4e6 0%, #ffeedb 100%);
+  color: #e67e22;
+  border-left: 4px solid #e67e22;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #e8f6ef 0%, #d1f2eb 100%);
+  color: #27ae60;
+  border-left: 4px solid #27ae60;
+}
+
+.alert ul {
+  padding-left: 16px;
+  margin-bottom: 0;
+}
+
+.alert li {
+  margin-bottom: 2px;
+}
+
+.alert li:last-child {
+  margin-bottom: 0;
+}
+
+.invalid-feedback {
+  display: block;
+  font-size: 11px;
+  color: #e74c3c;
+  margin-top: 2px;
+  font-weight: 500;
 }
 
 /* Textos */
 .text-muted {
   color: #7586a5 !important;
   font-size: 10px;
+}
+
+.text-danger {
+  color: #e74c3c !important;
+  font-weight: 600;
+}
+
+.text-warning {
+  color: #e67e22 !important;
+  font-weight: 600;
+}
+
+/* Badges */
+.badge {
+  font-size: 10px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.bg-danger {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+}
+
+.bg-warning {
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%) !important;
+}
+
+.bg-success {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%) !important;
 }
 
 /* Iconos */
@@ -290,4 +367,102 @@ i[nz-icon] {
   .card-body {
     padding: 8px !important;
   }
+  
+  .alert {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+}
+
+/* Estilos mejorados para notificaciones toast */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.custom-toast {
+  backdrop-filter: blur(10px);
+  border-left: 4px solid #1e8449 !important;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  min-width: 350px;
+  max-width: 450px;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+  padding: 16px 20px;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.custom-toast .toast-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+}
+
+.custom-toast .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+
+.custom-toast .btn-close:hover {
+  opacity: 1;
+}
+
+/* Mejoras adicionales para el formulario */
+.form-control:focus, .form-select:focus {
+  border-color: #6c63b8;
+  box-shadow: 0 0 0 2px rgba(108, 99, 184, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Mejoras para las alertas de error */
+.alert-danger {
+  background: linear-gradient(135deg, #ffeaea 0%, #ffdbdb 100%);
+  color: #e74c3c;
+  border-left: 4px solid #e74c3c;
+  border-radius: 8px;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff4e6 0%, #ffeedb 100%);
+  color: #e67e22;
+  border-left: 4px solid #e67e22;
+  border-radius: 8px;
+}
+
+/* Mejoras para los badges de estado */
+.badge {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bg-danger {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+}
+
+.bg-warning {
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%) !important;
+}
+
+.bg-success {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%) !important;
 }

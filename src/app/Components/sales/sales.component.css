@@ -1,9 +1,11 @@
+/* Fondo general del módulo */
 .container-fluid {
   background: linear-gradient(135deg, #f8f9fa 0%, #f5f7ff 100%);
   min-height: calc(100vh - 70px);
   padding: 12px !important;
 }
 
+/* Tarjetas */
 .card {
   border: none;
   border-radius: 8px;
@@ -19,7 +21,8 @@
   padding: 8px 12px !important;
 }
 
-.card-header h5, .card-header h6 {
+.card-header h5,
+.card-header h6 {
   color: white;
   font-weight: 600;
   margin: 0;
@@ -37,6 +40,7 @@
   padding: 12px !important;
 }
 
+/* Botones */
 .btn {
   border-radius: 6px;
   font-weight: 600;
@@ -92,24 +96,14 @@
   background: linear-gradient(135deg, #d62c1a 0%, #b83224 100%);
 }
 
-.btn-outline-danger {
-  background: transparent;
-  border: 2px solid #e74c3c;
-  color: #e74c3c;
-}
-
-.btn-outline-danger:hover {
-  background: #e74c3c;
-  color: white;
-}
-
 .btn-sm {
   padding: 3px 6px;
   font-size: 11px;
 }
 
-/* Formularios */
-.form-control, .form-select {
+/* Inputs y selects */
+.form-control,
+.form-select {
   border-radius: 6px;
   border: 1px solid rgba(117, 134, 165, 0.3);
   padding: 4px 8px;
@@ -117,14 +111,10 @@
   transition: all 0.2s ease;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
   border-color: #6c63b8;
   box-shadow: 0 0 0 2px rgba(108, 99, 184, 0.1);
-}
-
-.form-control-sm, .form-select-sm {
-  padding: 3px 6px;
-  font-size: 11px;
 }
 
 .form-label {
@@ -155,7 +145,7 @@
   color: #6c63b8;
 }
 
-/* Tabla */
+/* Tabla compacta */
 .compact-table {
   font-size: 12px;
 }
@@ -190,7 +180,7 @@
   max-width: 150px;
 }
 
-/* Input Group */
+/* Input group */
 .input-group-sm .input-group-text {
   padding: 4px 8px;
   font-size: 12px;
@@ -220,19 +210,9 @@
   font-size: 10px;
 }
 
-/* Iconos */
+/* Íconos */
 i[nz-icon] {
   font-size: 12px;
-}
-
-/* Utilidades */
-.vr {
-  opacity: 0.3;
-  height: 16px;
-}
-
-.border-top {
-  border-top: 1px solid rgba(117, 134, 165, 0.1) !important;
 }
 
 /* Checkbox */
@@ -276,17 +256,17 @@ i[nz-icon] {
   .container-fluid {
     padding: 8px !important;
   }
-  
+
   .truncate {
     max-width: 100px;
   }
-  
+
   .btn {
     width: 100%;
     justify-content: center;
     margin-bottom: 4px;
   }
-  
+
   .card-body {
     padding: 8px !important;
   }

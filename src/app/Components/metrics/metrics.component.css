@@ -1,409 +1,276 @@
-/* Estilos generales para el contenedor */
-.metrics-container {
-  background-color: #f8f9fa;
+/* =====================================================
+   MÉTRICAS – ESTILO PRODUCTS (PALETA MORADA)
+   ===================================================== */
+
+/* Fondo general */
+.metrics-container,
+.container-fluid.p-4 {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f5f7ff 100%);
   min-height: 100vh;
+  padding: 12px !important;
 }
 
-/* Header de la card principal */
+/* -----------------------------------------------------
+   HEADER PRINCIPAL
+   ----------------------------------------------------- */
 .card-header.bg-white {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
-  border-bottom: 2px solid #e9ecef;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e4e6f4 !important;
 }
 
 .card-header h3 {
-  font-weight: 700;
-  font-size: 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Botones de filtro */
-.btn-group .btn {
-  border-radius: 8px;
   font-weight: 600;
-  transition: all 0.3s ease;
-  padding: 0.5rem 1rem;
+  font-size: 1.4rem;
+  color: #6c63b8 !important; /* morado principal */
 }
 
-.btn-group .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+/* -----------------------------------------------------
+   BOTÓN EXPORTAR PDF - CORREGIDO
+   ----------------------------------------------------- */
+.btn-success {
+  background: #27ae60 !important;
   border: none;
-}
-
-.btn-outline-primary {
-  border: 2px solid #667eea;
-  color: #667eea;
-}
-
-.btn-outline-primary:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
-}
-
-/* Formularios y controles */
-.form-control {
-  border-radius: 8px;
-  border: 2px solid #e9ecef;
-  transition: all 0.3s ease;
-}
-
-.form-control:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-}
-
-.form-label {
+  border-radius: 7px;
   font-weight: 600;
-  color: #495057;
-  margin-bottom: 0.5rem;
+  padding: 0.45rem 1.2rem;
+  transition: all 0.3s ease-in-out;
 }
 
-/* Tarjetas de métricas principales */
-.card.text-white {
-  border: none;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  overflow: hidden;
+.btn-success:hover {
+  background: #219653 !important;
 }
 
-.card.text-white:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-}
-
-.card.text-white .card-body {
-  padding: 1.5rem;
-}
-
-.card.text-white .card-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  opacity: 0.9;
-}
-
-.card.text-white .card-text {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 0;
-}
-
-/* Colores específicos para cada tarjeta */
-.bg-success {
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%) !important;
-}
-
-.bg-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-}
-
-.bg-info {
-  background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%) !important;
-}
-
-.bg-light {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
-  border: 2px solid #e9ecef;
-}
-
-.bg-light .card-title {
-  color: #495057 !important;
-}
-
-.bg-light .card-text {
-  color: #212529 !important;
-}
-
-/* Iconos en las tarjetas */
-.card-title i {
-  margin-right: 0.5rem;
-  font-size: 1.1rem;
-}
-
-/* Cards de gráficos */
-.card.shadow-sm {
-  border: none;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-}
-
-.card.shadow-sm:hover {
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
-}
-
-.card-header.bg-light {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
-  border-bottom: 1px solid #dee2e6;
-  font-weight: 600;
-  color: #495057;
-  padding: 1rem 1.25rem;
-}
-
-/* Gráficos */
-.card-body {
-  padding: 1.5rem;
-}
-
-apx-chart {
-  border-radius: 8px;
-}
-
-/* Lista de top clientes */
-.list-group-item {
-  border: none;
-  border-bottom: 1px solid #e9ecef;
-  padding: 1rem 1.25rem;
-  transition: all 0.2s ease;
-}
-
-.list-group-item:hover {
-  background-color: #f8f9fa;
-  transform: translateX(5px);
-}
-
-.list-group-item:last-child {
-  border-bottom: none;
-}
-
-.badge.bg-success {
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%) !important;
-  font-weight: 600;
-  font-size: 0.75rem;
-}
-
-/* Estados de carga y error */
-.text-center.p-5 {
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-}
-
-.alert {
-  border-radius: 10px;
-  border: none;
-  font-weight: 500;
-}
-
-.alert-danger {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-  color: white;
-}
-
-.alert-warning {
-  background: linear-gradient(135deg, #ffd93d 0%, #ff9a3d 100%);
-  color: #212529;
-}
-
-/* Badge informativo */
-.badge.bg-secondary {
-  background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
-  font-weight: 500;
-  padding: 0.5rem 0.75rem;
-}
-
-/* Mensajes de datos vacíos */
-.text-center.text-muted {
-  padding: 3rem 1rem;
-}
-
-.text-center.text-muted i {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  opacity: 0.5;
-}
-
-/* Botón de aplicar rango */
-.btn-primary[disabled] {
-  background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%) !important;
-  border: none;
+.btn-success:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .card.text-white .card-text {
-    font-size: 1.5rem;
-  }
-  
-  .btn-group .btn {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-  }
-  
-  .card-body {
-    padding: 1rem;
-  }
-  
-  .display-6 {
-    font-size: 1.5rem;
-  }
+/* Efecto de carga sutil para el estado de exportación */
+.btn-success:disabled:not(.exporting-hidden) {
+  position: relative;
+  overflow: hidden;
 }
 
-@media (max-width: 576px) {
-  .row.g-3 .col-md-3 {
-    margin-bottom: 1rem;
-  }
-  
-  .card.text-white {
-    margin-bottom: 1rem;
-  }
+.btn-success:disabled:not(.exporting-hidden)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: loading-shimmer 1.5s infinite;
 }
 
-/* Animaciones sutiles */
-.card {
-  animation: fadeInUp 0.5s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+@keyframes loading-shimmer {
+  0% {
+    left: -100%;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  100% {
+    left: 100%;
   }
 }
 
-/* Efectos de hover mejorados */
-.btn, .card, .list-group-item {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* Clase para ocultar elementos durante la exportación */
+.exporting-hidden {
+  display: none !important;
 }
 
-/* Mejora visual para inputs */
-.input-group {
-  border-radius: 8px;
-}
-
-.input-group .form-control {
-  border-radius: 8px 0 0 8px;
-}
-
-.input-group .btn {
-  border-radius: 0 8px 8px 0;
-}
-
-/* Scroll suave para listas */
-.list-group-flush {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.list-group-flush::-webkit-scrollbar {
-  width: 6px;
-}
-
-.list-group-flush::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-.list-group-flush::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 3px;
-}
-
-.list-group-flush::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-}
-
-/* Estilos específicos para los botones de filtro separados */
+/* -----------------------------------------------------
+   BOTONES DE FILTRO
+   ----------------------------------------------------- */
 .btn-filter {
   border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  padding: 0.5rem 1rem;
-  border: 2px solid #667eea;
-  min-width: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.btn-filter:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  font-weight: 500;
+  padding: 0.45rem 1rem;
+  border: 1px solid #d2d5ec;
+  background: white;
+  color: #7586a5;
+  transition: all .2s ease-in-out;
 }
 
 .btn-filter.btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: 2px solid #667eea;
+  background: #6c63b8 !important;
+  border-color: #6c63b8 !important;
   color: white;
 }
 
 .btn-filter.btn-outline-primary {
   background: white;
-  border: 2px solid #667eea;
-  color: #667eea;
+  border: 1px solid #6c63b8 !important;
+  color: #6c63b8 !important;
 }
 
 .btn-filter.btn-outline-primary:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
-  color: white;
+  background: #6c63b8 !important;
+  color: white !important;
 }
 
-/* Contenedor flex para los botones */
-.d-flex.flex-wrap.gap-2 {
-  gap: 0.75rem !important;
+/* -----------------------------------------------------
+   FORMULARIOS
+   ----------------------------------------------------- */
+.form-control {
+  border-radius: 7px;
+  border: 1px solid #cfd3eb;
 }
 
-/* Responsive para los botones de filtro */
+.form-control:focus {
+  border-color: #6c63b8;
+  box-shadow: 0 0 0 0.1rem rgba(108, 99, 184, 0.25);
+}
+
+.form-label {
+  font-weight: 500;
+  color: #556b82;
+}
+
+/* -----------------------------------------------------
+   TARJETAS PRINCIPALES
+   ----------------------------------------------------- */
+.card {
+  border: 1px solid #e6e8f5;
+  border-radius: 12px;
+  background: white;
+}
+
+.card.shadow-sm {
+  box-shadow: 0 1px 6px rgba(88, 81, 160, 0.08) !important;
+}
+
+/* Colores */
+.bg-success {
+  background: #27ae60 !important;
+}
+
+.bg-primary {
+  background: #6c63b8 !important;
+}
+
+.bg-info {
+  background: #7a6fc1 !important;
+}
+
+.bg-light {
+  background: #fafbff !important;
+  border: 1px solid #e6e8f5 !important;
+  color: #7586a5 !important;
+}
+
+/* Tipografías de tarjetas */
+.card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.card-text {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #2f3d56;
+}
+
+/* -----------------------------------------------------
+   LISTA TOP CLIENTES
+   ----------------------------------------------------- */
+.list-group-item {
+  border-bottom: 1px solid #eceffa;
+}
+
+.list-group-item:hover {
+  background-color: #f4f5ff;
+}
+
+/* -----------------------------------------------------
+   ALERTAS
+   ----------------------------------------------------- */
+.alert {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* error */
+.alert-danger {
+  background: #e74c3c !important;
+  color: white !important;
+}
+
+/* advertencia */
+.alert-warning {
+  background: #f7e3a6 !important;
+  color: #4a4a4a !important;
+}
+
+/* -----------------------------------------------------
+   PDF HEADER
+   ----------------------------------------------------- */
+.pdf-header {
+  border-bottom: 2px solid #6c63b8;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.pdf-header h2 {
+  color: #2f3d56;
+  font-weight: 700;
+}
+
+.pdf-header p {
+  color: #7a889c;
+}
+
+/* -----------------------------------------------------
+   GRÁFICOS
+   ----------------------------------------------------- */
+apx-chart {
+  display: block;
+  border-radius: 10px;
+  padding: 5px;
+  background: #ffffff;
+  border: 1px solid #eceffa;
+}
+
+/* -----------------------------------------------------
+   ESTADOS VACÍOS
+   ----------------------------------------------------- */
+.text-center.text-muted.p-5 {
+  background: #f5f6ff;
+  border-radius: 10px;
+  border: 1px dashed #cbcfea;
+  color: #8a96a8 !important;
+}
+
+/* -----------------------------------------------------
+   MEDIA QUERIES
+   ----------------------------------------------------- */
 @media (max-width: 768px) {
   .btn-filter {
-    min-width: 100px;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
+    padding: 0.35rem 0.75rem;
   }
-  
-  .d-flex.flex-wrap.gap-2 {
-    gap: 0.5rem !important;
+
+  .card-text {
+    font-size: 1.3rem;
   }
 }
 
-@media (max-width: 576px) {
-  .btn-filter {
-    min-width: 90px;
-    padding: 0.375rem 0.5rem;
-    font-size: 0.8rem;
-  }
-  
-  .btn-filter i {
-    font-size: 0.8rem;
-  }
+/* Colorear en blanco los valores de las tarjetas de ingresos */
+.bg-success .card-text,
+.bg-primary .card-text,
+.bg-info .card-text {
+  color: #ffffff !important;
 }
 
-/* Mejora visual para el hover de los botones */
-.btn-filter:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+/* Y opcionalmente, para mantener título + número ambos blancos */
+.bg-success .card-title,
+.bg-primary .card-title,
+.bg-info .card-title {
+  color: #ffffff !important;
 }
 
-/* Efecto de transición suave */
-.btn-filter {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Estados de focus para accesibilidad */
-.btn-filter:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
-}
-
-/* Iconos dentro de los botones */
-.btn-filter i {
-  font-size: 0.9rem;
-  transition: transform 0.3s ease;
-}
-
-.btn-filter:hover i {
-  transform: scale(1.1);
+.btn-success .spinner-border {
+  margin-right: 6px;
 }

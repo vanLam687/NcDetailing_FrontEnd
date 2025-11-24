@@ -11,10 +11,11 @@
       </div>
 
       <form nz-form (ngSubmit)="Login()">
-        <!-- ussssser -->
+        <!-- Campo de usuario -->
         <div class="mb-3">
           <nz-form-item>
             <nz-form-control>
+              <label class="form-label fw-bold mb-1">Usuario *</label>
               <nz-input-group nzPrefixIcon="user" nzSize="large">
                 <input 
                   type="text" 
@@ -23,16 +24,22 @@
                   name="username"
                   placeholder="Usuario" 
                   required
+                  [class.is-invalid]="formErrors.username"
+                  class="form-control"
                 />
               </nz-input-group>
+              <div *ngIf="formErrors.username" class="invalid-feedback d-block">
+                {{ formErrors.username }}
+              </div>
             </nz-form-control>
           </nz-form-item>
         </div>
 
-        <!-- passssword -->
+        <!-- Campo de contraseña -->
         <div class="mb-3">
           <nz-form-item>
             <nz-form-control>
+              <label class="form-label fw-bold mb-1">Contraseña *</label>
               <nz-input-group nzPrefixIcon="lock" nzSize="large">
                 <input 
                   type="password" 
@@ -42,22 +49,41 @@
                   placeholder="Contraseña" 
                   required
                   (keyup.enter)="Login()"
+                  [class.is-invalid]="formErrors.password"
+                  class="form-control"
                 />
               </nz-input-group>
+              <div *ngIf="formErrors.password" class="invalid-feedback d-block">
+                {{ formErrors.password }}
+              </div>
             </nz-form-control>
           </nz-form-item>
         </div>
 
-        <!-- error handler pa-->
+        <!-- Errores de validación del formulario -->
+        <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+          <div class="d-flex align-items-center">
+            <i nz-icon nzType="warning" class="me-2"></i>
+            <span>Por favor, corrige los siguientes errores:</span>
+          </div>
+          <ul class="mb-0 mt-1">
+            <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
+          </ul>
+          <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
+        </div>
+
+        <!-- error handler -->
         <div *ngIf="errorMessage" class="mb-3">
           <nz-alert 
             nzType="error" 
             [nzMessage]="errorMessage" 
             nzShowIcon
+            nzCloseable
+            (nzOnClose)="clearError()"
           ></nz-alert>
         </div>
 
-        <!--  login -->
+        <!-- Botón de login -->
         <button 
           nz-button 
           nzType="primary" 
@@ -65,10 +91,11 @@
           nzBlock 
           type="submit"
           class="mb-3"
-          [disabled]="!username || !password"
+          [disabled]="!username || !password || isLoading"
+          [nzLoading]="isLoading"
         >
           <i nz-icon nzType="login" class="me-2"></i>
-          Ingresar
+          {{ isLoading ? 'Ingresando...' : 'Ingresar' }}
         </button>
       </form>
 

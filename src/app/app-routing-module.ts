@@ -10,6 +10,7 @@ import { ProductsComponent } from './Components/products/products.component';
 import { SalesComponent } from './Components/sales/sales.component';
 import { MetricsComponent } from './Components/metrics/metrics.component';
 import { DashboardComponent } from './Components/dashboard/dashboard.component';
+import { AuditComponent } from './Components/audit/audit.component';
 
 const routes: Routes = [
   { path: "", component: LoginComponent },
@@ -23,10 +24,10 @@ const routes: Routes = [
     { path: "services", component: ServicesComponent },
     { path: "products", component: ProductsComponent },
     { path: "sales", component: SalesComponent },
-    { path: "metrics", component: MetricsComponent }
+    { path: "metrics", component: MetricsComponent },
+    { path: 'audit', component: AuditComponent }
   ]}
 ];
-
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

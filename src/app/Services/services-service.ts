@@ -46,7 +46,19 @@ export class ServicesService {
   }
 
   postCategory(category: any) {
-    return this.http.post(this.url + 'categories', category, this.getHeaders());
+    return this.http.post(this.url + 'category', category, this.getHeaders());
   }
-  
+
+  // Nuevos métodos para categorías
+  putCategory(id: string, category: any) {
+    return this.http.put(this.url + 'category/' + id, category, this.getHeaders());
+  }
+
+  deleteCategory(id: string) {
+    return this.http.delete(this.url + 'category/' + id, this.getHeaders());
+  }
+
+  getCategoryById(id: string) {
+    return this.http.get(this.url + 'category/' + id, this.getHeaders());
+  }
 }

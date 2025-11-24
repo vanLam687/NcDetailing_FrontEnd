@@ -35,7 +35,10 @@
 
       <!-- Mensaje de error general -->
       <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-        {{ errorMessage }}
+        <div class="d-flex align-items-center">
+          <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
         <button type="button" class="btn-close" (click)="clearError()"></button>
       </div>
 
@@ -97,8 +100,23 @@
           <div class="card-body">
             <!-- Mensaje de error del formulario -->
             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-              {{ modalError }}
+              <div class="d-flex align-items-center">
+                <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+                <span>{{ modalError }}</span>
+              </div>
               <button type="button" class="btn-close" (click)="clearModalError()"></button>
+            </div>
+
+            <!-- Errores de validación del formulario -->
+            <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+              <div class="d-flex align-items-center">
+                <i nz-icon nzType="warning" class="me-2"></i>
+                <span>Por favor, corrige los siguientes errores:</span>
+              </div>
+              <ul class="mb-0 mt-1">
+                <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
+              </ul>
+              <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
             </div>
 
             <form (ngSubmit)="isEditMode ? EditEmployee() : CreateEmployee()">
@@ -109,10 +127,14 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.name"
                     [(ngModel)]="currentName" 
                     name="name"
                     placeholder="Ej: Juan Pérez"
                     required>
+                  <div *ngIf="formErrors.name" class="invalid-feedback d-block">
+                    {{ formErrors.name }}
+                  </div>
                 </div>
 
                 <!-- Usuario -->
@@ -121,10 +143,14 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.username"
                     [(ngModel)]="currentUsername" 
                     name="username"
                     placeholder="Ej: juan.perez"
                     required>
+                  <div *ngIf="formErrors.username" class="invalid-feedback d-block">
+                    {{ formErrors.username }}
+                  </div>
                 </div>
 
                 <!-- Email -->
@@ -133,10 +159,14 @@
                   <input 
                     type="email" 
                     class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.email"
                     [(ngModel)]="currentEmail" 
                     name="email"
                     placeholder="Ej: juan@ejemplo.com"
                     required>
+                  <div *ngIf="formErrors.email" class="invalid-feedback d-block">
+                    {{ formErrors.email }}
+                  </div>
                 </div>
 
                 <!-- Contraseña -->
@@ -147,10 +177,14 @@
                   <input 
                     type="password" 
                     class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.password"
                     [(ngModel)]="currentPassword" 
                     name="password"
                     [placeholder]="isEditMode ? 'Dejar vacío para no cambiar' : 'Ingrese la contraseña'"
                     [required]="!isEditMode">
+                  <div *ngIf="formErrors.password" class="invalid-feedback d-block">
+                    {{ formErrors.password }}
+                  </div>
                   <small *ngIf="isEditMode" class="text-muted">
                     Solo complete este campo si desea cambiar la contraseña
                   </small>
@@ -199,7 +233,7 @@
           <h5 class="modal-title w-100 text-center" id="deleteEmployeeModalLabel" style="font-weight: 600;">
             Eliminar Empleado
           </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
         </div>
         <div class="modal-body text-center">
           <div class="mb-4">
@@ -211,9 +245,18 @@
           <p class="text-muted small">
             Esta acción no se puede deshacer.
           </p>
+
+          <!-- Mensaje de error del modal -->
+          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
+          </div>
         </div>
         <div class="modal-footer border-0 justify-content-center">
-          <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
+          <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
             Cancelar
           </button>
           <button type="button" class="btn btn-danger" (click)="DeleteEmployee()" data-bs-dismiss="modal">

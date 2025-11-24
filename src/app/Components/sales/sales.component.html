@@ -54,7 +54,10 @@
 
       <!-- Mensaje de error general -->
       <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-        {{ errorMessage }}
+        <div class="d-flex align-items-center">
+          <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
         <button type="button" class="btn-close" (click)="clearError()"></button>
       </div>
 
@@ -184,7 +187,7 @@
   </div>
 
   <!-- Modal Crear Venta de Productos -->
-  <div class="modal fade" id="createProductSaleModal" tabindex="-1" aria-labelledby="createProductSaleModalLabel" aria-hidden="true">
+  <div class="modal fade" id="createProductSaleModal" tabindex="-1" aria-labelledby="createProductSaleModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -192,13 +195,28 @@
             <i nz-icon nzType="shopping-cart" class="me-2"></i>
             Nueva Venta de Productos
           </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError()"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
         </div>
         <div class="modal-body">
           <!-- Mensaje de error del formulario -->
           <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-            {{ modalError }}
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
             <button type="button" class="btn-close" (click)="clearModalError()"></button>
+          </div>
+
+          <!-- Errores de validación del formulario -->
+          <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="warning" class="me-2"></i>
+              <span>Por favor, corrige los siguientes errores:</span>
+            </div>
+            <ul class="mb-0 mt-1">
+              <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
+            </ul>
+            <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
           </div>
 
           <div class="row g-2">
@@ -209,6 +227,7 @@
                 <input 
                   type="text" 
                   class="form-control form-control-sm" 
+                  [class.is-invalid]="formErrors.client"
                   [(ngModel)]="clientSearchTerm"
                   (input)="filterClients($event)"
                   placeholder="Buscar cliente..."
@@ -223,16 +242,24 @@
                   </li>
                 </ul>
               </div>
+              <div *ngIf="formErrors.client" class="invalid-feedback d-block">
+                {{ formErrors.client }}
+              </div>
             </div>
 
             <div class="col-md-3">
               <label class="form-label fw-bold mb-1">Método Pago *</label>
-              <select class="form-select form-select-sm" [(ngModel)]="NewProdSale_PaymentMethodId">
+              <select class="form-select form-select-sm" 
+                      [class.is-invalid]="formErrors.paymentMethod"
+                      [(ngModel)]="NewProdSale_PaymentMethodId">
                 <option [ngValue]="0">Seleccionar...</option>
                 <option *ngFor="let method of DataSourcePaymentMethods" [ngValue]="method.id">
                   {{ method.name }}
                 </option>
               </select>
+              <div *ngIf="formErrors.paymentMethod" class="invalid-feedback d-block">
+                {{ formErrors.paymentMethod }}
+              </div>
             </div>
 
             <div class="col-md-3">
@@ -254,7 +281,7 @@
 
             <!-- Productos Agregados -->
             <div class="col-12">
-              <label class="form-label fw-bold mb-1">Productos</label>
+              <label class="form-label fw-bold mb-1">Productos *</label>
               
               <div class="mb-2">
                 <div *ngIf="NewProdSale_ProductsList.length === 0" class="alert alert-warning py-1">
@@ -268,6 +295,9 @@
                         <small class="text-muted">
                           {{ item.quantity }} x ${{ item.price | number:'1.2-2' }} = <strong>${{ (item.quantity * item.price) | number:'1.2-2' }}</strong>
                         </small>
+                        <div *ngIf="formErrors['productStock_' + i]" class="invalid-feedback d-block">
+                          {{ formErrors['productStock_' + i] }}
+                        </div>
                       </div>
                       <div class="col-auto">
                         <button type="button" class="btn btn-sm btn-outline-danger" (click)="RemoveProductFromSale(i)">
@@ -321,6 +351,9 @@
                   </div>
                 </div>
               </div>
+              <div *ngIf="formErrors.products" class="invalid-feedback d-block">
+                {{ formErrors.products }}
+              </div>
             </div>
           </div>
         </div>
@@ -328,10 +361,10 @@
           <div class="d-flex justify-content-between align-items-center w-100">
             <h5 class="text-success mb-0">TOTAL: ${{ calculateTotal(NewProdSale_ProductsList) | number:'1.2-2' }}</h5>
             <div class="d-flex gap-1">
-              <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" (click)="clearModalError()">
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
                 Cancelar
               </button>
-              <button type="button" class="btn btn-primary btn-sm" (click)="CreateProductSale()" data-bs-dismiss="modal">
+              <button type="button" class="btn btn-primary btn-sm" (click)="CreateProductSale()">
                 Crear Venta
               </button>
             </div>
@@ -342,7 +375,7 @@
   </div>
 
   <!-- Modal Crear Venta de Servicios -->
-  <div class="modal fade" id="createServiceSaleModal" tabindex="-1" aria-labelledby="createServiceSaleModalLabel" aria-hidden="true">
+  <div class="modal fade" id="createServiceSaleModal" tabindex="-1" aria-labelledby="createServiceSaleModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -350,13 +383,28 @@
             <i nz-icon nzType="car" class="me-2"></i>
             Nueva Venta de Servicios
           </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError()"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
         </div>
         <div class="modal-body">
           <!-- Mensaje de error del formulario -->
           <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-            {{ modalError }}
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
             <button type="button" class="btn-close" (click)="clearModalError()"></button>
+          </div>
+
+          <!-- Errores de validación del formulario -->
+          <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="warning" class="me-2"></i>
+              <span>Por favor, corrige los siguientes errores:</span>
+            </div>
+            <ul class="mb-0 mt-1">
+              <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
+            </ul>
+            <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
           </div>
 
           <div class="row g-2">
@@ -367,6 +415,7 @@
                 <input 
                   type="text" 
                   class="form-control form-control-sm" 
+                  [class.is-invalid]="formErrors.client"
                   [(ngModel)]="clientSearchTerm"
                   (input)="filterClients($event)"
                   placeholder="Buscar cliente..."
@@ -381,26 +430,40 @@
                   </li>
                 </ul>
               </div>
+              <div *ngIf="formErrors.client" class="invalid-feedback d-block">
+                {{ formErrors.client }}
+              </div>
             </div>
 
             <div class="col-md-6">
               <label class="form-label fw-bold mb-1">Vehículo *</label>
-              <select class="form-select form-select-sm" [(ngModel)]="NewSvcSale_VehicleId" [disabled]="ClientVehiclesList.length === 0">
+              <select class="form-select form-select-sm" 
+                      [class.is-invalid]="formErrors.vehicle"
+                      [(ngModel)]="NewSvcSale_VehicleId" 
+                      [disabled]="ClientVehiclesList.length === 0">
                 <option [ngValue]="0">Seleccionar vehículo...</option>
                 <option *ngFor="let v of ClientVehiclesList" [ngValue]="v.id">
                   {{ v.brand }} {{ v.model }} ({{ v.license_plate }})
                 </option>
               </select>
+              <div *ngIf="formErrors.vehicle" class="invalid-feedback d-block">
+                {{ formErrors.vehicle }}
+              </div>
             </div>
 
             <div class="col-md-6">
               <label class="form-label fw-bold mb-1">Método Pago *</label>
-              <select class="form-select form-select-sm" [(ngModel)]="NewSvcSale_PaymentMethodId">
+              <select class="form-select form-select-sm" 
+                      [class.is-invalid]="formErrors.paymentMethod"
+                      [(ngModel)]="NewSvcSale_PaymentMethodId">
                 <option [ngValue]="0">Seleccionar...</option>
                 <option *ngFor="let method of DataSourcePaymentMethods" [ngValue]="method.id">
                   {{ method.name }}
                 </option>
               </select>
+              <div *ngIf="formErrors.paymentMethod" class="invalid-feedback d-block">
+                {{ formErrors.paymentMethod }}
+              </div>
             </div>
 
             <div class="col-md-6">
@@ -422,7 +485,7 @@
 
             <!-- Servicios Agregados -->
             <div class="col-12">
-              <label class="form-label fw-bold mb-1">Servicios</label>
+              <label class="form-label fw-bold mb-1">Servicios *</label>
               
               <div class="mb-2">
                 <div *ngIf="NewSvcSale_ServicesList.length === 0" class="alert alert-warning py-1">
@@ -481,6 +544,9 @@
                   </div>
                 </div>
               </div>
+              <div *ngIf="formErrors.services" class="invalid-feedback d-block">
+                {{ formErrors.services }}
+              </div>
             </div>
           </div>
         </div>
@@ -488,10 +554,10 @@
           <div class="d-flex justify-content-between align-items-center w-100">
             <h5 class="text-success mb-0">TOTAL: ${{ calculateTotal(NewSvcSale_ServicesList) | number:'1.2-2' }}</h5>
             <div class="d-flex gap-1">
-              <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" (click)="clearModalError()">
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
                 Cancelar
               </button>
-              <button type="button" class="btn btn-primary btn-sm" (click)="CreateServiceSale()" data-bs-dismiss="modal">
+              <button type="button" class="btn btn-primary btn-sm" (click)="CreateServiceSale()">
                 Crear Venta
               </button>
             </div>
@@ -502,7 +568,7 @@
   </div>
 
   <!-- Modal Ver Detalles de Venta -->
-  <div class="modal fade" id="viewSaleModal" tabindex="-1" aria-labelledby="viewSaleModalLabel" aria-hidden="true">
+  <div class="modal fade" id="viewSaleModal" tabindex="-1" aria-labelledby="viewSaleModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -569,14 +635,14 @@
   </div>
 
   <!-- Modal Actualizar Estado de Pago -->
-  <div class="modal fade" id="updatePaymentModal" tabindex="-1" aria-labelledby="updatePaymentModalLabel" aria-hidden="true">
+  <div class="modal fade" id="updatePaymentModal" tabindex="-1" aria-labelledby="updatePaymentModalLabel" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header border-0">
           <h5 class="modal-title w-100 text-center" id="updatePaymentModalLabel" style="font-weight: 600;">
             Actualizar Estado de Pago
           </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
         </div>
         <div class="modal-body text-center">
           <div class="mb-3">
@@ -601,12 +667,21 @@
               <option [ngValue]="3">Cancelado</option>
             </select>
           </div>
+
+          <!-- Mensaje de error del modal -->
+          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
+          </div>
         </div>
         <div class="modal-footer border-0 justify-content-center">
-          <button type="button" class="btn btn-outline-secondary btn-sm me-2" data-bs-dismiss="modal">
+          <button type="button" class="btn btn-outline-secondary btn-sm me-2" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
             Cancelar
           </button>
-          <button type="button" class="btn btn-warning btn-sm" (click)="UpdatePaymentStatus()" data-bs-dismiss="modal" [disabled]="isSaleFinalized">
+          <button type="button" class="btn btn-warning btn-sm" (click)="UpdatePaymentStatus()" [disabled]="isSaleFinalized">
             Actualizar Estado
           </button>
         </div>

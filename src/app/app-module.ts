@@ -5,13 +5,14 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';// NG-ZORRO Modules
+import { MatIconModule } from '@angular/material/icon';
+
+// NG-ZORRO Modules - CORREGIDO
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzTableModule } from 'ng-zorro-antd/table';
@@ -22,15 +23,14 @@ import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
-import { NzEmptyComponent } from 'ng-zorro-antd/empty';
-import { NzOptionComponent } from 'ng-zorro-antd/select';
-import { NzSelectComponent } from 'ng-zorro-antd/select';
-import {NzInputNumberModule } from 'ng-zorro-antd/input-number';
-import { NzListItemComponent } from 'ng-zorro-antd/list';
+import { NzEmptyModule } from 'ng-zorro-antd/empty'; // Cambiado a módulo
+import { NzSelectModule } from 'ng-zorro-antd/select'; // Cambiado a módulo
+import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
+import { NzListModule } from 'ng-zorro-antd/list'; // Cambiado a módulo
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
-
-
+import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 //iconos de NG-Zorro
 import { NZ_I18N, es_ES } from 'ng-zorro-antd/i18n';
 import { NZ_ICONS } from 'ng-zorro-antd/icon';
@@ -52,7 +52,7 @@ import { ProductsComponent } from './Components/products/products.component';
 import { SalesComponent } from './Components/sales/sales.component';
 import { MetricsComponent } from './Components/metrics/metrics.component';
 import { DashboardComponent } from './Components/dashboard/dashboard.component';
-
+import { AuditComponent } from './Components/audit/audit.component';
 registerLocaleData(es);
 
 // Importar TODOS los iconos de Ant Design
@@ -82,16 +82,17 @@ const icons: IconDefinition[] = Object.keys(antDesignIcons).map(key => {
     SalesComponent,
     MetricsComponent,
     DashboardComponent,
+    AuditComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    FormsModule,
+    FormsModule, // ✅ FormsModule está correctamente importado
     ReactiveFormsModule,
     AppRoutingModule,
     
-    // NG-ZORRO Modules
+    // NG-ZORRO Modules - CORREGIDO
     NzCardModule,
     NzFormModule,
     NzButtonModule,
@@ -108,16 +109,16 @@ const icons: IconDefinition[] = Object.keys(antDesignIcons).map(key => {
     NzInputModule,
     NzTagModule,
     NzSpinModule,
-    NzEmptyComponent,
-    NzOptionComponent,
+    NzEmptyModule, // ✅ Cambiado a módulo
+    NzSelectModule, // ✅ Cambiado a módulo (importante para ngValue)
     NzInputNumberModule,
-    NzListItemComponent,
-    NzSelectComponent,
+    NzListModule, // ✅ Cambiado a módulo    
     NgApexchartsModule,
     MatProgressSpinnerModule,
     MatIconModule,
     MatTableModule,
-    MatButtonModule
+    MatButtonModule,
+    NzAlertModule,
   ],
   providers: [
     { provide: NZ_I18N, useValue: es_ES },

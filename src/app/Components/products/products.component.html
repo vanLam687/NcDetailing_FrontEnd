@@ -16,21 +16,40 @@
                   [class.btn-outline-primary]="activeView !== 'list'"
                   (click)="showListView()">
                   <i nz-icon nzType="unordered-list"></i>
-                  Lista
+                  Lista Productos
                 </button>
                 <button 
                   type="button" 
                   class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'form'"
-                  [class.btn-outline-primary]="activeView !== 'form'"
+                  [class.btn-primary]="activeView === 'categories'"
+                  [class.btn-outline-primary]="activeView !== 'categories'"
+                  (click)="showCategoriesView()">
+                  <i nz-icon nzType="folder-open"></i>
+                  Lista Categorías
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm" 
+                  [class.btn-primary]="activeView === 'create'"
+                  [class.btn-outline-primary]="activeView !== 'create'"
                   (click)="showCreateForm()">
                   <i nz-icon nzType="plus"></i>
-                  Nuevo Producto
+                  Nuevo producto
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm" 
+                  [class.btn-primary]="activeView === 'edit'"
+                  [class.btn-outline-primary]="activeView !== 'edit'"
+                  (click)="showEditBack()"
+                  [disabled]="!canShowEdit()">
+                  <i nz-icon nzType="edit"></i>
+                  Editar
                 </button>
               </div>
             </div>
             
-            <div class="d-flex gap-1" *ngIf="activeView === 'list'">
+            <div class="d-flex gap-1" *ngIf="activeView === 'list' || activeView === 'categories'">
               <button 
                 class="btn btn-outline-primary btn-sm"
                 data-bs-toggle="modal" 
@@ -45,7 +64,10 @@
 
       <!-- Mensaje de error general -->
       <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-        {{ errorMessage }}
+        <div class="d-flex align-items-center">
+          <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
         <button type="button" class="btn-close" (click)="clearError()"></button>
       </div>
 
@@ -65,8 +87,8 @@
               </div>
               <div class="col-md-4">
                 <select class="form-select form-select-sm" [(ngModel)]="SelectedCategory">
-                  <option value="">Todas las categorías</option>
-                  <option *ngFor="let category of DataSourceCategories" [value]="category.id">
+                  <option value="">Todas</option>
+                  <option *ngFor="let category of DataSourceCategories" [value]="category.name">
                     {{ category.name }}
                   </option>
                 </select>
@@ -97,6 +119,7 @@
                   <th style="color: #333;">Categoría</th>
                   <th style="color: #333;">Precio</th>
                   <th style="color: #333;">Stock</th>
+                  <th style="color: #333;">Stock Mín.</th>
                   <th style="color: #333;">Estado</th>
                   <th class="text-center pe-2" style="color: #333;">Acciones</th>
                 </tr>
@@ -108,13 +131,15 @@
                   <td style="color: #333;">{{ product.category || '-' }}</td>
                   <td style="color: #333;"><strong>${{ product.price }}</strong></td>
                   <td style="color: #333;">
-                    <span [class.text-danger]="product.stock === 0" [class.text-warning]="product.stock < 10">
+                    <span [class.text-danger]="product.stock === 0" [class.text-warning]="product.stock <= product.min_stock">
                       {{ product.stock }}
                     </span>
                   </td>
+                  <td style="color: #333;">{{ product.min_stock }}</td>
                   <td style="color: #333;">
-                    <span *ngIf="product.lowStock" class="badge bg-danger">Stock Bajo</span>
-                    <span *ngIf="!product.lowStock" class="badge bg-success">Normal</span>
+                    <span *ngIf="product.stock === 0" class="badge bg-danger">Sin Stock</span>
+                    <span *ngIf="product.stock > 0 && product.stock <= product.min_stock" class="badge bg-warning">Stock Bajo</span>
+                    <span *ngIf="product.stock > product.min_stock" class="badge bg-success">Normal</span>
                   </td>
                   <td class="text-center pe-2">
                     <button 
@@ -137,23 +162,85 @@
         </div>
       </div>
 
-      <!-- VISTA: Formulario de Producto -->
-      <div *ngIf="activeView === 'form'">
+      <!-- VISTA: Lista de Categorías -->
+      <div *ngIf="activeView === 'categories'">
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3">
             <h6 class="mb-0">
-              <i nz-icon [nzType]="isEditMode ? 'edit' : 'plus'"></i>
-              {{ isEditMode ? 'Editar Producto' : 'Nuevo Producto' }}
+              <i nz-icon nzType="folder-open"></i>
+              Categorías de Productos
+            </h6>
+          </div>
+          <div class="card-body p-0">
+            <nz-table #categoriesTable [nzData]="DataSourceCategories" class="w-100 compact-table" nzSize="small">
+              <thead>
+                <tr>
+                  <th class="ps-2" style="color: #333;">ID</th>
+                  <th style="color: #333;">Nombre</th>
+                  <th class="text-center pe-2" style="color: #333;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let category of categoriesTable.data" class="table-row">
+                  <td class="ps-2" style="color: #333;"><strong>#{{ category.id }}</strong></td>
+                  <td style="color: #333;"><strong>{{ category.name }}</strong></td>
+                  <td class="text-center pe-2">
+                    <button 
+                      class="btn btn-outline-primary btn-sm me-1"
+                      data-bs-toggle="modal" 
+                      data-bs-target="#editCategoryModal"
+                      (click)="DatosEditCategory(category)">
+                      <i nz-icon nzType="edit"></i>
+                      Editar
+                    </button>
+                    <button 
+                      class="btn btn-outline-danger btn-sm"
+                      data-bs-toggle="modal" 
+                      data-bs-target="#deleteCategoryModal"
+                      (click)="DatosDeleteCategory(category)">
+                      <i nz-icon nzType="delete"></i>
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA: Crear Producto -->
+      <div *ngIf="activeView === 'create'">
+        <div class="card shadow-sm">
+          <div class="card-header py-2 px-3">
+            <h6 class="mb-0">
+              <i nz-icon nzType="plus"></i>
+              Nuevo Producto
             </h6>
           </div>
           <div class="card-body">
             <!-- Mensaje de error del formulario -->
             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-              {{ modalError }}
+              <div class="d-flex align-items-center">
+                <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+                <span>{{ modalError }}</span>
+              </div>
               <button type="button" class="btn-close" (click)="clearModalError()"></button>
             </div>
 
-            <form (ngSubmit)="isEditMode ? EditProduct() : CreateProduct()">
+            <!-- Errores de validación del formulario -->
+            <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+              <div class="d-flex align-items-center">
+                <i nz-icon nzType="warning" class="me-2"></i>
+                <span>Por favor, corrige los siguientes errores:</span>
+              </div>
+              <ul class="mb-0 mt-1">
+                <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
+              </ul>
+              <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
+            </div>
+
+            <form (ngSubmit)="CreateProduct()">
               <div class="row g-2">
                 <!-- Nombre del Producto -->
                 <div class="col-12">
@@ -161,13 +248,17 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
-                    [(ngModel)]="currentProductName" 
+                    [class.is-invalid]="formErrors.productName"
+                    [(ngModel)]="ProductName" 
                     name="productName"
                     placeholder="Ej: Producto Premium"
                     required>
+                  <div *ngIf="formErrors.productName" class="invalid-feedback d-block">
+                    {{ formErrors.productName }}
+                  </div>
                 </div>
 
-                <!-- Precio y Stock -->
+                <!-- Precio, Stock y Stock Mínimo -->
                 <div class="col-md-4">
                   <label class="form-label fw-bold mb-1">Precio *</label>
                   <div class="input-group input-group-sm">
@@ -175,12 +266,16 @@
                     <input 
                       type="number" 
                       class="form-control" 
-                      [(ngModel)]="currentProductPrice" 
+                      [class.is-invalid]="formErrors.productPrice"
+                      [(ngModel)]="ProductPrice" 
                       name="productPrice"
                       placeholder="0.00" 
                       step="0.01"
-                      min="0"
+                      min="0.01"
                       required>
+                  </div>
+                  <div *ngIf="formErrors.productPrice" class="invalid-feedback d-block">
+                    {{ formErrors.productPrice }}
                   </div>
                 </div>
 
@@ -189,22 +284,31 @@
                   <input 
                     type="number" 
                     class="form-control form-control-sm" 
-                    [(ngModel)]="currentProductStock" 
+                    [class.is-invalid]="formErrors.productStock"
+                    [(ngModel)]="ProductStock" 
                     name="productStock"
                     placeholder="0" 
                     min="0"
                     required>
+                  <div *ngIf="formErrors.productStock" class="invalid-feedback d-block">
+                    {{ formErrors.productStock }}
+                  </div>
                 </div>
 
                 <div class="col-md-4">
-                  <label class="form-label fw-bold mb-1">Stock Mínimo</label>
+                  <label class="form-label fw-bold mb-1">Stock Mínimo *</label>
                   <input 
                     type="number" 
                     class="form-control form-control-sm" 
-                    [(ngModel)]="currentProductMinStock" 
+                    [class.is-invalid]="formErrors.productMinStock"
+                    [(ngModel)]="ProductMinStock" 
                     name="productMinStock"
                     placeholder="0" 
-                    min="0">
+                    min="0"
+                    required>
+                  <div *ngIf="formErrors.productMinStock" class="invalid-feedback d-block">
+                    {{ formErrors.productMinStock }}
+                  </div>
                 </div>
 
                 <!-- Categoría -->
@@ -214,7 +318,8 @@
                     <input 
                       type="text" 
                       class="form-control form-control-sm" 
-                      [(ngModel)]="currentProductCategoryName"
+                      [class.is-invalid]="formErrors.productCategory"
+                      [(ngModel)]="ProductCategoryName"
                       (input)="filterCategories($event)"
                       name="productCategory"
                       placeholder="Buscar categoría..."
@@ -229,19 +334,29 @@
                       </li>
                     </ul>
                   </div>
+                  <div *ngIf="formErrors.productCategory" class="invalid-feedback d-block">
+                    {{ formErrors.productCategory }}
+                  </div>
                 </div>
 
-                <!-- Descripción -->
+                <!-- Descripción (REQUERIDA) - CORREGIDO -->
                 <div class="col-12">
-                  <label class="form-label fw-bold mb-1">Descripción</label>
+                  <label class="form-label fw-bold mb-1">Descripción *</label>
                   <textarea 
                     class="form-control form-control-sm" 
-                    [(ngModel)]="currentProductDescription" 
+                    [class.is-invalid]="formErrors.productDescription"
+                    [(ngModel)]="ProductDescription" 
                     name="productDescription"
                     placeholder="Describe el producto..."
                     rows="2"
-                    maxlength="500"></textarea>
-                  <small class="text-muted">{{ currentProductDescription.length }}/500</small>
+                    maxlength="500"
+                    required></textarea>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div *ngIf="formErrors.productDescription" class="invalid-feedback d-block">
+                      {{ formErrors.productDescription }}
+                    </div>
+                    <small class="text-muted">{{ ProductDescription.length }}/500</small>
+                  </div>
                 </div>
 
                 <!-- Botones del formulario -->
@@ -250,7 +365,7 @@
                     <button 
                       type="button" 
                       class="btn btn-outline-secondary btn-sm"
-                      (click)="showListView()">
+                      (click)="goBack()">
                       <i nz-icon nzType="arrow-left"></i>
                       Volver
                     </button>
@@ -259,14 +374,188 @@
                       <button 
                         type="button" 
                         class="btn btn-outline-danger btn-sm"
-                        (click)="clearForm()"
-                        *ngIf="!isEditMode">
+                        (click)="clearForm()">
                         Limpiar
                       </button>
                       <button 
                         type="submit" 
                         class="btn btn-primary btn-sm">
-                        {{ isEditMode ? 'Guardar' : 'Crear' }}
+                        Crear
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISTA: Editar Producto -->
+      <div *ngIf="activeView === 'edit'">
+        <div class="card shadow-sm">
+          <div class="card-header py-2 px-3">
+            <h6 class="mb-0">
+              <i nz-icon nzType="edit"></i>
+              Editar Producto - {{ SelectedProduct?.name }}
+            </h6>
+          </div>
+          <div class="card-body">
+            <!-- Mensaje de error del formulario -->
+            <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
+              <div class="d-flex align-items-center">
+                <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+                <span>{{ modalError }}</span>
+              </div>
+              <button type="button" class="btn-close" (click)="clearModalError()"></button>
+            </div>
+
+            <!-- Errores de validación del formulario -->
+            <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+              <div class="d-flex align-items-center">
+                <i nz-icon nzType="warning" class="me-2"></i>
+                <span>Por favor, corrige los siguientes errores:</span>
+              </div>
+              <ul class="mb-0 mt-1">
+                <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
+              </ul>
+              <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
+            </div>
+
+            <form (ngSubmit)="EditProduct()">
+              <div class="row g-2">
+                <!-- Nombre del Producto -->
+                <div class="col-12">
+                  <label class="form-label fw-bold mb-1">Nombre *</label>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.productName"
+                    [(ngModel)]="ProductName" 
+                    name="productName"
+                    placeholder="Ej: Producto Premium"
+                    required>
+                  <div *ngIf="formErrors.productName" class="invalid-feedback d-block">
+                    {{ formErrors.productName }}
+                  </div>
+                </div>
+
+                <!-- Precio, Stock y Stock Mínimo -->
+                <div class="col-md-4">
+                  <label class="form-label fw-bold mb-1">Precio *</label>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">$</span>
+                    <input 
+                      type="number" 
+                      class="form-control" 
+                      [class.is-invalid]="formErrors.productPrice"
+                      [(ngModel)]="ProductPrice" 
+                      name="productPrice"
+                      placeholder="0.00" 
+                      step="0.01"
+                      min="0.01"
+                      required>
+                  </div>
+                  <div *ngIf="formErrors.productPrice" class="invalid-feedback d-block">
+                    {{ formErrors.productPrice }}
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label fw-bold mb-1">Stock *</label>
+                  <input 
+                    type="number" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.productStock"
+                    [(ngModel)]="ProductStock" 
+                    name="productStock"
+                    placeholder="0" 
+                    min="0"
+                    required>
+                  <div *ngIf="formErrors.productStock" class="invalid-feedback d-block">
+                    {{ formErrors.productStock }}
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="form-label fw-bold mb-1">Stock Mínimo *</label>
+                  <input 
+                    type="number" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.productMinStock"
+                    [(ngModel)]="ProductMinStock" 
+                    name="productMinStock"
+                    placeholder="0" 
+                    min="0"
+                    required>
+                  <div *ngIf="formErrors.productMinStock" class="invalid-feedback d-block">
+                    {{ formErrors.productMinStock }}
+                  </div>
+                </div>
+
+                <!-- Categoría -->
+                <div class="col-12">
+                  <label class="form-label fw-bold mb-1">Categoría *</label>
+                  <div class="dropdown">
+                    <input 
+                      type="text" 
+                      class="form-control form-control-sm" 
+                      [class.is-invalid]="formErrors.productCategory"
+                      [(ngModel)]="ProductCategoryName"
+                      (input)="filterCategories($event)"
+                      name="productCategory"
+                      placeholder="Buscar categoría..."
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                      required>
+                    <ul class="dropdown-menu w-100" style="max-height: 140px; overflow-y: auto;">
+                      <li *ngFor="let category of filteredCategories">
+                        <a class="dropdown-item" href="javascript:void(0)" (click)="selectCategory(category)">
+                          {{ category.name }}
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div *ngIf="formErrors.productCategory" class="invalid-feedback d-block">
+                    {{ formErrors.productCategory }}
+                  </div>
+                </div>
+
+                <!-- Descripción (REQUERIDA) - CORREGIDO -->
+                <div class="col-12">
+                  <label class="form-label fw-bold mb-1">Descripción *</label>
+                  <textarea 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.productDescription"
+                    [(ngModel)]="ProductDescription" 
+                    name="productDescription"
+                    placeholder="Describe el producto..."
+                    rows="2"
+                    maxlength="500"
+                    required></textarea>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div *ngIf="formErrors.productDescription" class="invalid-feedback d-block">
+                      {{ formErrors.productDescription }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Botones del formulario -->
+                <div class="col-12">
+                  <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-secondary btn-sm"
+                      (click)="goBack()">
+                      <i nz-icon nzType="arrow-left"></i>
+                      Volver
+                    </button>
+                    
+                    <div class="d-flex gap-1">
+                      <button 
+                        type="submit" 
+                        class="btn btn-primary btn-sm">
+                        Guardar
                       </button>
                     </div>
                   </div>
@@ -285,22 +574,84 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="createCategoryModalLabel">Crear Nueva Categoría</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError()"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
         </div>
         <div class="modal-body">
           <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-            {{ modalError }}
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
             <button type="button" class="btn-close" (click)="clearModalError()"></button>
           </div>
+
+          <div *ngIf="formErrors.categoryName" class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="warning" class="me-2"></i>
+              <span>{{ formErrors.categoryName }}</span>
+            </div>
+            <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
+          </div>
+
           <div class="mb-3">
-            <label class="form-label fw-bold">Nombre de la categoría</label>
-            <input type="text" class="form-control" [(ngModel)]="CategoryName" placeholder="Ingrese el nombre de la categoría">
+            <label class="form-label fw-bold">Nombre de la categoría *</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [class.is-invalid]="formErrors.categoryName"
+              [(ngModel)]="CategoryName" 
+              placeholder="Ingrese el nombre de la categoría">
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError()">Cancelar</button>
-          <button type="button" class="btn btn-primary" (click)="CreateCategory()" data-bs-dismiss="modal">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="CreateCategory()">
             Crear Categoría
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para editar categoría -->
+  <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editCategoryModalLabel">Editar Categoría</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
+          </div>
+
+          <div *ngIf="formErrors.categoryName" class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="warning" class="me-2"></i>
+              <span>{{ formErrors.categoryName }}</span>
+            </div>
+            <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nombre de la categoría *</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              [class.is-invalid]="formErrors.categoryName"
+              [(ngModel)]="CategoryName" 
+              placeholder="Ingrese el nombre de la categoría">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="EditCategory()">
+            Guardar Cambios
           </button>
         </div>
       </div>
@@ -334,6 +685,39 @@
           </button>
           <button type="button" class="btn btn-danger" (click)="DeleteProduct()" data-bs-dismiss="modal">
             Eliminar Producto
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Eliminar Categoría -->
+  <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title w-100 text-center" id="deleteCategoryModalLabel" style="font-weight: 600;">
+            Eliminar Categoría
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="mb-4">
+            <i nz-icon nzType="exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i>
+          </div>
+          <p class="mb-3" style="color: #666; line-height: 1.5;">
+            ¿Estás seguro de que deseas eliminar la categoría <strong>"{{ CategoryToDelete?.name }}"</strong>?
+          </p>
+          <p class="text-muted small">
+            Esta acción no se puede deshacer. No podrás eliminar categorías que estén siendo utilizadas por productos.
+          </p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-danger" (click)="DeleteCategory()" data-bs-dismiss="modal">
+            Eliminar Categoría
           </button>
         </div>
       </div>

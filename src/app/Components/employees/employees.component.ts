@@ -40,6 +40,7 @@ export class EmployeesComponent implements OnInit {
   // Errores
   errorMessage: string = '';
   modalError: string = '';
+  formErrors: any = {};
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
@@ -53,6 +54,9 @@ export class EmployeesComponent implements OnInit {
     this.activeView = 'list';
     this.clearForm();
     this.clearError();
+    this.clearModalError();
+    this.clearFormErrors();
+    this.GetEmployees();
   }
 
   showCreateForm(): void {
@@ -60,6 +64,8 @@ export class EmployeesComponent implements OnInit {
     this.isEditMode = false;
     this.clearForm();
     this.clearError();
+    this.clearModalError();
+    this.clearFormErrors();
   }
 
   showEditForm(employee: any): void {
@@ -73,6 +79,63 @@ export class EmployeesComponent implements OnInit {
     this.PasswordEdit = '';
     
     this.clearError();
+    this.clearModalError();
+    this.clearFormErrors();
+  }
+
+  // Validación de formulario - NUEVO
+  validateEmployeeForm(): boolean {
+    this.clearFormErrors();
+    let isValid = true;
+
+    // Validar nombre
+    if (!this.currentName || this.currentName.trim() === '') {
+      this.formErrors.name = 'El nombre es requerido';
+      isValid = false;
+    } else if (this.currentName.length > 100) {
+      this.formErrors.name = 'El nombre no puede exceder los 100 caracteres';
+      isValid = false;
+    }
+
+    // Validar usuario
+    if (!this.currentUsername || this.currentUsername.trim() === '') {
+      this.formErrors.username = 'El usuario es requerido';
+      isValid = false;
+    } else if (this.currentUsername.length > 50) {
+      this.formErrors.username = 'El usuario no puede exceder los 50 caracteres';
+      isValid = false;
+    }
+
+    // Validar email
+    if (!this.currentEmail || this.currentEmail.trim() === '') {
+      this.formErrors.email = 'El email es requerido';
+      isValid = false;
+    } else if (!this.isValidEmail(this.currentEmail)) {
+      this.formErrors.email = 'El formato del email no es válido';
+      isValid = false;
+    } else if (this.currentEmail.length > 100) {
+      this.formErrors.email = 'El email no puede exceder los 100 caracteres';
+      isValid = false;
+    }
+
+    // Validar contraseña (solo para crear)
+    if (!this.isEditMode) {
+      if (!this.currentPassword || this.currentPassword.trim() === '') {
+        this.formErrors.password = 'La contraseña es requerida';
+        isValid = false;
+      } else if (this.currentPassword.length < 6) {
+        this.formErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+        isValid = false;
+      }
+    }
+
+    return isValid;
+  }
+
+  // Validar formato de email - NUEVO
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   // Servicios
@@ -83,36 +146,54 @@ export class EmployeesComponent implements OnInit {
         this.clearError();
       },
       error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
         this.handleError(error);
       }
     });
   }
 
   CreateEmployee(): void {
+    if (!this.validateEmployeeForm()) {
+      return;
+    }
+
     const employee = {
-      name: this.Name,
-      username: this.Username,
-      email: this.Email,
+      name: this.Name.trim(),
+      username: this.Username.trim(),
+      email: this.Email.trim(),
       password: this.Password
     };
 
     this.service.PostEmployee(employee).subscribe({
       next: () => {
         this.clearError();
+        this.clearModalError();
+        this.clearFormErrors();
+        this.showSuccessNotification('Empleado creado correctamente');
         this.showListView();
-        this.GetEmployees();
       },
       error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
         this.handleModalError(error);
       }
     });
   }
 
   EditEmployee(): void {
+    if (!this.validateEmployeeForm()) {
+      return;
+    }
+
     const employee: any = {
-      name: this.NameEdit,
-      username: this.UsernameEdit,
-      email: this.EmailEdit
+      name: this.NameEdit.trim(),
+      username: this.UsernameEdit.trim(),
+      email: this.EmailEdit.trim()
     };
 
     if (this.PasswordEdit && this.PasswordEdit.trim() !== '') {
@@ -122,10 +203,16 @@ export class EmployeesComponent implements OnInit {
     this.service.PutEmployee(this.IdEdit.toString(), employee).subscribe({
       next: () => {
         this.clearError();
+        this.clearModalError();
+        this.clearFormErrors();
+        this.showSuccessNotification('Empleado actualizado correctamente');
         this.showListView();
-        this.GetEmployees();
       },
       error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
         this.handleModalError(error);
       }
     });
@@ -135,18 +222,128 @@ export class EmployeesComponent implements OnInit {
     this.IdDelete = employee.id;
     this.EmployeeToDeleteName = employee.name;
     this.clearError();
+    this.clearModalError();
+    this.clearFormErrors();
   }
 
   DeleteEmployee(): void {
     this.service.DeleteEmployee(this.IdDelete.toString()).subscribe({
       next: () => {
         this.clearError();
+        this.clearModalError();
+        this.clearFormErrors();
+        this.showSuccessNotification('Empleado eliminado correctamente');
         this.GetEmployees();
+        this.closeModal('deleteEmployeeModal');
       },
       error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
         this.handleModalError(error);
       }
     });
+  }
+
+  // Método para cerrar modales - NUEVO
+  private closeModal(modalId: string): void {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      const modalInstance = (window as any).bootstrap.Modal.getInstance(modal);
+      if (modalInstance) {
+        modalInstance.hide();
+      }
+    }
+  }
+
+  // Método para mostrar notificaciones de éxito - NUEVO
+  private showSuccessNotification(message: string): void {
+    // Crear elemento de notificación con diseño mejorado
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-success alert-dismissible fade show custom-toast';
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      min-width: 350px;
+      max-width: 450px;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+      color: white;
+      padding: 16px 20px;
+      animation: slideInRight 0.3s ease-out;
+    `;
+    
+    notification.innerHTML = `
+      <div class="d-flex align-items-center">
+        <!-- CHECK NORMAL -->
+        <span style="
+          font-size: 22px;
+          font-weight: bold;
+          color: white;
+          margin-right: 12px;
+          line-height: 1;
+        ">
+          ✔
+        </span>
+
+        <div class="flex-grow-1">
+          <strong class="me-auto" 
+            style="font-size: 16px; display: block; margin-bottom: 4px;">
+            ¡Éxito!
+          </strong>
+          <div style="font-size: 14px; opacity: 0.95;">${message}</div>
+        </div>
+
+        <button type="button" class="btn-close btn-close-white" 
+          data-bs-dismiss="alert"
+          style="filter: brightness(0) invert(1); opacity: 0.8; margin-left: 16px;">
+        </button>
+      </div>
+    `;
+
+    // Agregar estilos CSS para la animación
+    if (!document.querySelector('#toast-styles')) {
+      const style = document.createElement('style');
+      style.id = 'toast-styles';
+      style.textContent = `
+        @keyframes slideInRight {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        
+        .custom-toast {
+          backdrop-filter: blur(10px);
+          border-left: 4px solid #1e8449 !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    // Agregar al body
+    document.body.appendChild(notification);
+
+    // Auto-remover después de 4 segundos
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }
+    }, 4000);
   }
 
   // Getters para el formulario
@@ -198,39 +395,198 @@ export class EmployeesComponent implements OnInit {
     }
   }
 
-  // Manejo de errores
+  // Manejo de errores - MEJORADO
   handleError(error: any): void {
+    this.clearFormErrors();
+    
     if (error.error?.mensaje) {
       this.errorMessage = error.error.mensaje;
-    } else if (error.error?.message) {
+    } 
+    else if (error.error?.message) {
       this.errorMessage = error.error.message;
-    } else if (error.error?.error) {
-      this.errorMessage = error.error.error;
-    } else if (typeof error.error === 'string') {
+    } 
+    else if (error.error?.error) {
+      // Extraer mensajes específicos de validación
+      if (typeof error.error.error === 'string') {
+        this.errorMessage = error.error.error;
+      } else if (error.error.error.details) {
+        // Manejar errores de Joi
+        const details = error.error.error.details;
+        this.errorMessage = details.map((detail: any) => {
+          // Traducir mensajes de Joi a español
+          if (detail.type === 'string.empty') {
+            return `"${detail.context.label}" no puede estar vacío`;
+          } else if (detail.type === 'string.max') {
+            return `"${detail.context.label}" no puede exceder los ${detail.context.limit} caracteres`;
+          } else if (detail.type === 'string.email') {
+            return `"${detail.context.label}" debe ser un email válido`;
+          } else if (detail.type === 'any.required') {
+            return `"${detail.context.label}" es requerido`;
+          }
+          return detail.message;
+        }).join(', ');
+      } else {
+        this.errorMessage = error.error.error;
+      }
+    }
+    else if (typeof error.error === 'string') {
       this.errorMessage = error.error;
-    } else if (error.status === 0) {
+    }
+    else if (error.status === 0) {
       this.errorMessage = 'Error de conexión. No se puede conectar al servidor.';
-    } else if (error.statusText) {
-      this.errorMessage = `Error ${error.status}: ${error.statusText}`;
-    } else {
+    }
+    else if (error.status === 400) {
+      this.errorMessage = 'Solicitud incorrecta. Verifique los datos ingresados.';
+    }
+    else if (error.status === 409) {
+      this.errorMessage = 'El empleado ya existe.';
+    }
+    else if (error.status === 404) {
+      this.errorMessage = 'Empleado no encontrado.';
+    }
+    else if (error.status === 500) {
+      this.errorMessage = 'Error interno del servidor.';
+    }
+    else {
       this.errorMessage = 'Ha ocurrido un error inesperado.';
     }
   }
 
   handleModalError(error: any): void {
+    this.clearFormErrors();
+    
     if (error.error?.mensaje) {
       this.modalError = error.error.mensaje;
-    } else if (error.error?.message) {
+    } 
+    else if (error.error?.message) {
       this.modalError = error.error.message;
-    } else if (error.error?.error) {
-      this.modalError = error.error.error;
-    } else if (typeof error.error === 'string') {
+    } 
+    else if (error.error?.error) {
+      // Extraer mensajes específicos de validación
+      if (typeof error.error.error === 'string') {
+        this.modalError = error.error.error;
+      } else if (error.error.error.details) {
+        // Manejar errores de Joi
+        const details = error.error.error.details;
+        this.modalError = details.map((detail: any) => {
+          // Traducir mensajes de Joi a español
+          if (detail.type === 'string.empty') {
+            return `"${detail.context.label}" no puede estar vacío`;
+          } else if (detail.type === 'string.max') {
+            return `"${detail.context.label}" no puede exceder los ${detail.context.limit} caracteres`;
+          } else if (detail.type === 'string.email') {
+            return `"${detail.context.label}" debe ser un email válido`;
+          } else if (detail.type === 'any.required') {
+            return `"${detail.context.label}" es requerido`;
+          }
+          return detail.message;
+        }).join(', ');
+      } else {
+        this.modalError = error.error.error;
+      }
+    }
+    else if (typeof error.error === 'string') {
       this.modalError = error.error;
-    } else if (error.status === 0) {
+    }
+    else if (error.status === 0) {
       this.modalError = 'Error de conexión. No se puede conectar al servidor.';
-    } else {
+    }
+    else if (error.status === 400) {
+      this.modalError = 'Solicitud incorrecta. Verifique los datos ingresados.';
+    }
+    else if (error.status === 409) {
+      this.modalError = 'Ya existe un empleado con ese nombre de usuario o email.';
+    }
+    else if (error.status === 404) {
+      this.modalError = 'El empleado no fue encontrado.';
+    }
+    else if (error.status === 500) {
+      this.modalError = 'Error interno del servidor.';
+    }
+    else {
       this.modalError = 'Ha ocurrido un error inesperado.';
     }
+
+    // Mostrar toast de error
+    this.showToast(this.modalError, 'error');
+  }
+
+  // Método para mostrar toast de error - NUEVO
+  private showToast(message: string, type: 'success' | 'error' | 'warning' = 'success'): void {
+    // Crear elemento de notificación con diseño mejorado
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-dismissible fade show custom-toast';
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      min-width: 350px;
+      max-width: 450px;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      padding: 16px 20px;
+      animation: slideInRight 0.3s ease-out;
+    `;
+
+    // Configurar colores según el tipo
+    if (type === 'success') {
+      notification.style.background = 'linear-gradient(135deg, #27ae60 0%, #229954 100%)';
+      notification.style.color = 'white';
+      notification.style.borderLeft = '4px solid #1e8449';
+    } else if (type === 'error') {
+      notification.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+      notification.style.color = 'white';
+      notification.style.borderLeft = '4px solid #a93226';
+    } else {
+      notification.style.background = 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)';
+      notification.style.color = 'white';
+      notification.style.borderLeft = '4px solid #a84300';
+    }
+    
+    notification.innerHTML = `
+      <div class="d-flex align-items-center">
+        <!-- Icono -->
+        <span style="
+          font-size: 22px;
+          font-weight: bold;
+          color: white;
+          margin-right: 12px;
+          line-height: 1;
+        ">
+          ${type === 'success' ? '✔' : type === 'error' ? '✖' : '⚠'}
+        </span>
+
+        <div class="flex-grow-1">
+          <strong class="me-auto" 
+            style="font-size: 16px; display: block; margin-bottom: 4px;">
+            ${type === 'success' ? '¡Éxito!' : type === 'error' ? 'Error' : 'Advertencia'}
+          </strong>
+          <div style="font-size: 14px; opacity: 0.95;">${message}</div>
+        </div>
+
+        <button type="button" class="btn-close btn-close-white" 
+          data-bs-dismiss="alert"
+          style="filter: brightness(0) invert(1); opacity: 0.8; margin-left: 16px;">
+        </button>
+      </div>
+    `;
+
+    // Agregar al body
+    document.body.appendChild(notification);
+
+    // Auto-remover después de 4 segundos
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }
+    }, 4000);
   }
 
   clearError(): void {
@@ -239,6 +595,14 @@ export class EmployeesComponent implements OnInit {
 
   clearModalError(): void {
     this.modalError = '';
+  }
+
+  clearFormErrors(): void {
+    this.formErrors = {};
+  }
+
+  hasFormErrors(): boolean {
+    return Object.keys(this.formErrors).length > 0;
   }
 
   clearForm(): void {
@@ -252,6 +616,7 @@ export class EmployeesComponent implements OnInit {
     this.EmailEdit = '';
     this.PasswordEdit = '';
     
-    this.modalError = '';
+    this.clearModalError();
+    this.clearFormErrors();
   }
 }

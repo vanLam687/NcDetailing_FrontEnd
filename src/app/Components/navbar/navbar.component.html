@@ -15,8 +15,7 @@
       <div class="user-section">
         <div class="user-info">
           <span class="user-greeting">Hola, {{getUserName()}}</span>
-          <span class="user-role" *ngIf="isAdmin">Administrador</span>
-          <span class="user-role" *ngIf="!isAdmin">Usuario</span>
+          <span class="user-role">{{getUserRoleName()}}</span>
         </div>
         <div class="user-avatar">
           {{getUserInitial()}}
@@ -40,7 +39,8 @@
             </a>
           </li>
 
-          <li class="nav-item" *ngIf="isAdmin">
+          <!-- Métricas - Solo Admin -->
+          <li class="nav-item" *ngIf="canAccessMetrics()">
             <a class="nav-link" routerLink="/home/metrics" routerLinkActive="active">
               <div class="nav-icon">
                 <i nz-icon nzType="bar-chart"></i>
@@ -49,7 +49,8 @@
             </a>
           </li>
 
-          <li class="nav-item">
+          <!-- Ventas - Admin y Empleado -->
+          <li class="nav-item" *ngIf="canAccessSales()">
             <a class="nav-link" routerLink="/home/sales" routerLinkActive="active">
               <div class="nav-icon">
                 <i nz-icon nzType="dollar"></i>
@@ -58,7 +59,8 @@
             </a>
           </li>
 
-          <li class="nav-item">
+          <!-- Clientes - Admin y Empleado -->
+          <li class="nav-item" *ngIf="canAccessClients()">
             <a class="nav-link" routerLink="/home/clients" routerLinkActive="active">
               <div class="nav-icon">
                 <i nz-icon nzType="user"></i>
@@ -67,7 +69,8 @@
             </a>
           </li>
           
-          <li class="nav-item">
+          <!-- Servicios - Admin y Empleado -->
+          <li class="nav-item" *ngIf="canAccessServices()">
             <a class="nav-link" routerLink="/home/services" routerLinkActive="active">
               <div class="nav-icon">
                 <i nz-icon nzType="tool"></i>
@@ -76,7 +79,8 @@
             </a>
           </li>
           
-          <li class="nav-item">
+          <!-- Productos - Admin y Empleado -->
+          <li class="nav-item" *ngIf="canAccessProducts()">
             <a class="nav-link" routerLink="/home/products" routerLinkActive="active">
               <div class="nav-icon">
                 <i nz-icon nzType="shopping"></i>
@@ -85,7 +89,8 @@
             </a>
           </li>
 
-          <li class="nav-item" *ngIf="isAdmin">
+          <!-- Empleados - Solo Admin -->
+          <li class="nav-item" *ngIf="canAccessEmployees()">
             <a class="nav-link" routerLink="/home/employees" routerLinkActive="active">
               <div class="nav-icon">
                 <i nz-icon nzType="team"></i>
@@ -93,7 +98,19 @@
               <span class="nav-label">Empleados</span>
             </a>
           </li>
+
+          <!-- Auditorías - Solo Admin -->
+          <li class="nav-item" *ngIf="canAccessAudit()">
+            <a class="nav-link" routerLink="/home/audit" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="audit"></i>
+              </div>
+              <span class="nav-label">Auditorías</span>
+            </a>
+          </li>
+
         </ul>
+
       </nav>
       
       <div class="sidebar-footer">

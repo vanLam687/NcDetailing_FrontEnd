@@ -3,6 +3,22 @@
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
       <h3 class="text-primary mb-0"><i nz-icon nzType="dashboard"></i> Dashboard de Métricas</h3>
+      <!-- Botón de exportación CORREGIDO -->
+        <button class="btn btn-success d-flex align-items-center gap-2"
+                (click)="exportToPDF()" 
+                [disabled]="isExporting || !metricsData">
+
+          <!-- Spinner SOLO cuando exporta -->
+          <span *ngIf="isExporting" class="spinner-border spinner-border-sm" role="status"></span>
+
+          <!-- Texto dinámico -->
+          <span>
+            <i *ngIf="!isExporting" nz-icon nzType="file-pdf"></i>
+            {{ isExporting ? 'Exportando...' : 'Exportar PDF' }}
+          </span>
+
+        </button>
+
     </div>
     <div class="card-body">
       <!-- Botones de filtro separados -->
@@ -60,19 +76,30 @@
     {{ errorMessage }}
   </div>
 
-  <div *ngIf="!isLoading && metricsData">
+  <!-- Contenido del dashboard con referencia para exportar -->
+  <div #dashboardContent *ngIf="!isLoading && metricsData" class="pdf-content">
+    
+    <!-- Información del rango de fechas para el PDF -->
+    <div class="pdf-header text-center mb-4 d-print-block">
+      <h2 class="text-dark mb-1">Dashboard de Métricas</h2>
+      <p class="text-muted mb-3">
+        Período: {{ metricsData.range.start }} a {{ metricsData.range.end }}
+        | Generado: {{ today | date:'medium' }}
+      </p>
+    </div>
+
     <div class="row mb-4">
       <div class="col-md-3">
         <div class="card text-white bg-success shadow-sm h-100">
-          <div class="card-body">
+          <div class="card-body text-center">
             <h5 class="card-title"><i nz-icon nzType="dollar"></i> Ingresos Totales</h5>
-            <p class="card-text display-6">{{ metricsData.general.totalRevenue | currency:'ARS':'symbol':'1.2-2' }}</p>
+            <p class="card-text display-6" >{{ metricsData.general.totalRevenue | currency:'ARS':'symbol':'1.2-2' }}</p>
           </div>
         </div>
       </div>
       <div class="col-md-3">
         <div class="card text-white bg-primary shadow-sm h-100">
-          <div class="card-body">
+          <div class="card-body text-center">
             <h5 class="card-title"><i nz-icon nzType="tool"></i> Ingresos Servicios</h5>
             <p class="card-text display-6">{{ metricsData.general.totalServiceRevenue | currency:'ARS':'symbol':'1.2-2' }}</p>
           </div>
@@ -80,7 +107,7 @@
       </div>
       <div class="col-md-3">
         <div class="card text-white bg-info shadow-sm h-100">
-          <div class="card-body">
+          <div class="card-body text-center">
             <h5 class="card-title"><i nz-icon nzType="shopping"></i> Ingresos Productos</h5>
             <p class="card-text display-6">{{ metricsData.general.totalProductRevenue | currency:'ARS':'symbol':'1.2-2' }}</p>
           </div>
@@ -88,7 +115,7 @@
       </div>
       <div class="col-md-3">
         <div class="card text-dark bg-light shadow-sm h-100">
-          <div class="card-body">
+          <div class="card-body text-center">
             <h5 class="card-title"><i nz-icon nzType="team"></i> Clientes Atendidos</h5>
             <p class="card-text display-6">{{ metricsData.general.totalClientsAttended }}</p>
           </div>
@@ -100,6 +127,7 @@
       <div class="col-md-8">
         <div class="card shadow-sm h-100">
           <div class="card-body">
+            <h6 class="card-title text-center mb-3">Ingresos por Tipo y Período</h6>
             <apx-chart
               [series]="breakdownChartOptions.series"
               [chart]="breakdownChartOptions.chart"
@@ -117,6 +145,7 @@
       <div class="col-md-4">
         <div class="card shadow-sm h-100">
           <div class="card-body">
+            <h6 class="card-title text-center mb-3">Ingresos por Método de Pago</h6>
             <apx-chart
               [series]="paymentChartOptions.series"
               [chart]="paymentChartOptions.chart"
@@ -136,7 +165,7 @@
     <div class="row mb-4">
       <div class="col-md-4">
         <div class="card shadow-sm h-100">
-          <div class="card-header bg-light">Top Productos</div>
+          <div class="card-header bg-light text-center">Top Productos</div>
           <div class="card-body">
             <apx-chart
                 [series]="topProductsChartOptions.series"
@@ -154,7 +183,7 @@
       </div>
       <div class="col-md-4">
         <div class="card shadow-sm h-100">
-          <div class="card-header bg-light">Top Servicios</div>
+          <div class="card-header bg-light text-center">Top Servicios</div>
           <div class="card-body">
              <apx-chart
                 [series]="topServicesChartOptions.series"
@@ -172,7 +201,7 @@
       </div>
       <div class="col-md-4">
         <div class="card shadow-sm h-100">
-          <div class="card-header bg-light">Top Clientes (por Gasto)</div>
+          <div class="card-header bg-light text-center">Top Clientes (por Gasto)</div>
           <div class="card-body">
              <div *ngIf="!metricsData?.top?.clients?.length" class="text-center text-muted p-5">
               No hay datos de clientes.
