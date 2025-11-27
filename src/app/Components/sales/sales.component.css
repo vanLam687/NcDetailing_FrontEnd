@@ -251,6 +251,64 @@ i[nz-icon] {
   border-radius: 0 0 10px 10px;
 }
 
+/* Badges para estados */
+.badge {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.bg-warning {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important;
+  color: white !important;
+}
+
+.bg-success {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%) !important;
+  color: white !important;
+}
+
+.bg-danger {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+  color: white !important;
+}
+.bg-progress {
+  background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%) !important; /* Azul vibrante */
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(13, 110, 253, 0.2); /* Sombra suave para resaltar */
+}
+.bg-secondary {
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%) !important;
+  color: white !important;
+}
+
+.bg-info {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+  color: rgb(7, 5, 5) !important;
+}
+
+/* Estilos específicos para modales de detalle */
+#viewProductSaleModal .modal-header {
+  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
+}
+
+#viewServiceSaleModal .modal-header {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+}
+
+/* Estilos para las tablas en los modales */
+.modal-content .table th {
+  background: #f8f9fa !important;
+  color: #333 !important;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.modal-content .table td {
+  border-color: #f1f3f4;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container-fluid {
@@ -271,3 +329,4 @@ i[nz-icon] {
     padding: 8px !important;
   }
 }
+
