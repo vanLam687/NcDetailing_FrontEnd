@@ -20,6 +20,9 @@ export class EmployeesComponent implements OnInit {
   activeView: 'list' | 'form' = 'list';
   isEditMode: boolean = false;
 
+  // Filtro de estado
+  EmployeeStatus: 'active' | 'inactive' = 'active';
+
   // Formulario de empleado
   Name: string = '';
   Username: string = '';
@@ -83,7 +86,7 @@ export class EmployeesComponent implements OnInit {
     this.clearFormErrors();
   }
 
-  // Validación de formulario - NUEVO
+  // Validación de formulario
   validateEmployeeForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
@@ -132,7 +135,7 @@ export class EmployeesComponent implements OnInit {
     return isValid;
   }
 
-  // Validar formato de email - NUEVO
+  // Validar formato de email
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -140,7 +143,7 @@ export class EmployeesComponent implements OnInit {
 
   // Servicios
   GetEmployees(): void {
-    this.service.GetEmployees().subscribe({
+    this.service.GetEmployees(this.EmployeeStatus).subscribe({
       next: (data: any) => {
         this.DataSourceEmployees = data.data;
         this.clearError();
@@ -246,7 +249,30 @@ export class EmployeesComponent implements OnInit {
     });
   }
 
-  // Método para cerrar modales - NUEVO
+  // Restaurar empleado (visible cuando EmployeeStatus === 'inactive')
+  RestoreEmployee(id: number): void {
+    this.service.RestoreEmployee(id.toString()).subscribe({
+      next: () => {
+        this.showSuccessNotification('Empleado restaurado correctamente');
+        this.GetEmployees();
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
+        this.handleModalError(error);
+      }
+    });
+  }
+
+  // Cuando cambia el filtro de estado de empleados
+  onEmployeeStatusChange(newStatus: 'active' | 'inactive'): void {
+    this.EmployeeStatus = newStatus;
+    this.GetEmployees();
+  }
+
+  // Método para cerrar modales
   private closeModal(modalId: string): void {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -257,7 +283,7 @@ export class EmployeesComponent implements OnInit {
     }
   }
 
-  // Método para mostrar notificaciones de éxito - NUEVO
+  // Método para mostrar notificaciones de éxito
   private showSuccessNotification(message: string): void {
     // Crear elemento de notificación con diseño mejorado
     const notification = document.createElement('div');
@@ -395,7 +421,7 @@ export class EmployeesComponent implements OnInit {
     }
   }
 
-  // Manejo de errores - MEJORADO
+  // Manejo de errores
   handleError(error: any): void {
     this.clearFormErrors();
     
@@ -506,87 +532,6 @@ export class EmployeesComponent implements OnInit {
     else {
       this.modalError = 'Ha ocurrido un error inesperado.';
     }
-
-    // Mostrar toast de error
-    this.showToast(this.modalError, 'error');
-  }
-
-  // Método para mostrar toast de error - NUEVO
-  private showToast(message: string, type: 'success' | 'error' | 'warning' = 'success'): void {
-    // Crear elemento de notificación con diseño mejorado
-    const notification = document.createElement('div');
-    notification.className = 'alert alert-dismissible fade show custom-toast';
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      min-width: 350px;
-      max-width: 450px;
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      padding: 16px 20px;
-      animation: slideInRight 0.3s ease-out;
-    `;
-
-    // Configurar colores según el tipo
-    if (type === 'success') {
-      notification.style.background = 'linear-gradient(135deg, #27ae60 0%, #229954 100%)';
-      notification.style.color = 'white';
-      notification.style.borderLeft = '4px solid #1e8449';
-    } else if (type === 'error') {
-      notification.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
-      notification.style.color = 'white';
-      notification.style.borderLeft = '4px solid #a93226';
-    } else {
-      notification.style.background = 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)';
-      notification.style.color = 'white';
-      notification.style.borderLeft = '4px solid #a84300';
-    }
-    
-    notification.innerHTML = `
-      <div class="d-flex align-items-center">
-        <!-- Icono -->
-        <span style="
-          font-size: 22px;
-          font-weight: bold;
-          color: white;
-          margin-right: 12px;
-          line-height: 1;
-        ">
-          ${type === 'success' ? '✔' : type === 'error' ? '✖' : '⚠'}
-        </span>
-
-        <div class="flex-grow-1">
-          <strong class="me-auto" 
-            style="font-size: 16px; display: block; margin-bottom: 4px;">
-            ${type === 'success' ? '¡Éxito!' : type === 'error' ? 'Error' : 'Advertencia'}
-          </strong>
-          <div style="font-size: 14px; opacity: 0.95;">${message}</div>
-        </div>
-
-        <button type="button" class="btn-close btn-close-white" 
-          data-bs-dismiss="alert"
-          style="filter: brightness(0) invert(1); opacity: 0.8; margin-left: 16px;">
-        </button>
-      </div>
-    `;
-
-    // Agregar al body
-    document.body.appendChild(notification);
-
-    // Auto-remover después de 4 segundos
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.style.animation = 'slideInRight 0.3s ease-out reverse';
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-          }
-        }, 300);
-      }
-    }, 4000);
   }
 
   clearError(): void {

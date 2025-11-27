@@ -45,6 +45,20 @@
       <!-- VISTA: Lista de Empleados -->
       <div *ngIf="activeView === 'list'">
         
+        <!-- Filtros -->
+        <div class="card shadow-sm mb-2">
+          <div class="card-body py-1 px-3">
+            <div class="row g-1 align-items-center">
+              <div class="col-md-3">
+                <select class="form-select form-select-sm" [(ngModel)]="EmployeeStatus" (change)="onEmployeeStatusChange(EmployeeStatus)">
+                  <option value="active">Activos</option>
+                  <option value="inactive">Inactivos</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Tabla de empleados -->
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3">
@@ -68,18 +82,31 @@
                   <td style="color: #333;">{{ employee.username }}</td>
                   <td style="color: #333;">{{ employee.email }}</td>
                   <td class="text-center pe-2">
-                    <button 
-                      class="btn btn-outline-primary btn-sm me-1"
-                      (click)="showEditForm(employee)">
-                      <i nz-icon nzType="edit"></i>
-                    </button>
-                    <button 
-                      class="btn btn-outline-danger btn-sm"
-                      data-bs-toggle="modal" 
-                      data-bs-target="#deleteEmployeeModal"
-                      (click)="DatosDelete(employee)">
-                      <i nz-icon nzType="delete"></i>
-                    </button>
+                    <!-- Si estamos viendo inactivos --> 
+                    <ng-container *ngIf="EmployeeStatus === 'inactive'; else activeActions">
+                      <button 
+                        class="btn btn-outline-success btn-sm me-1"
+                        (click)="RestoreEmployee(employee.id)">
+                        <i nz-icon nzType="reload"></i>
+                        Restaurar
+                      </button>
+                    </ng-container>
+
+                    <!-- Acciones para empleados activos -->
+                    <ng-template #activeActions>
+                      <button 
+                        class="btn btn-outline-primary btn-sm me-1"
+                        (click)="showEditForm(employee)">
+                        <i nz-icon nzType="edit"></i>
+                      </button>
+                      <button 
+                        class="btn btn-outline-danger btn-sm"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#deleteEmployeeModal"
+                        (click)="DatosDelete(employee)">
+                        <i nz-icon nzType="delete"></i>
+                      </button>
+                    </ng-template>
                   </td>
                 </tr>
               </tbody>

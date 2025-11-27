@@ -17,7 +17,7 @@ const routes: Routes = [
   { path: "login", component: LoginComponent},
   { path: "lock", component: LockComponent},
   { path: "home", component: ContainerComponent, children: [
-    { path: "", component: DashboardComponent }, // Ruta por defecto para home
+    { path: "", component: DashboardComponent },
     { path: "dashboard", component: DashboardComponent },
     { path: "employees", component: EmployeesComponent },
     { path: "clients", component: ClientsComponent },

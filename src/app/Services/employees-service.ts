@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth-service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -8,17 +9,35 @@ import { AuthService } from './auth-service';
 export class EmployeesService {
   url = 'http://localhost:3000/api/employees/';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(
+    private http: HttpClient, 
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   private getHeaders() {
     const token = this.authService.getToken();
+    
+    if (!token) {
+      console.error('No token found, redirecting to login');
+      this.authService.logout();
+      this.router.navigate(['/login']);
+      throw new Error('Authentication required');
+    }
+    
     return { 
-      headers: { 'Authorization': `Bearer ${token}` } 
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      } 
     };
   }
 
-  GetEmployees() {
-    return this.http.get(this.url, this.getHeaders());
+  GetEmployees(status?: string) {
+    const params: any = {};
+    if (status) params.status = status;
+    
+    return this.http.get(this.url, { ...this.getHeaders(), params });
   }
 
   GetEmployeeById(id: string) {
@@ -35,5 +54,9 @@ export class EmployeesService {
 
   DeleteEmployee(id: string) {
     return this.http.delete(this.url + id, this.getHeaders());
+  }
+
+  RestoreEmployee(id: string) {
+    return this.http.patch(this.url + id + '/restore', {}, this.getHeaders());
   }
 }

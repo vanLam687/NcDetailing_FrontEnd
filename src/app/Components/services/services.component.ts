@@ -6,7 +6,7 @@ import { AuthService } from '../../Services/auth-service';
 @Component({
   selector: 'app-services',
   templateUrl: './services.component.html',
-  styleUrl: './services.component.css',
+  styleUrls: ['./services.component.css'],
   standalone: false
 })
 export class ServicesComponent implements OnInit {
@@ -20,6 +20,10 @@ export class ServicesComponent implements OnInit {
   // Variables para lista
   SearchName: string = '';
   SelectedCategory: string = '';
+
+  // Nuevo: estados para filtros (servicios y categorías)
+  ServiceStatus: 'active' | 'inactive' | 'all' = 'active';
+  CategoryStatus: 'active' | 'inactive' | 'all' = 'active';
 
   // Variables para formulario
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
@@ -57,7 +61,7 @@ export class ServicesComponent implements OnInit {
   }
 
   GetServices(): void {
-    this.service.getServices(this.SearchName, this.SelectedCategory).subscribe({
+    this.service.getServices(this.SearchName, this.SelectedCategory, this.ServiceStatus).subscribe({
       next: (data: any) => {
         this.DataSourceServices = data.data;
         this.clearError();
@@ -73,7 +77,7 @@ export class ServicesComponent implements OnInit {
   }
 
   GetCategories(): void {
-    this.service.getCategories().subscribe({
+    this.service.getCategories(this.CategoryStatus).subscribe({
       next: (data: any) => {
         this.DataSourceCategories = data.data;
         this.filteredCategories = data.data;
@@ -221,15 +225,6 @@ export class ServicesComponent implements OnInit {
       isValid = false;
     }
 
-    // Validar descripción - ahora es requerida y no puede estar vacía
-    if (!this.ServiceDescription || this.ServiceDescription.trim() === '') {
-      this.formErrors.serviceDescription = 'La descripción es requerida';
-      isValid = false;
-    } else if (this.ServiceDescription.length > 500) {
-      this.formErrors.serviceDescription = 'La descripción no puede exceder los 500 caracteres';
-      isValid = false;
-    }
-
     return isValid;
   }
 
@@ -256,7 +251,6 @@ export class ServicesComponent implements OnInit {
 
     const service = {
       name: this.ServiceName.trim(),
-      description: this.ServiceDescription.trim(),
       price: this.ServicePrice,
       category_id: this.ServiceCategoryId
     };
@@ -285,7 +279,6 @@ export class ServicesComponent implements OnInit {
 
     const service: any = {
       name: this.ServiceName.trim(),
-      description: this.ServiceDescription.trim(),
       price: this.ServicePrice,
       category_id: this.ServiceCategoryId
     };
@@ -324,6 +317,23 @@ export class ServicesComponent implements OnInit {
         this.showSuccessNotification('Servicio eliminado correctamente');
         this.GetServices();
         this.closeModal('deleteServiceModal');
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
+        this.handleModalError(error);
+      }
+    });
+  }
+
+  // Restore service (visible when ServiceStatus === 'inactive')
+  RestoreService(id: number): void {
+    this.service.restoreService(id.toString()).subscribe({
+      next: () => {
+        this.showSuccessNotification('Servicio restaurado correctamente');
+        this.GetServices();
       },
       error: (error) => {
         if (error.status === 401) {
@@ -429,6 +439,23 @@ export class ServicesComponent implements OnInit {
     this.clearFormErrors();
   }
 
+  // Restore category (visible when CategoryStatus === 'inactive')
+  RestoreCategory(id: number): void {
+    this.service.restoreCategory(id.toString()).subscribe({
+      next: () => {
+        this.showSuccessNotification('Categoría restaurada correctamente');
+        this.GetCategories();
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
+        this.handleModalError(error);
+      }
+    });
+  }
+
   ApplyFilters(): void {
     this.GetServices();
   }
@@ -436,10 +463,23 @@ export class ServicesComponent implements OnInit {
   ClearFilters(): void {
     this.SearchName = '';
     this.SelectedCategory = '';
+    this.ServiceStatus = 'active';
     this.GetServices();
   }
 
-  // Método para cerrar modales - NUEVO
+  // Cuando cambia el filtro de estado de servicios
+  onServiceStatusChange(newStatus: 'active' | 'inactive' | 'all'): void {
+    this.ServiceStatus = newStatus;
+    this.GetServices();
+  }
+
+  // Cuando cambia el filtro de estado de categorías
+  onCategoryStatusChange(newStatus: 'active' | 'inactive' | 'all'): void {
+    this.CategoryStatus = newStatus;
+    this.GetCategories();
+  }
+
+  // Método para cerrar modales
   private closeModal(modalId: string): void {
     const modal = document.getElementById(modalId);
     if (modal) {
@@ -450,7 +490,7 @@ export class ServicesComponent implements OnInit {
     }
   }
 
-  // Método para mostrar notificaciones de éxito - NUEVO
+  // Método para mostrar notificaciones de éxito
   private showSuccessNotification(message: string): void {
     // Crear elemento de notificación con diseño mejorado
     const notification = document.createElement('div');
@@ -549,23 +589,11 @@ export class ServicesComponent implements OnInit {
       this.errorMessage = error.error.message;
     } 
     else if (error.error?.error) {
-      // Extraer mensajes específicos de validación
       if (typeof error.error.error === 'string') {
         this.errorMessage = error.error.error;
       } else if (error.error.error.details) {
-        // Manejar errores de Joi
         const details = error.error.error.details;
         this.errorMessage = details.map((detail: any) => {
-          // Traducir mensajes de Joi a español
-          if (detail.type === 'string.empty') {
-            return `"${detail.context.label}" no puede estar vacío`;
-          } else if (detail.type === 'string.max') {
-            return `"${detail.context.label}" no puede exceder los ${detail.context.limit} caracteres`;
-          } else if (detail.type === 'number.positive') {
-            return `"${detail.context.label}" debe ser un número positivo`;
-          } else if (detail.type === 'any.required') {
-            return `"${detail.context.label}" es requerido`;
-          }
           return detail.message;
         }).join(', ');
       } else {
@@ -605,23 +633,11 @@ export class ServicesComponent implements OnInit {
       this.modalError = error.error.message;
     } 
     else if (error.error?.error) {
-      // Extraer mensajes específicos de validación
       if (typeof error.error.error === 'string') {
         this.modalError = error.error.error;
       } else if (error.error.error.details) {
-        // Manejar errores de Joi
         const details = error.error.error.details;
         this.modalError = details.map((detail: any) => {
-          // Traducir mensajes de Joi a español
-          if (detail.type === 'string.empty') {
-            return `"${detail.context.label}" no puede estar vacío`;
-          } else if (detail.type === 'string.max') {
-            return `"${detail.context.label}" no puede exceder los ${detail.context.limit} caracteres`;
-          } else if (detail.type === 'number.positive') {
-            return `"${detail.context.label}" debe ser un número positivo`;
-          } else if (detail.type === 'any.required') {
-            return `"${detail.context.label}" es requerido`;
-          }
           return detail.message;
         }).join(', ');
       } else {

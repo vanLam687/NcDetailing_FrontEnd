@@ -6,7 +6,7 @@ import { ProductsService } from '../../Services/products-service';
 @Component({
   selector: 'app-products',
   templateUrl: './products.component.html',
-  styleUrl: './products.component.css',
+  styleUrls: ['./products.component.css'],
   standalone: false
 })
 export class ProductsComponent implements OnInit {
@@ -20,6 +20,10 @@ export class ProductsComponent implements OnInit {
   // Variables para lista
   SearchName: string = '';
   SelectedCategory: string = '';
+
+  // Nuevo: estados para filtros (productos y categorías)
+  ProductStatus: 'active' | 'inactive' | 'all' = 'active';
+  CategoryStatus: 'active' | 'inactive' | 'all' = 'active';
 
   // Variables para formulario
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
@@ -59,7 +63,11 @@ export class ProductsComponent implements OnInit {
   }
 
   GetProducts(): void {
-    this.service.getProducts(this.SearchName, this.SelectedCategory).subscribe({
+    // Convert SelectedCategory (string name) to category_id if possible
+    const selectedCategoryObj = this.DataSourceCategories.find(c => c.name === this.SelectedCategory);
+    const categoryIdParam = selectedCategoryObj ? selectedCategoryObj.id : undefined;
+
+    this.service.getProducts(this.SearchName, categoryIdParam?.toString(), this.ProductStatus).subscribe({
       next: (data: any) => {
         this.DataSourceProducts = data.data;
         this.clearError();
@@ -75,7 +83,7 @@ export class ProductsComponent implements OnInit {
   }
 
   GetCategories(): void {
-    this.service.getCategories().subscribe({
+    this.service.getCategories(this.CategoryStatus).subscribe({
       next: (data: any) => {
         this.DataSourceCategories = data.data;
         this.filteredCategories = data.data;
@@ -378,6 +386,23 @@ export class ProductsComponent implements OnInit {
     });
   }
 
+  // Restore product (visible when ProductStatus === 'inactive')
+  RestoreProduct(id: number): void {
+    this.service.restoreProduct(id.toString()).subscribe({
+      next: () => {
+        this.showSuccessNotification('Producto restaurado correctamente');
+        this.GetProducts();
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
+        this.handleModalError(error);
+      }
+    });
+  }
+
   // CRUD Operations para Categorías
   CreateCategory(): void {
     if (!this.validateCategoryForm()) {
@@ -472,6 +497,23 @@ export class ProductsComponent implements OnInit {
     this.clearFormErrors();
   }
 
+  // Restore category (visible when CategoryStatus === 'inactive')
+  RestoreCategory(id: number): void {
+    this.service.restoreCategory(id.toString()).subscribe({
+      next: () => {
+        this.showSuccessNotification('Categoría restaurada correctamente');
+        this.GetCategories();
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
+        this.handleModalError(error);
+      }
+    });
+  }
+
   ApplyFilters(): void {
     this.GetProducts();
   }
@@ -479,7 +521,20 @@ export class ProductsComponent implements OnInit {
   ClearFilters(): void {
     this.SearchName = '';
     this.SelectedCategory = '';
+    this.ProductStatus = 'active';
     this.GetProducts();
+  }
+
+  // Cuando cambia el filtro de estado de productos
+  onProductStatusChange(newStatus: 'active' | 'inactive' | 'all'): void {
+    this.ProductStatus = newStatus;
+    this.GetProducts();
+  }
+
+  // Cuando cambia el filtro de estado de categorías
+  onCategoryStatusChange(newStatus: 'active' | 'inactive' | 'all'): void {
+    this.CategoryStatus = newStatus;
+    this.GetCategories();
   }
 
   // Método para cerrar modales

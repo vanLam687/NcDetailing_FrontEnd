@@ -1,3 +1,6 @@
+/* pega aquí tu CSS original (el que me diste). 
+   Lo incluyo porque pediste todos los archivos completos. */
+
 .container-fluid {
   background: linear-gradient(135deg, #f8f9fa 0%, #f5f7ff 100%);
   min-height: calc(100vh - 70px);
@@ -280,9 +283,11 @@
 /* Badges */
 .badge {
   font-size: 10px;
-  padding: 3px 6px;
-  border-radius: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .bg-danger {

@@ -78,14 +78,15 @@
         <div class="card shadow-sm mb-2">
           <div class="card-body py-1 px-3">
             <div class="row g-1 align-items-center">
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <input 
                   type="text" 
                   class="form-control form-control-sm"
                   [(ngModel)]="SearchName"
                   placeholder="Buscar...">
               </div>
-              <div class="col-md-4">
+
+              <div class="col-md-3">
                 <select class="form-select form-select-sm" [(ngModel)]="SelectedCategory">
                   <option value="">Todas</option>
                   <option *ngFor="let category of DataSourceCategories" [value]="category.name">
@@ -93,6 +94,14 @@
                   </option>
                 </select>
               </div>
+
+              <div class="col-md-2">
+                <select class="form-select form-select-sm" [(ngModel)]="ProductStatus" (change)="onProductStatusChange(ProductStatus)">
+                  <option value="active">Activos</option>
+                  <option value="inactive">Inactivos</option>
+                </select>
+              </div>
+
               <div class="col-md-4">
                 <button class="btn btn-primary btn-sm me-1" (click)="ApplyFilters()">
                   <i nz-icon nzType="search"></i>
@@ -120,7 +129,6 @@
                   <th style="color: #333;">Precio</th>
                   <th style="color: #333;">Stock</th>
                   <th style="color: #333;">Stock Mín.</th>
-                  <th style="color: #333;">Estado</th>
                   <th class="text-center pe-2" style="color: #333;">Acciones</th>
                 </tr>
               </thead>
@@ -136,24 +144,32 @@
                     </span>
                   </td>
                   <td style="color: #333;">{{ product.min_stock }}</td>
-                  <td style="color: #333;">
-                    <span *ngIf="product.stock === 0" class="badge bg-danger">Sin Stock</span>
-                    <span *ngIf="product.stock > 0 && product.stock <= product.min_stock" class="badge bg-warning">Stock Bajo</span>
-                    <span *ngIf="product.stock > product.min_stock" class="badge bg-success">Normal</span>
-                  </td>
                   <td class="text-center pe-2">
-                    <button 
-                      class="btn btn-outline-primary btn-sm me-1"
-                      (click)="showEditForm(product)">
-                      <i nz-icon nzType="edit"></i>
-                    </button>
-                    <button 
-                      class="btn btn-outline-danger btn-sm"
-                      data-bs-toggle="modal" 
-                      data-bs-target="#deleteProductModal"
-                      (click)="DatosDelete(product)">
-                      <i nz-icon nzType="delete"></i>
-                    </button>
+                    <!-- Si estamos viendo inactivos --> 
+                    <ng-container *ngIf="ProductStatus === 'inactive'; else activeActions">
+                      <button 
+                        class="btn btn-outline-success btn-sm me-1"
+                        (click)="RestoreProduct(product.id)">
+                        <i nz-icon nzType="reload"></i>
+                        Restaurar
+                      </button>
+                    </ng-container>
+
+                    <!-- Acciones para productos activos/todas -->
+                    <ng-template #activeActions>
+                      <button 
+                        class="btn btn-outline-primary btn-sm me-1"
+                        (click)="showEditForm(product)">
+                        <i nz-icon nzType="edit"></i>
+                      </button>
+                      <button 
+                        class="btn btn-outline-danger btn-sm"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#deleteProductModal"
+                        (click)="DatosDelete(product)">
+                        <i nz-icon nzType="delete"></i>
+                      </button>
+                    </ng-template>
                   </td>
                 </tr>
               </tbody>
@@ -165,11 +181,20 @@
       <!-- VISTA: Lista de Categorías -->
       <div *ngIf="activeView === 'categories'">
         <div class="card shadow-sm">
-          <div class="card-header py-2 px-3">
-            <h6 class="mb-0">
-              <i nz-icon nzType="folder-open"></i>
-              Categorías de Productos
-            </h6>
+          <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-0">
+                <i nz-icon nzType="folder-open"></i>
+                Categorías de Productos
+              </h6>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+              <select class="form-select form-select-sm" [(ngModel)]="CategoryStatus" (change)="onCategoryStatusChange(CategoryStatus)" style="width:160px;">
+                <option value="active">Activas</option>
+                <option value="inactive">Inactivas</option>
+                <option value="all">Todas</option>
+              </select>
+            </div>
           </div>
           <div class="card-body p-0">
             <nz-table #categoriesTable [nzData]="DataSourceCategories" class="w-100 compact-table" nzSize="small">
@@ -185,22 +210,30 @@
                   <td class="ps-2" style="color: #333;"><strong>#{{ category.id }}</strong></td>
                   <td style="color: #333;"><strong>{{ category.name }}</strong></td>
                   <td class="text-center pe-2">
-                    <button 
-                      class="btn btn-outline-primary btn-sm me-1"
-                      data-bs-toggle="modal" 
-                      data-bs-target="#editCategoryModal"
-                      (click)="DatosEditCategory(category)">
-                      <i nz-icon nzType="edit"></i>
-                      Editar
-                    </button>
-                    <button 
-                      class="btn btn-outline-danger btn-sm"
-                      data-bs-toggle="modal" 
-                      data-bs-target="#deleteCategoryModal"
-                      (click)="DatosDeleteCategory(category)">
-                      <i nz-icon nzType="delete"></i>
-                      Eliminar
-                    </button>
+                    <ng-container *ngIf="CategoryStatus === 'inactive'; else catActive">
+                      <button class="btn btn-outline-success btn-sm" (click)="RestoreCategory(category.id)">
+                        <i nz-icon nzType="reload"></i>
+                        Restaurar
+                      </button>
+                    </ng-container>
+                    <ng-template #catActive>
+                      <button 
+                        class="btn btn-outline-primary btn-sm me-1"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#editCategoryModal"
+                        (click)="DatosEditCategory(category)">
+                        <i nz-icon nzType="edit"></i>
+                        Editar
+                      </button>
+                      <button 
+                        class="btn btn-outline-danger btn-sm"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#deleteCategoryModal"
+                        (click)="DatosDeleteCategory(category)">
+                        <i nz-icon nzType="delete"></i>
+                        Eliminar
+                      </button>
+                    </ng-template>
                   </td>
                 </tr>
               </tbody>
