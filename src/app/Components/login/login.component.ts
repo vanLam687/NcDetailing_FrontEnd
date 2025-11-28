@@ -10,27 +10,31 @@ import { AuthService } from '../../Services/auth-service';
   styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit {
-  
+
   constructor(
     private service: UsersService, 
     private auth: AuthService, 
     private router: Router
   ) {}
-  
+
   username: string = '';
   password: string = '';
   errorMessage: string = '';
   formErrors: any = {};
   isLoading: boolean = false;
 
+  // 👁 Mostrar / ocultar contraseña
+  showPassword: boolean = false;
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+
   ngOnInit(): void {
     this.auth.logout();
   }
 
   Login(): void {
-    if (!this.validateLoginForm()) {
-      return;
-    }
+    if (!this.validateLoginForm()) return;
 
     this.isLoading = true;
     this.clearError();
@@ -44,6 +48,7 @@ export class LoginComponent implements OnInit {
     this.service.Login(obj).subscribe({
       next: (res: any) => {
         this.isLoading = false;
+
         if (res.login === true && res.token) {
           this.auth.setToken(res.token);
           this.clearError();
@@ -83,24 +88,17 @@ export class LoginComponent implements OnInit {
 
   handleError(error: any): void {
     this.clearFormErrors();
-    
-    // Interpretación de códigos de estado para mensajes predeterminados
-    if (error.status === 0) {
+
+    if (error.status === 0) 
       this.errorMessage = 'Error de conexión. Verifique su internet.';
-    }
-    else if (error.status === 400 || error.status === 401 || error.status === 404) {
-      // Agrupamos errores de datos/auth para no dar pistas
+    else if ([400, 401, 404].includes(error.status)) 
       this.errorMessage = 'Credenciales inválidas.';
-    }
-    else if (error.status === 500) {
+    else if (error.status === 500) 
       this.errorMessage = 'Error interno del servidor. Intente más tarde.';
-    }
-    else if (error.status === 503) {
+    else if (error.status === 503) 
       this.errorMessage = 'Servicio no disponible temporalmente.';
-    }
-    else {
+    else 
       this.errorMessage = 'Ocurrió un error inesperado. Intente nuevamente.';
-    }
   }
 
   clearError(): void {
@@ -149,16 +147,23 @@ export class LoginComponent implements OnInit {
       const style = document.createElement('style');
       style.id = 'toast-styles';
       style.textContent = `
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideInRight { 
+          from { transform: translateX(100%); opacity: 0; } 
+          to { transform: translateX(0); opacity: 1; } 
+        }
         .custom-toast { backdrop-filter: blur(10px); border-left: 4px solid #1e8449 !important; }
       `;
       document.head.appendChild(style);
     }
+
     document.body.appendChild(notification);
+
     setTimeout(() => {
       if (notification.parentNode) {
         notification.style.animation = 'slideInRight 0.3s ease-out reverse';
-        setTimeout(() => { if (notification.parentNode) notification.parentNode.removeChild(notification); }, 300);
+        setTimeout(() => { 
+          if (notification.parentNode) notification.parentNode.removeChild(notification); 
+        }, 300);
       }
     }, 4000);
   }

@@ -45,6 +45,31 @@ export class MetricsComponent implements OnInit {
 
   today: Date = new Date();
 
+  // ------------------- TOAST MESSAGE (similar a sales) -------------------
+  showToast(message: string, type: 'success' | 'error' | 'warning' = 'success'): void {
+    const n = document.createElement('div');
+    n.className = 'alert alert-dismissible fade show custom-toast';
+    n.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;min-width:350px;padding:16px 20px;`;
+    
+    if (type === 'success') {
+      n.style.background = 'linear-gradient(135deg, #27ae60 0%, #229954 100%)';
+      n.style.color = 'white';
+      n.style.borderLeft = '4px solid #1e8449';
+    } else if (type === 'error') {
+      n.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+      n.style.color = 'white';
+      n.style.borderLeft = '4px solid #a93226';
+    } else {
+      n.style.background = 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)';
+      n.style.color = 'white';
+      n.style.borderLeft = '4px solid #a84300';
+    }
+    
+    n.innerHTML = `<div class="d-flex align-items-center"><span style="font-size:22px;margin-right:12px;">${type === 'success' ? '✔' : type === 'error' ? '✖' : '⚠'}</span><div><strong>${type === 'success' ? '¡Éxito!' : type === 'error' ? 'Error' : 'Advertencia'}</strong><div>${message}</div></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button></div>`;
+    document.body.appendChild(n);
+    setTimeout(() => { if(n.parentNode) n.parentNode.removeChild(n); }, 4000);
+  }
+
   // ------------------- EXPORTAR A PDF (CORREGIDO) -------------------
   exportToPDF(): void {
     if (this.isExporting) return; // evita doble click
@@ -97,6 +122,16 @@ export class MetricsComponent implements OnInit {
 
   // ------------------- CARGA DE DATOS -------------------
   loadMetrics(): void {
+    // Validación de fechas (similar a sales component)
+    if (this.startDate && !this.endDate) { 
+      this.showToast('Seleccione fecha fin', 'warning'); 
+      return; 
+    }
+    if (!this.startDate && this.endDate) { 
+      this.showToast('Seleccione fecha inicio', 'warning'); 
+      return; 
+    }
+
     this.isLoading = true;
     this.errorMessage = '';
     this.metricsData = null;
@@ -196,41 +231,44 @@ export class MetricsComponent implements OnInit {
   }
 
   applyCustomRange(): void {
+    // Validación de fechas (similar a sales component)
+    if (this.startDate && !this.endDate) { 
+      this.showToast('Seleccione fecha fin', 'warning'); 
+      return; 
+    }
+    if (!this.startDate && this.endDate) { 
+      this.showToast('Seleccione fecha inicio', 'warning'); 
+      return; 
+    }
+    
     if (this.startDate && this.endDate) {
       this.selectedFilter = '';
       this.loadMetrics();
     } else {
-      this.handleError({ message: "Por favor, seleccione una fecha de inicio y fin." });
+      this.showToast('Por favor, seleccione una fecha de inicio y fin.', 'warning');
     }
   }
 
-  handleError(error: any): void {
-    if (error.status === 401) {
-      this.authService.logout();
-      return;
+  // ------------------- MANEJO DE ERRORES GENÉRICO (similar a sales) -------------------
+  private getGenericErrorMessage(status: number): string {
+    switch (status) {
+      case 0: return 'Error de conexión.';
+      case 400: return 'Datos de filtro incorrectos. Verifique las fechas.';
+      case 401: return 'Sesión expirada.';
+      case 403: return 'No tiene permisos.';
+      case 404: return 'Datos no encontrados.';
+      case 409: return 'Conflicto en la operación.';
+      case 500: return 'Error interno del servidor.';
+      default: return 'Ocurrió un error inesperado.';
     }
-
-    if (error.status === 403) {
-      this.authService.logout();
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    if (error.error?.message) {
-      this.errorMessage = error.error.message;
-    } else if (typeof error.error === 'string') {
-      this.errorMessage = error.error;
-    } else if (error.message) {
-      this.errorMessage = error.message;
-    } else if (error.status === 0) {
-      this.errorMessage = 'Error de conexión. Verifique su internet.';
-    } else {
-      this.errorMessage = `Error inesperado (${error.status})`;
-    }
-    console.error("Metrics Error:", error);
   }
 
-  clearError(): void {
-    this.errorMessage = '';
+  handleError(e: any): void { 
+    this.errorMessage = this.getGenericErrorMessage(e.status); 
+    this.showToast(this.errorMessage, 'error');
+  }
+
+  clearError(): void { 
+    this.errorMessage = ''; 
   }
 }
