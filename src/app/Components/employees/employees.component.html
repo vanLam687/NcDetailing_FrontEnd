@@ -77,7 +77,7 @@
               </thead>
               <tbody>
                 <tr *ngFor="let employee of employeesTable.data" class="table-row">
-                  <td class="ps-2" style="color: #333;">{{ employee.id }}</td>
+                  <td class="ps-2" style="color: #333;"><strong>#{{ employee.id }}</strong></td>
                   <td style="color: #333;"><strong>{{ employee.name }}</strong></td>
                   <td style="color: #333;">{{ employee.username }}</td>
                   <td style="color: #333;">{{ employee.email }}</td>
@@ -86,7 +86,9 @@
                     <ng-container *ngIf="EmployeeStatus === 'inactive'; else activeActions">
                       <button 
                         class="btn btn-outline-success btn-sm me-1"
-                        (click)="RestoreEmployee(employee.id)">
+                        data-bs-toggle="modal" 
+                        data-bs-target="#restoreEmployeeModal"
+                        (click)="DatosRestoreEmployee(employee)">
                         <i nz-icon nzType="reload"></i>
                         Restaurar
                       </button>
@@ -288,6 +290,48 @@
           </button>
           <button type="button" class="btn btn-danger" (click)="DeleteEmployee()" data-bs-dismiss="modal">
             Eliminar Empleado
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Restaurar Empleado -->
+  <div class="modal fade" id="restoreEmployeeModal" tabindex="-1" aria-labelledby="restoreEmployeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title w-100 text-center" id="restoreEmployeeModalLabel" style="font-weight: 600;">
+            Restaurar Empleado
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="mb-4">
+            <i nz-icon nzType="check-circle" style="font-size: 48px; color: #27ae60;"></i>
+          </div>
+          <p class="mb-3" style="color: #666; line-height: 1.5;">
+            ¿Estás seguro de que deseas restaurar al empleado <strong>"{{ EmployeeToRestoreName }}"</strong>?
+          </p>
+          <p class="text-muted small">
+            El empleado volverá a estar disponible para su uso.
+          </p>
+
+          <!-- Mensaje de error del modal -->
+          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
+          </div>
+        </div>
+        <div class="modal-footer border-0 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-success" (click)="RestoreEmployeeConfirm()" data-bs-dismiss="modal">
+            Restaurar Empleado
           </button>
         </div>
       </div>

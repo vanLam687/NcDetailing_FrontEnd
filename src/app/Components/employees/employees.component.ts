@@ -40,6 +40,10 @@ export class EmployeesComponent implements OnInit {
   IdDelete: number = 0;
   EmployeeToDeleteName: string = '';
 
+  // Restauración
+  IdRestore: number = 0;
+  EmployeeToRestoreName: string = '';
+
   // Errores
   errorMessage: string = '';
   modalError: string = '';
@@ -249,12 +253,24 @@ export class EmployeesComponent implements OnInit {
     });
   }
 
-  // Restaurar empleado (visible cuando EmployeeStatus === 'inactive')
-  RestoreEmployee(id: number): void {
-    this.service.RestoreEmployee(id.toString()).subscribe({
+  // Nuevos métodos para restaurar con modal de confirmación
+  DatosRestoreEmployee(employee: any): void {
+    this.IdRestore = employee.id;
+    this.EmployeeToRestoreName = employee.name;
+    this.clearError();
+    this.clearModalError();
+    this.clearFormErrors();
+  }
+
+  RestoreEmployeeConfirm(): void {
+    this.service.RestoreEmployee(this.IdRestore.toString()).subscribe({
       next: () => {
+        this.clearError();
+        this.clearModalError();
+        this.clearFormErrors();
         this.showSuccessNotification('Empleado restaurado correctamente');
         this.GetEmployees();
+        this.closeModal('restoreEmployeeModal');
       },
       error: (error) => {
         if (error.status === 401) {

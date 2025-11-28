@@ -34,14 +34,17 @@ export class ServicesComponent implements OnInit {
   ServiceCategoryId: number = 0;
   ServiceCategoryName: string = '';
   ServiceToDeleteName: string = '';
+  ServiceToRestoreName: string = '';
 
   IdEdit: number = 0;
   IdDelete: number = 0;
+  IdRestore: number = 0;
 
   // Variables para categorías
   CategoryName: string = '';
   CategoryToEdit: any = null;
   CategoryToDelete: any = null;
+  CategoryToRestore: any = null;
 
   // Para navegación
   SelectedService: any = null;
@@ -328,12 +331,23 @@ export class ServicesComponent implements OnInit {
     });
   }
 
-  // Restore service (visible when ServiceStatus === 'inactive')
-  RestoreService(id: number): void {
-    this.service.restoreService(id.toString()).subscribe({
+  DatosRestoreService(service: any): void {
+    this.IdRestore = service.id;
+    this.ServiceToRestoreName = service.name;
+    this.clearError();
+    this.clearModalError();
+    this.clearFormErrors();
+  }
+
+  RestoreServiceConfirm(): void {
+    this.service.restoreService(this.IdRestore.toString()).subscribe({
       next: () => {
+        this.clearError();
+        this.clearModalError();
+        this.clearFormErrors();
         this.showSuccessNotification('Servicio restaurado correctamente');
         this.GetServices();
+        this.closeModal('restoreServiceModal');
       },
       error: (error) => {
         if (error.status === 401) {
@@ -431,20 +445,23 @@ export class ServicesComponent implements OnInit {
     });
   }
 
-  DatosEditCategory(category: any): void {
-    this.CategoryToEdit = category;
-    this.CategoryName = category.name;
+  DatosRestoreCategory(category: any): void {
+    this.CategoryToRestore = category;
     this.clearError();
     this.clearModalError();
     this.clearFormErrors();
   }
 
-  // Restore category (visible when CategoryStatus === 'inactive')
-  RestoreCategory(id: number): void {
-    this.service.restoreCategory(id.toString()).subscribe({
+  RestoreCategoryConfirm(): void {
+    this.service.restoreCategory(this.CategoryToRestore.id.toString()).subscribe({
       next: () => {
+        this.clearError();
+        this.clearModalError();
+        this.clearFormErrors();
         this.showSuccessNotification('Categoría restaurada correctamente');
+        this.CategoryToRestore = null;
         this.GetCategories();
+        this.closeModal('restoreCategoryModal');
       },
       error: (error) => {
         if (error.status === 401) {
@@ -454,6 +471,14 @@ export class ServicesComponent implements OnInit {
         this.handleModalError(error);
       }
     });
+  }
+
+  DatosEditCategory(category: any): void {
+    this.CategoryToEdit = category;
+    this.CategoryName = category.name;
+    this.clearError();
+    this.clearModalError();
+    this.clearFormErrors();
   }
 
   ApplyFilters(): void {

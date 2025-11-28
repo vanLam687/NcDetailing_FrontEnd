@@ -1,6 +1,3 @@
-/* pega aquí tu CSS original (el que me diste). 
-   Lo incluyo porque pediste todos los archivos completos. */
-
 .container-fluid {
   background: linear-gradient(135deg, #f8f9fa 0%, #f5f7ff 100%);
   min-height: calc(100vh - 70px);
@@ -103,6 +100,26 @@
 
 .btn-outline-danger:hover {
   background: #e74c3c;
+  color: white;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #219653 0%, #1e8449 100%);
+}
+
+.btn-outline-success {
+  background: transparent;
+  border: 2px solid #27ae60;
+  color: #27ae60;
+}
+
+.btn-outline-success:hover {
+  background: #27ae60;
   color: white;
 }
 

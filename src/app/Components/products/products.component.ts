@@ -36,14 +36,17 @@ export class ProductsComponent implements OnInit {
   ProductCategoryId: number = 0;
   ProductCategoryName: string = '';
   ProductToDeleteName: string = '';
+  ProductToRestoreName: string = '';
 
   IdEdit: number = 0;
   IdDelete: number = 0;
+  IdRestore: number = 0;
 
   // Variables para categorías
   CategoryName: string = '';
   CategoryToEdit: any = null;
   CategoryToDelete: any = null;
+  CategoryToRestore: any = null;
 
   // Para navegación
   SelectedProduct: any = null;
@@ -375,6 +378,7 @@ export class ProductsComponent implements OnInit {
         this.clearFormErrors();
         this.showSuccessNotification('Producto eliminado correctamente');
         this.GetProducts();
+        this.closeModal('deleteProductModal');
       },
       error: (error) => {
         if (error.status === 401) {
@@ -386,12 +390,24 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  // Restore product (visible when ProductStatus === 'inactive')
-  RestoreProduct(id: number): void {
-    this.service.restoreProduct(id.toString()).subscribe({
+  // Nuevos métodos para restaurar con modal de confirmación
+  DatosRestoreProduct(product: any): void {
+    this.IdRestore = product.id;
+    this.ProductToRestoreName = product.name;
+    this.clearError();
+    this.clearModalError();
+    this.clearFormErrors();
+  }
+
+  RestoreProductConfirm(): void {
+    this.service.restoreProduct(this.IdRestore.toString()).subscribe({
       next: () => {
+        this.clearError();
+        this.clearModalError();
+        this.clearFormErrors();
         this.showSuccessNotification('Producto restaurado correctamente');
         this.GetProducts();
+        this.closeModal('restoreProductModal');
       },
       error: (error) => {
         if (error.status === 401) {
@@ -489,20 +505,24 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  DatosEditCategory(category: any): void {
-    this.CategoryToEdit = category;
-    this.CategoryName = category.name;
+  // Nuevos métodos para restaurar categorías con modal de confirmación
+  DatosRestoreCategory(category: any): void {
+    this.CategoryToRestore = category;
     this.clearError();
     this.clearModalError();
     this.clearFormErrors();
   }
 
-  // Restore category (visible when CategoryStatus === 'inactive')
-  RestoreCategory(id: number): void {
-    this.service.restoreCategory(id.toString()).subscribe({
+  RestoreCategoryConfirm(): void {
+    this.service.restoreCategory(this.CategoryToRestore.id.toString()).subscribe({
       next: () => {
+        this.clearError();
+        this.clearModalError();
+        this.clearFormErrors();
         this.showSuccessNotification('Categoría restaurada correctamente');
+        this.CategoryToRestore = null;
         this.GetCategories();
+        this.closeModal('restoreCategoryModal');
       },
       error: (error) => {
         if (error.status === 401) {
@@ -512,6 +532,14 @@ export class ProductsComponent implements OnInit {
         this.handleModalError(error);
       }
     });
+  }
+
+  DatosEditCategory(category: any): void {
+    this.CategoryToEdit = category;
+    this.CategoryName = category.name;
+    this.clearError();
+    this.clearModalError();
+    this.clearFormErrors();
   }
 
   ApplyFilters(): void {

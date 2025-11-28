@@ -123,7 +123,8 @@
             <nz-table #productsTable [nzData]="DataSourceProducts" class="w-100 compact-table" nzSize="small">
               <thead>
                 <tr>
-                  <th class="ps-2" style="color: #333;">Nombre</th>
+                  <th class="ps-2" style="color: #333;">ID</th>
+                  <th style="color: #333;">Nombre</th>
                   <th style="color: #333;">Descripción</th>
                   <th style="color: #333;">Categoría</th>
                   <th style="color: #333;">Precio</th>
@@ -134,7 +135,8 @@
               </thead>
               <tbody>
                 <tr *ngFor="let product of productsTable.data" class="table-row">
-                  <td class="ps-2" style="color: #333;"><strong>{{ product.name }}</strong></td>
+                  <td class="ps-2" style="color: #333;"><strong>#{{ product.id }}</strong></td>
+                  <td style="color: #333;"><strong>{{ product.name }}</strong></td>
                   <td class="truncate" style="color: #333;">{{ product.description || 'Sin descripción' }}</td>
                   <td style="color: #333;">{{ product.category || '-' }}</td>
                   <td style="color: #333;"><strong>${{ product.price }}</strong></td>
@@ -149,7 +151,9 @@
                     <ng-container *ngIf="ProductStatus === 'inactive'; else activeActions">
                       <button 
                         class="btn btn-outline-success btn-sm me-1"
-                        (click)="RestoreProduct(product.id)">
+                        data-bs-toggle="modal" 
+                        data-bs-target="#restoreProductModal"
+                        (click)="DatosRestoreProduct(product)">
                         <i nz-icon nzType="reload"></i>
                         Restaurar
                       </button>
@@ -211,7 +215,11 @@
                   <td style="color: #333;"><strong>{{ category.name }}</strong></td>
                   <td class="text-center pe-2">
                     <ng-container *ngIf="CategoryStatus === 'inactive'; else catActive">
-                      <button class="btn btn-outline-success btn-sm" (click)="RestoreCategory(category.id)">
+                      <button 
+                        class="btn btn-outline-success btn-sm"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#restoreCategoryModal"
+                        (click)="DatosRestoreCategory(category)">
                         <i nz-icon nzType="reload"></i>
                         Restaurar
                       </button>
@@ -724,6 +732,39 @@
     </div>
   </div>
 
+  <!-- Modal Restaurar Producto -->
+  <div class="modal fade" id="restoreProductModal" tabindex="-1" aria-labelledby="restoreProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title w-100 text-center" id="restoreProductModalLabel" style="font-weight: 600;">
+            Restaurar Producto
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="mb-4">
+            <i nz-icon nzType="check-circle" style="font-size: 48px; color: #27ae60;"></i>
+          </div>
+          <p class="mb-3" style="color: #666; line-height: 1.5;">
+            ¿Estás seguro de que deseas restaurar el producto <strong>"{{ ProductToRestoreName }}"</strong>?
+          </p>
+          <p class="text-muted small">
+            El producto volverá a estar disponible para su uso.
+          </p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-success" (click)="RestoreProductConfirm()" data-bs-dismiss="modal">
+            Restaurar Producto
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Eliminar Categoría -->
   <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -751,6 +792,39 @@
           </button>
           <button type="button" class="btn btn-danger" (click)="DeleteCategory()" data-bs-dismiss="modal">
             Eliminar Categoría
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Restaurar Categoría -->
+  <div class="modal fade" id="restoreCategoryModal" tabindex="-1" aria-labelledby="restoreCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title w-100 text-center" id="restoreCategoryModalLabel" style="font-weight: 600;">
+            Restaurar Categoría
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="mb-4">
+            <i nz-icon nzType="check-circle" style="font-size: 48px; color: #27ae60;"></i>
+          </div>
+          <p class="mb-3" style="color: #666; line-height: 1.5;">
+            ¿Estás seguro de que deseas restaurar la categoría <strong>"{{ CategoryToRestore?.name }}"</strong>?
+          </p>
+          <p class="text-muted small">
+            La categoría volverá a estar disponible para su uso.
+          </p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-success" (click)="RestoreCategoryConfirm()" data-bs-dismiss="modal">
+            Restaurar Categoría
           </button>
         </div>
       </div>
