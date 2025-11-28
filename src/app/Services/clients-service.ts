@@ -32,6 +32,10 @@ export class ClientsService {
     return this.http.get(this.url + id + '/vehicles', this.getHeaders());
   }
 
+  getClientHistory(id: string) {
+    return this.http.get(this.url + id + '/history', this.getHeaders());
+  }
+
   postClient(client: any) {
     return this.http.post(this.url, client, this.getHeaders());
   }

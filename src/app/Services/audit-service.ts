@@ -6,8 +6,8 @@ import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root'
 })
-export class EmployeesService {
-  url = 'http://localhost:3000/api/employees/';
+export class AuditService {
+  url = 'http://localhost:3000/api/audit-log';
 
   constructor(
     private http: HttpClient, 
@@ -33,30 +33,17 @@ export class EmployeesService {
     };
   }
 
-  GetEmployees(status?: string) {
+  getAuditLogs(filters?: any) {
     const params: any = {};
-    if (status) params.status = status;
+    if (filters) {
+      if (filters.userId) params.userId = filters.userId;
+      if (filters.username) params.username = filters.username;
+      if (filters.actionType) params.actionType = filters.actionType;
+      if (filters.entityType) params.entityType = filters.entityType;
+      if (filters.startDate) params.startDate = filters.startDate;
+      if (filters.endDate) params.endDate = filters.endDate;
+    }
     
     return this.http.get(this.url, { ...this.getHeaders(), params });
-  }
-
-  GetEmployeeById(id: string) {
-    return this.http.get(this.url + id, this.getHeaders());
-  }
-
-  PostEmployee(employee: any) {
-    return this.http.post(this.url, employee, this.getHeaders());
-  }
-
-  PutEmployee(id: string, employee: any) {
-    return this.http.put(this.url + id, employee, this.getHeaders());
-  }
-
-  DeleteEmployee(id: string) {
-    return this.http.delete(this.url + id, this.getHeaders());
-  }
-
-  RestoreEmployee(id: string) {
-    return this.http.patch(this.url + id + '/restore', {}, this.getHeaders());
   }
 }

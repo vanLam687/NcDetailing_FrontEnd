@@ -1,0 +1,196 @@
+/* ===========================
+   DASHBOARD - PALETA UNIFICADA
+   =========================== */
+
+/* Fondo general */
+.container-fluid.p-4 {
+  background: linear-gradient(135deg, #f5f7ff 0%, #f3f0ff 100%);
+  min-height: 100vh;
+  padding: 20px !important;
+}
+
+/* ---------------------------
+   HEADER
+   --------------------------- */
+.card-header.bg-white {
+  background: #6c63b8 !important;
+  border-bottom: none !important;
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.card-header h3,
+.card-header small {
+  color: white !important;
+  margin: 0;
+}
+
+/* ---------------------------
+   ALERTAS
+   --------------------------- */
+.alert-warning {
+  background: #fff4d6;
+  border: 1px solid #ffe2a5;
+  color: #b07912;
+  border-radius: 8px;
+}
+
+/* ---------------------------
+   BOTONES
+   --------------------------- */
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.btn-outline-warning {
+  border: 1px solid #e67e22;
+  color: #e67e22;
+}
+
+.btn-outline-warning:hover {
+  background: #e67e22;
+  color: white;
+}
+
+/* ---------------------------
+   TARJETAS
+   --------------------------- */
+.card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  background: white;
+}
+
+/* Tarjetas de color */
+.bg-primary {
+  background: #6c63b8 !important;
+}
+
+.bg-success {
+  background: #27ae60 !important;
+}
+
+.bg-warning {
+  background: #e67e22 !important;
+}
+
+/* ---------------------------
+   TEXTO BLANCO EN TARJETAS
+   --------------------------- */
+.bg-primary .card-title,
+.bg-primary .card-text,
+.bg-primary .display-6,
+.bg-success .card-title,
+.bg-success .card-text,
+.bg-success .display-6,
+.bg-warning .card-title,
+.bg-warning .card-text,
+.bg-warning .display-6 {
+  color: white !important;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.card-text,
+.display-6 {
+  font-weight: 700;
+}
+
+/* ---------------------------
+   ICONOS
+   --------------------------- */
+.card i {
+  color: white !important;
+  opacity: 0.9;
+  font-size: 1.6rem;
+}
+
+/* ===========================
+   TABLAS Y SECCIONES INTERNAS
+   =========================== */
+
+/* TITULOS DE LAS TABLAS (SERVICIOS RECIENTES / PRODUCTOS RECIENTES) */
+.card-header.bg-light {
+  background: #6c63b8 !important;
+  border-bottom: none !important;
+  color: white !important;
+  border-radius: 10px 10px 0 0 !important;
+}
+
+.card-header.bg-light h6 {
+  color: white !important;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Filas */
+.list-group-item {
+  border: none;
+  background: transparent;
+  padding: 10px 16px;
+  transition: 0.2s;
+}
+
+.list-group-item:hover {
+  background: rgba(108, 99, 184, 0.08);
+}
+
+/* ===========================
+   BADGES – FIX DE ESTADOS
+   =========================== */
+
+/* Ahora se ven en tablas blancas */
+.badge.bg-primary {
+  background: #6c63b8 !important;
+  color: white !important;
+}
+
+.badge.bg-success {
+  background: #27ae60 !important;
+  color: white !important;
+}
+
+.badge.bg-warning {
+  background: #e67e22 !important;
+  color: white !important;
+}
+
+.badge.bg-danger {
+  background: #e74c3c !important;
+  color: white !important;
+}
+
+.badge.bg-info {
+  background: #7a6fc1 !important;
+  color: white !important;
+}
+
+/* Badges transparentes */
+.badge[style*="background-color: transparent"] {
+  background-color: rgba(108, 99, 184, 0.1) !important;
+  color: #6c63b8 !important;
+  border: 1px solid #dcd3ff !important;
+}
+
+/* Estados vacíos */
+.text-center.text-muted.p-4 {
+  background: rgba(108, 99, 184, 0.05);
+  border-radius: 10px;
+  color: #7a6fc1 !important;
+}
+
+/* ---------------------------
+   RESPONSIVE
+   --------------------------- */
+@media (max-width: 768px) {
+  .display-6 {
+    font-size: 1.4rem;
+  }
+  .card-text {
+    font-size: 1.2rem;
+  }
+}

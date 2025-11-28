@@ -1,9 +1,11 @@
+/* Fondo general del módulo */
 .container-fluid {
   background: linear-gradient(135deg, #f8f9fa 0%, #f5f7ff 100%);
   min-height: calc(100vh - 70px);
   padding: 12px !important;
 }
 
+/* Tarjetas */
 .card {
   border: none;
   border-radius: 8px;
@@ -19,7 +21,8 @@
   padding: 8px 12px !important;
 }
 
-.card-header h5, .card-header h6 {
+.card-header h5,
+.card-header h6 {
   color: white;
   font-weight: 600;
   margin: 0;
@@ -37,6 +40,7 @@
   padding: 12px !important;
 }
 
+/* Botones */
 .btn {
   border-radius: 6px;
   font-weight: 600;
@@ -92,24 +96,14 @@
   background: linear-gradient(135deg, #d62c1a 0%, #b83224 100%);
 }
 
-.btn-outline-danger {
-  background: transparent;
-  border: 2px solid #e74c3c;
-  color: #e74c3c;
-}
-
-.btn-outline-danger:hover {
-  background: #e74c3c;
-  color: white;
-}
-
 .btn-sm {
   padding: 3px 6px;
   font-size: 11px;
 }
 
-/* Formularios */
-.form-control, .form-select {
+/* Inputs y selects */
+.form-control,
+.form-select {
   border-radius: 6px;
   border: 1px solid rgba(117, 134, 165, 0.3);
   padding: 4px 8px;
@@ -117,14 +111,10 @@
   transition: all 0.2s ease;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
   border-color: #6c63b8;
   box-shadow: 0 0 0 2px rgba(108, 99, 184, 0.1);
-}
-
-.form-control-sm, .form-select-sm {
-  padding: 3px 6px;
-  font-size: 11px;
 }
 
 .form-label {
@@ -155,7 +145,7 @@
   color: #6c63b8;
 }
 
-/* Tabla */
+/* Tabla compacta */
 .compact-table {
   font-size: 12px;
 }
@@ -190,7 +180,7 @@
   max-width: 150px;
 }
 
-/* Input Group */
+/* Input group */
 .input-group-sm .input-group-text {
   padding: 4px 8px;
   font-size: 12px;
@@ -220,19 +210,9 @@
   font-size: 10px;
 }
 
-/* Iconos */
+/* Íconos */
 i[nz-icon] {
   font-size: 12px;
-}
-
-/* Utilidades */
-.vr {
-  opacity: 0.3;
-  height: 16px;
-}
-
-.border-top {
-  border-top: 1px solid rgba(117, 134, 165, 0.1) !important;
 }
 
 /* Checkbox */
@@ -271,133 +251,82 @@ i[nz-icon] {
   border-radius: 0 0 10px 10px;
 }
 
+/* Badges para estados */
+.badge {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.bg-warning {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important;
+  color: white !important;
+}
+
+.bg-success {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%) !important;
+  color: white !important;
+}
+
+.bg-danger {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+  color: white !important;
+}
+.bg-progress {
+  background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%) !important; /* Azul vibrante */
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(13, 110, 253, 0.2); /* Sombra suave para resaltar */
+}
+.bg-secondary {
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%) !important;
+  color: white !important;
+}
+
+.bg-info {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+  color: rgb(7, 5, 5) !important;
+}
+
+/* Estilos específicos para modales de detalle */
+#viewProductSaleModal .modal-header {
+  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
+}
+
+#viewServiceSaleModal .modal-header {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+}
+
+/* Estilos para las tablas en los modales */
+.modal-content .table th {
+  background: #f8f9fa !important;
+  color: #333 !important;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.modal-content .table td {
+  border-color: #f1f3f4;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container-fluid {
     padding: 8px !important;
   }
-  
+
   .truncate {
     max-width: 100px;
   }
-  
+
   .btn {
     width: 100%;
     justify-content: center;
     margin-bottom: 4px;
   }
-  
+
   .card-body {
     padding: 8px !important;
   }
 }
-/* Estilos para el modal mejorado */
-.hover-card {
-  transition: all 0.3s ease;
-  border: 1px solid #e9ecef !important;
-}
 
-.hover-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(108, 99, 184, 0.15) !important;
-  border-color: #6c63b8 !important;
-}
-
-.vehicle-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.vehicle-details {
-  background: #f8f9fa;
-  border-radius: 6px;
-  padding: 12px;
-}
-
-.modal-content {
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.btn-close-white {
-  filter: invert(1) grayscale(100%) brightness(200%);
-}
-
-/* Mejoras para las cards del modal */
-.card-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.text-primary {
-  color: #6c63b8 !important;
-}
-
-.bg-primary {
-  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
-}
-/* Estilos para el modal mejorado */
-.hover-card {
-  transition: all 0.3s ease;
-  border: 1px solid #e9ecef !important;
-}
-
-.hover-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(108, 99, 184, 0.15) !important;
-  border-color: #6c63b8 !important;
-}
-
-.vehicle-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.vehicle-details {
-  background: #f8f9fa;
-  border-radius: 6px;
-  padding: 12px;
-}
-
-.modal-content {
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.btn-close-white {
-  filter: invert(1) grayscale(100%) brightness(200%);
-}
-
-/* Mejoras para las cards del modal */
-.card-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.text-primary {
-  color: #6c63b8 !important;
-}
-
-.bg-primary {
-  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
-}
-.btn-light-outline {
-  background: transparent;
-  border: 2px solid #ffffff;
-  color: #ffffff;
-}
-
-.btn-light-outline:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
-}

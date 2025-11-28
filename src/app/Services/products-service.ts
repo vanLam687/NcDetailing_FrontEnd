@@ -6,8 +6,8 @@ import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root'
 })
-export class ServicesService {
-  url = 'http://localhost:3000/api/services/';
+export class ProductsService {
+  url = 'http://localhost:3000/api/products';
 
   constructor(
     private http: HttpClient, 
@@ -33,10 +33,10 @@ export class ServicesService {
     };
   }
 
-  getServices(name?: string, category?: string, status?: string) {
+  getProducts(name?: string, category_id?: string, status?: string) {
     const params: any = {};
     if (name) params.name = name;
-    if (category) params.category = category;
+    if (category_id) params.category_id = category_id;
     if (status) params.status = status;
     
     return this.http.get(this.url, { ...this.getHeaders(), params });
@@ -46,49 +46,49 @@ export class ServicesService {
     const params: any = {};
     if (status) params.status = status;
     
-    return this.http.get(this.url + 'categories', { 
+    return this.http.get(this.url + '/categories', { 
       ...this.getHeaders(), 
       params 
     });
   }
 
-  getServiceById(id: string) {
-    return this.http.get(this.url + id, this.getHeaders());
+  getProductById(id: string) {
+    return this.http.get(this.url + '/' + id, this.getHeaders());
   }
 
-  postService(service: any) {
-    return this.http.post(this.url, service, this.getHeaders());
+  postProduct(product: any) {
+    return this.http.post(this.url, product, this.getHeaders());
   }
 
-  putService(id: string, service: any) {
-    return this.http.put(this.url + id, service, this.getHeaders());
+  putProduct(id: string, product: any) {
+    return this.http.put(this.url + '/' + id, product, this.getHeaders());
   }
 
-  deleteService(id: string) {
-    return this.http.delete(this.url + id, this.getHeaders());
+  deleteProduct(id: string) {
+    return this.http.delete(this.url + '/' + id, this.getHeaders());
   }
 
-  restoreService(id: string) {
-    return this.http.patch(this.url + id + '/restore', {}, this.getHeaders());
+  restoreProduct(id: string) {
+    return this.http.patch(this.url + '/' + id + '/restore', {}, this.getHeaders());
   }
 
   postCategory(category: any) {
-    return this.http.post(this.url + 'category', category, this.getHeaders());
+    return this.http.post(this.url + '/category', category, this.getHeaders());
   }
 
   putCategory(id: string, category: any) {
-    return this.http.put(this.url + 'category/' + id, category, this.getHeaders());
+    return this.http.put(this.url + '/category/' + id, category, this.getHeaders());
   }
 
   deleteCategory(id: string) {
-    return this.http.delete(this.url + 'category/' + id, this.getHeaders());
+    return this.http.delete(this.url + '/category/' + id, this.getHeaders());
   }
 
   restoreCategory(id: string) {
-    return this.http.patch(this.url + 'category/' + id + '/restore', {}, this.getHeaders());
+    return this.http.patch(this.url + '/category/' + id + '/restore', {}, this.getHeaders());
   }
 
   getCategoryById(id: string) {
-    return this.http.get(this.url + 'category/' + id, this.getHeaders());
+    return this.http.get(this.url + '/category/' + id, this.getHeaders());
   }
 }
