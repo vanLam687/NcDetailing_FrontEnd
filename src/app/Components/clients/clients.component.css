@@ -291,125 +291,101 @@ i[nz-icon] {
     padding: 8px !important;
   }
 }
-/* Estilos generales (se mantienen igual) */
-.container-fluid {
-  background: linear-gradient(135deg, #f8f9fa 0%, #f5f7ff 100%);
-  min-height: calc(100vh - 70px);
-  padding: 12px !important;
+/* Estilos para el modal mejorado */
+.hover-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef !important;
 }
 
-.card {
-  border: none;
+.hover-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(108, 99, 184, 0.15) !important;
+  border-color: #6c63b8 !important;
+}
+
+.vehicle-icon {
+  width: 48px;
+  height: 48px;
   border-radius: 8px;
-  box-shadow: 0 1px 6px rgba(88, 81, 160, 0.08);
-  background: white;
-  margin-bottom: 8px;
-}
-
-/* Estilos específicos para Angular Material Table */
-.material-table {
-  width: 100%;
-  background: white;
-}
-
-.material-table th {
-  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
-  color: white !important;
-  font-weight: 600;
-  font-size: 11px;
-  padding: 8px 4px;
-}
-
-.material-table td {
-  padding: 8px 4px;
-  font-size: 12px;
-  border: none;
-}
-
-.table-row {
-  transition: all 0.2s ease;
-}
-
-.table-row:hover {
-  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%) !important;
-}
-
-.expanded-row {
-  background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%) !important;
-}
-
-/* Botón expandir */
-.expand-button {
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
-}
-
-.expand-button mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  color: #6c63b8;
-}
-
-/* Detalles expandidos */
-.example-detail {
-  overflow: hidden;
-  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+  background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .vehicle-details {
-  border-top: 2px solid rgba(108, 99, 184, 0.1);
-}
-
-.vehicle-card {
+  background: #f8f9fa;
   border-radius: 6px;
-  border: 1px solid rgba(117, 134, 165, 0.2);
-  transition: all 0.2s ease;
+  padding: 12px;
 }
 
-.vehicle-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.modal-content {
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-.vehicle-brand {
-  color: #333;
-  font-size: 13px;
+.btn-close-white {
+  filter: invert(1) grayscale(100%) brightness(200%);
 }
 
-.vehicle-details .small {
-  font-size: 11px;
+/* Mejoras para las cards del modal */
+.card-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.license-plate {
-  font-family: 'Courier New', monospace;
-  font-weight: bold;
-  color: #6c63b8;
+.text-primary {
+  color: #6c63b8 !important;
 }
 
-/* Animación para expandir */
-@keyframes expand {
-  from { height: 0; opacity: 0; }
-  to { height: auto; opacity: 1; }
+.bg-primary {
+  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
+}
+/* Estilos para el modal mejorado */
+.hover-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef !important;
 }
 
-.example-detail {
-  animation: expand 0.3s ease-out;
+.hover-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(108, 99, 184, 0.15) !important;
+  border-color: #6c63b8 !important;
 }
 
-/* Spinner de carga */
-mat-spinner {
-  margin: 0 auto;
+.vehicle-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Badges */
-.badge {
-  font-size: 10px;
-  padding: 3px 6px;
-  border-radius: 4px;
+.vehicle-details {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 12px;
 }
 
-.bg-success {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+.modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.btn-close-white {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Mejoras para las cards del modal */
+.card-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.text-primary {
+  color: #6c63b8 !important;
+}
+
+.bg-primary {
+  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
 }

@@ -45,6 +45,20 @@
       <!-- VISTA: Lista de Empleados -->
       <div *ngIf="activeView === 'list'">
         
+        <!-- Filtros -->
+        <div class="card shadow-sm mb-2">
+          <div class="card-body py-1 px-3">
+            <div class="row g-1 align-items-center">
+              <div class="col-md-3">
+                <select class="form-select form-select-sm" [(ngModel)]="EmployeeStatus" (change)="onEmployeeStatusChange(EmployeeStatus)">
+                  <option value="active">Activos</option>
+                  <option value="inactive">Inactivos</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Tabla de empleados -->
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3">
@@ -63,23 +77,38 @@
               </thead>
               <tbody>
                 <tr *ngFor="let employee of employeesTable.data" class="table-row">
-                  <td class="ps-2" style="color: #333;">{{ employee.id }}</td>
+                  <td class="ps-2" style="color: #333;"><strong>#{{ employee.id }}</strong></td>
                   <td style="color: #333;"><strong>{{ employee.name }}</strong></td>
                   <td style="color: #333;">{{ employee.username }}</td>
                   <td style="color: #333;">{{ employee.email }}</td>
                   <td class="text-center pe-2">
-                    <button 
-                      class="btn btn-outline-primary btn-sm me-1"
-                      (click)="showEditForm(employee)">
-                      <i nz-icon nzType="edit"></i>
-                    </button>
-                    <button 
-                      class="btn btn-outline-danger btn-sm"
-                      data-bs-toggle="modal" 
-                      data-bs-target="#deleteEmployeeModal"
-                      (click)="DatosDelete(employee)">
-                      <i nz-icon nzType="delete"></i>
-                    </button>
+                    <!-- Si estamos viendo inactivos --> 
+                    <ng-container *ngIf="EmployeeStatus === 'inactive'; else activeActions">
+                      <button 
+                        class="btn btn-outline-success btn-sm me-1"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#restoreEmployeeModal"
+                        (click)="DatosRestoreEmployee(employee)">
+                        <i nz-icon nzType="reload"></i>
+                        Restaurar
+                      </button>
+                    </ng-container>
+
+                    <!-- Acciones para empleados activos -->
+                    <ng-template #activeActions>
+                      <button 
+                        class="btn btn-outline-primary btn-sm me-1"
+                        (click)="showEditForm(employee)">
+                        <i nz-icon nzType="edit"></i>
+                      </button>
+                      <button 
+                        class="btn btn-outline-danger btn-sm"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#deleteEmployeeModal"
+                        (click)="DatosDelete(employee)">
+                        <i nz-icon nzType="delete"></i>
+                      </button>
+                    </ng-template>
                   </td>
                 </tr>
               </tbody>
@@ -261,6 +290,48 @@
           </button>
           <button type="button" class="btn btn-danger" (click)="DeleteEmployee()" data-bs-dismiss="modal">
             Eliminar Empleado
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Restaurar Empleado -->
+  <div class="modal fade" id="restoreEmployeeModal" tabindex="-1" aria-labelledby="restoreEmployeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title w-100 text-center" id="restoreEmployeeModalLabel" style="font-weight: 600;">
+            Restaurar Empleado
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="mb-4">
+            <i nz-icon nzType="check-circle" style="font-size: 48px; color: #27ae60;"></i>
+          </div>
+          <p class="mb-3" style="color: #666; line-height: 1.5;">
+            ¿Estás seguro de que deseas restaurar al empleado <strong>"{{ EmployeeToRestoreName }}"</strong>?
+          </p>
+          <p class="text-muted small">
+            El empleado volverá a estar disponible para su uso.
+          </p>
+
+          <!-- Mensaje de error del modal -->
+          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
+          </div>
+        </div>
+        <div class="modal-footer border-0 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-success" (click)="RestoreEmployeeConfirm()" data-bs-dismiss="modal">
+            Restaurar Empleado
           </button>
         </div>
       </div>

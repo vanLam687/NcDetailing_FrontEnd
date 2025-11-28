@@ -35,7 +35,6 @@ export class SalesService {
     };
   }
 
-
   getSalesProducts(filters: any) {
     let params: any = {};
     if (filters.clientName) params.clientName = filters.clientName;
@@ -50,13 +49,13 @@ export class SalesService {
     return this.http.post(this.url + '/products', sale, this.getHeaders());
   }
 
-
   getSalesServices(filters: any) {
     let params: any = {};
     if (filters.clientName) params.clientName = filters.clientName;
     if (filters.startDate) params.startDate = filters.startDate;
     if (filters.endDate) params.endDate = filters.endDate;
     if (filters.paymentStatusId) params.paymentStatusId = filters.paymentStatusId;
+    if (filters.serviceStatusId) params.serviceStatusId = filters.serviceStatusId;
 
     return this.http.get(this.url + '/services', { ...this.getHeaders(), params });
   }
@@ -71,5 +70,9 @@ export class SalesService {
 
   updatePaymentStatus(id: string, payment_status_id: number) {
     return this.http.patch(this.url + '/' + id + '/payment-status', { payment_status_id }, this.getHeaders());
+  }
+
+  updateServiceStatus(id: string, service_status_id: number) {
+    return this.http.patch(this.url + '/services/' + id + '/status', { service_status_id }, this.getHeaders());
   }
 }

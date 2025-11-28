@@ -21,6 +21,7 @@ export class SalesComponent implements OnInit {
   DataSourceMasterProducts: any[] = [];
   DataSourceMasterServices: any[] = [];
   DataSourcePaymentMethods: any[] = [];
+  DataSourceServiceStatus: any[] = [];
   ClientVehiclesList: any[] = [];
 
   // Estados de vista
@@ -32,6 +33,7 @@ export class SalesComponent implements OnInit {
   FilterStartDate: string = '';
   FilterEndDate: string = '';
   FilterPaymentStatus: string = '';
+  FilterServiceStatus: string = '';
 
   // Formulario de venta de productos
   NewProdSale_ClientId: number = 0;
@@ -67,6 +69,14 @@ export class SalesComponent implements OnInit {
   ClientNameUpdatePayment: string = '';
   isSaleFinalized: boolean = false;
   currentPaymentStatus: string = '';
+  originalPaymentStatusId: number = 0;
+
+  // Actualización de estado de servicio
+  IdUpdateServiceStatus: number = 0;
+  NewServiceStatusId: number = 0;
+  ClientNameUpdateService: string = '';
+  currentServiceStatus: string = '';
+  originalServiceStatusId: number = 0;
 
   SelectedSale: any = null;
 
@@ -237,66 +247,79 @@ export class SalesComponent implements OnInit {
     this.LoadMasterData();
   }
 
-LoadMasterData(): void {
-  this.clientsService.getClients().subscribe({
-    next: (data: any) => {
-      this.DataSourceClients = data.data;
-      this.filteredClients = [...this.DataSourceClients];
-      this.clearError();
-    },
-    error: (error) => {
-      if (error.status === 401) {
-        this.authService.logout();
-        return;
+  LoadMasterData(): void {
+    this.clientsService.getClients().subscribe({
+      next: (data: any) => {
+        this.DataSourceClients = data.data;
+        this.filteredClients = [...this.DataSourceClients];
+        this.clearError();
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
+        this.handleError(error);
       }
-      this.handleError(error);
-    }
-  });
+    });
 
-  this.productsService.getProducts().subscribe({
-    next: (data: any) => {
-      this.DataSourceMasterProducts = data.data;
-      this.filteredProducts = [...this.DataSourceMasterProducts];
-      this.clearError();
-    },
-    error: (error) => {
-      if (error.status === 401) {
-        this.authService.logout();
-        return;
+    this.productsService.getProducts().subscribe({
+      next: (data: any) => {
+        this.DataSourceMasterProducts = data.data;
+        this.filteredProducts = [...this.DataSourceMasterProducts];
+        this.clearError();
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
+        this.handleError(error);
       }
-      this.handleError(error);
-    }
-  });
+    });
 
-  this.servicesService.getServices().subscribe({
-    next: (data: any) => {
-      this.DataSourceMasterServices = data.data;
-      this.filteredServices = [...this.DataSourceMasterServices];
-      this.clearError();
-    },
-    error: (error) => {
-      if (error.status === 401) {
-        this.authService.logout();
-        return;
+    this.servicesService.getServices().subscribe({
+      next: (data: any) => {
+        this.DataSourceMasterServices = data.data;
+        this.filteredServices = [...this.DataSourceMasterServices];
+        this.clearError();
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
+        this.handleError(error);
       }
-      this.handleError(error);
-    }
-  });
+    });
 
-  this.salesService.getPaymentMethods().subscribe({
-    next: (data: any) => {
-      this.DataSourcePaymentMethods = data.data;
-      this.clearError();
-    },
-    error: (error) => {
-      if (error.status === 401) {
-        this.authService.logout();
-        return;
+    this.salesService.getPaymentMethods().subscribe({
+      next: (data: any) => {
+        this.DataSourcePaymentMethods = data.data;
+        this.clearError();
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
+        this.handleError(error);
       }
-      this.handleError(error);
-    }
-  });
-}
+    });
+
+    // Cargar estados de servicio
+    this.loadServiceStatus();
+  }
+
+  loadServiceStatus(): void {
+    // Simulamos los estados de servicio (deberías tener un endpoint para esto)
+    this.DataSourceServiceStatus = [
+      { id: 1, name: 'Pendiente' },
+      { id: 2, name: 'En Progreso' },
+      { id: 3, name: 'Completado' },
+      { id: 4, name: 'Cancelado' }
+    ];
+  }
 
   filterClients(event: any): void {
     const searchTerm = event.target.value.toLowerCase();
@@ -350,6 +373,17 @@ LoadMasterData(): void {
       endDate: this.FilterEndDate,
       paymentStatusId: this.FilterPaymentStatus ? parseInt(this.FilterPaymentStatus) : null
     };
+
+    // Validación de fechas
+    if (this.FilterStartDate && !this.FilterEndDate) {
+      this.showToast('Debe seleccionar una fecha de fin para el filtro', 'warning');
+      return;
+    }
+    if (!this.FilterStartDate && this.FilterEndDate) {
+      this.showToast('Debe seleccionar una fecha de inicio para el filtro', 'warning');
+      return;
+    }
+
     this.salesService.getSalesProducts(filters).subscribe({
       next: (data: any) => {
         this.DataSourceSalesProducts = data.data;
@@ -370,8 +404,20 @@ LoadMasterData(): void {
       clientName: this.FilterClientName,
       startDate: this.FilterStartDate,
       endDate: this.FilterEndDate,
-      paymentStatusId: this.FilterPaymentStatus ? parseInt(this.FilterPaymentStatus) : null
+      paymentStatusId: this.FilterPaymentStatus ? parseInt(this.FilterPaymentStatus) : null,
+      serviceStatusId: this.FilterServiceStatus ? parseInt(this.FilterServiceStatus) : null
     };
+
+    // Validación de fechas
+    if (this.FilterStartDate && !this.FilterEndDate) {
+      this.showToast('Debe seleccionar una fecha de fin para el filtro', 'warning');
+      return;
+    }
+    if (!this.FilterStartDate && this.FilterEndDate) {
+      this.showToast('Debe seleccionar una fecha de inicio para el filtro', 'warning');
+      return;
+    }
+
     this.salesService.getSalesServices(filters).subscribe({
       next: (data: any) => {
         this.DataSourceSalesServices = data.data;
@@ -386,6 +432,7 @@ LoadMasterData(): void {
       }
     });
   }
+
   ApplyFilters(): void {
     this.GetSalesProducts();
     this.GetSalesServices();
@@ -396,33 +443,30 @@ LoadMasterData(): void {
     this.FilterStartDate = '';
     this.FilterEndDate = '';
     this.FilterPaymentStatus = '';
+    this.FilterServiceStatus = '';
     this.ApplyFilters();
   }
 
-  // Validación de formulario de productos - NUEVO
+  // Validación de formulario de productos
   validateProductSaleForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
 
-    // Validar cliente
     if (!this.NewProdSale_ClientId || this.NewProdSale_ClientId === 0) {
       this.formErrors.client = 'Debe seleccionar un cliente';
       isValid = false;
     }
 
-    // Validar método de pago
     if (!this.NewProdSale_PaymentMethodId || this.NewProdSale_PaymentMethodId === 0) {
       this.formErrors.paymentMethod = 'Debe seleccionar un método de pago';
       isValid = false;
     }
 
-    // Validar productos
     if (this.NewProdSale_ProductsList.length === 0) {
       this.formErrors.products = 'Debe agregar al menos un producto a la venta';
       isValid = false;
     }
 
-    // Validar stock de productos
     for (let i = 0; i < this.NewProdSale_ProductsList.length; i++) {
       const item = this.NewProdSale_ProductsList[i];
       const product = this.DataSourceMasterProducts.find(p => p.id === item.product_id);
@@ -435,30 +479,26 @@ LoadMasterData(): void {
     return isValid;
   }
 
-  // Validación de formulario de servicios - NUEVO
+  // Validación de formulario de servicios
   validateServiceSaleForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
 
-    // Validar cliente
     if (!this.NewSvcSale_ClientId || this.NewSvcSale_ClientId === 0) {
       this.formErrors.client = 'Debe seleccionar un cliente';
       isValid = false;
     }
 
-    // Validar vehículo
     if (!this.NewSvcSale_VehicleId || this.NewSvcSale_VehicleId === 0) {
       this.formErrors.vehicle = 'Debe seleccionar un vehículo';
       isValid = false;
     }
 
-    // Validar método de pago
     if (!this.NewSvcSale_PaymentMethodId || this.NewSvcSale_PaymentMethodId === 0) {
       this.formErrors.paymentMethod = 'Debe seleccionar un método de pago';
       isValid = false;
     }
 
-    // Validar servicios
     if (this.NewSvcSale_ServicesList.length === 0) {
       this.formErrors.services = 'Debe agregar al menos un servicio a la venta';
       isValid = false;
@@ -488,7 +528,6 @@ LoadMasterData(): void {
         return;
       }
 
-      // Verificar si el producto ya está en la lista
       const existingIndex = this.NewProdSale_ProductsList.findIndex(p => p.product_id === product.id);
       if (existingIndex > -1) {
         this.NewProdSale_ProductsList[existingIndex].quantity += this.Temp_ProductQty;
@@ -624,6 +663,8 @@ LoadMasterData(): void {
       }))
     };
 
+    console.log('Enviando datos de venta de servicio:', sale);
+
     this.salesService.postSalesServices(sale).subscribe({
       next: () => {
         this.clearError();
@@ -647,14 +688,29 @@ LoadMasterData(): void {
   ViewSaleDetails(sale: any): void {
     this.SelectedSale = sale;
     this.clearError();
+    
+    // Determinar qué modal abrir según el tipo de venta
+    if (sale.products && sale.products.length > 0) {
+      // Es una venta de productos
+      setTimeout(() => {
+        this.closeModal('viewServiceSaleModal'); // Cerrar modal de servicios si está abierto
+        const modal = new (window as any).bootstrap.Modal(document.getElementById('viewProductSaleModal'));
+        modal.show();
+      }, 50);
+    } else if (sale.services && sale.services.length > 0) {
+      // Es una venta de servicios
+      setTimeout(() => {
+        this.closeModal('viewProductSaleModal'); // Cerrar modal de productos si está abierto
+        const modal = new (window as any).bootstrap.Modal(document.getElementById('viewServiceSaleModal'));
+        modal.show();
+      }, 50);
+    }
   }
 
   DatosUpdatePayment(sale: any): void {
     this.IdUpdatePayment = sale.sale_id;
     this.ClientNameUpdatePayment = sale.client_name;
     this.currentPaymentStatus = sale.payment_status;
-    
-    // if esta cancelada o pagada
     this.isSaleFinalized = sale.payment_status === 'Pagado' || sale.payment_status === 'Cancelado';
     
     switch (sale.payment_status.toLowerCase()) {
@@ -667,15 +723,25 @@ LoadMasterData(): void {
       default:
         this.NewPaymentStatusId = 1;
     }
+    this.originalPaymentStatusId = this.NewPaymentStatusId;
     this.clearError();
     this.clearModalError();
     this.clearFormErrors();
   }
 
+  // Verificar si el estado de pago cambió
+  get hasPaymentStatusChanged(): boolean {
+    return this.NewPaymentStatusId !== this.originalPaymentStatusId;
+  }
+
   UpdatePaymentStatus(): void {
-    // Validación adicional por seguridad
     if (this.isSaleFinalized) {
       this.modalError = `No se puede modificar el estado de una venta ${this.currentPaymentStatus.toLowerCase()}.`;
+      return;
+    }
+
+    if (!this.hasPaymentStatusChanged) {
+      this.modalError = 'Debe seleccionar un estado de pago diferente al actual';
       return;
     }
 
@@ -693,6 +759,62 @@ LoadMasterData(): void {
         this.GetSalesServices();
         this.showToast('Estado de pago actualizado exitosamente', 'success');
         this.closeModal('updatePaymentModal');
+      },
+      error: (error) => {
+        if (error.status === 401) {
+          this.authService.logout();
+          return;
+        }
+        this.handleModalError(error);
+      }
+    });
+  }
+
+  // Métodos para actualizar estado de servicio
+  DatosUpdateServiceStatus(sale: any): void {
+    this.IdUpdateServiceStatus = sale.sale_id;
+    this.ClientNameUpdateService = sale.client_name;
+    this.currentServiceStatus = sale.service_status;
+    
+    // Mapear el estado actual al ID correspondiente
+    const statusMap: { [key: string]: number } = {
+      'pendiente': 1,
+      'en progreso': 2,
+      'completado': 3,
+      'cancelado': 4
+    };
+    
+    this.NewServiceStatusId = statusMap[sale.service_status.toLowerCase()] || 1;
+    this.originalServiceStatusId = this.NewServiceStatusId;
+    this.clearError();
+    this.clearModalError();
+    this.clearFormErrors();
+  }
+
+  // Verificar si el estado de servicio cambió
+  get hasServiceStatusChanged(): boolean {
+    return this.NewServiceStatusId !== this.originalServiceStatusId;
+  }
+
+  UpdateServiceStatus(): void {
+    if (!this.hasServiceStatusChanged) {
+      this.modalError = 'Debe seleccionar un estado de servicio diferente al actual';
+      return;
+    }
+
+    if (!this.IdUpdateServiceStatus || !this.NewServiceStatusId) {
+      this.modalError = 'Datos de actualización incompletos';
+      return;
+    }
+
+    this.salesService.updateServiceStatus(this.IdUpdateServiceStatus.toString(), this.NewServiceStatusId).subscribe({
+      next: () => {
+        this.clearError();
+        this.clearModalError();
+        this.clearFormErrors();
+        this.GetSalesServices();
+        this.showToast('Estado de servicio actualizado exitosamente', 'success');
+        this.closeModal('updateServiceStatusModal');
       },
       error: (error) => {
         if (error.status === 401) {
@@ -724,7 +846,7 @@ LoadMasterData(): void {
     });
   }
 
-  // Manejo de errores mejorado - COMO LOS OTROS COMPONENTES
+  // Manejo de errores mejorado
   handleError(error: any): void {
     this.clearFormErrors();
     
@@ -735,14 +857,11 @@ LoadMasterData(): void {
       this.errorMessage = error.error.message;
     } 
     else if (error.error?.error) {
-      // Extraer mensajes específicos de validación
       if (typeof error.error.error === 'string') {
         this.errorMessage = error.error.error;
       } else if (error.error.error.details) {
-        // Manejar errores de Joi
         const details = error.error.error.details;
         this.errorMessage = details.map((detail: any) => {
-          // Traducir mensajes de Joi a español
           if (detail.type === 'string.empty') {
             return `"${detail.context.label}" no puede estar vacío`;
           } else if (detail.type === 'string.max') {
@@ -791,14 +910,11 @@ LoadMasterData(): void {
       this.modalError = error.error.message;
     } 
     else if (error.error?.error) {
-      // Extraer mensajes específicos de validación
       if (typeof error.error.error === 'string') {
         this.modalError = error.error.error;
       } else if (error.error.error.details) {
-        // Manejar errores de Joi
         const details = error.error.error.details;
         this.modalError = details.map((detail: any) => {
-          // Traducir mensajes de Joi a español
           if (detail.type === 'string.empty') {
             return `"${detail.context.label}" no puede estar vacío`;
           } else if (detail.type === 'string.max') {
@@ -836,7 +952,6 @@ LoadMasterData(): void {
       this.modalError = 'Ha ocurrido un error inesperado.';
     }
 
-    // Mostrar toast de error
     this.showToast(this.modalError, 'error');
   }
 

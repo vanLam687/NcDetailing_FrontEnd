@@ -27,26 +27,6 @@
                   <i nz-icon nzType="plus"></i>
                   Nuevo Cliente
                 </button>
-                <button 
-                  type="button" 
-                  class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'edit'"
-                  [class.btn-outline-primary]="activeView !== 'edit'"
-                  (click)="showEditBack()"
-                  [disabled]="!canShowEdit()">
-                  <i nz-icon nzType="edit"></i>
-                  Editar
-                </button>
-                <button 
-                  type="button" 
-                  class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'history'"
-                  [class.btn-outline-primary]="activeView !== 'history'"
-                  (click)="showHistoryBack()"
-                  [disabled]="!canShowHistory()">
-                  <i nz-icon nzType="history"></i>
-                  Historial
-                </button>
               </div>
             </div>
           </div>
@@ -55,10 +35,7 @@
 
       <!-- Mensaje de error general -->
       <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-        <div class="d-flex align-items-center">
-          <i nz-icon nzType="exclamation-circle" class="me-2"></i>
-          <span>{{ errorMessage }}</span>
-        </div>
+        {{ errorMessage }}
         <button type="button" class="btn-close" (click)="clearError()"></button>
       </div>
 
@@ -99,7 +76,8 @@
             <nz-table #clientsTable [nzData]="DataSourceClients" class="w-100 compact-table" nzSize="small">
               <thead>
                 <tr>
-                  <th class="ps-2" style="color: #333;">Nombre</th>
+                  <th class="ps-2" style="color: #333;">ID</th>
+                  <th style="color: #333;">Nombre</th>
                   <th style="color: #333;">Email</th>
                   <th style="color: #333;">Teléfono</th>
                   <th style="color: #333;">Vehículos</th>
@@ -109,6 +87,9 @@
               <tbody>
                 <tr *ngFor="let client of clientsTable.data" class="table-row">
                   <td class="ps-2" style="color: #333;">
+                    <strong>#{{ client.id }}</strong>
+                  </td>
+                  <td style="color: #333;">
                     <strong>{{ getFullName(client) }}</strong>
                   </td>
                   <td style="color: #333;">{{ client.email }}</td>
@@ -164,23 +145,8 @@
           <div class="card-body">
             <!-- Mensaje de error del formulario -->
             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-              <div class="d-flex align-items-center">
-                <i nz-icon nzType="exclamation-circle" class="me-2"></i>
-                <span>{{ modalError }}</span>
-              </div>
+              {{ modalError }}
               <button type="button" class="btn-close" (click)="clearModalError()"></button>
-            </div>
-
-            <!-- Errores de validación del formulario -->
-            <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
-              <div class="d-flex align-items-center">
-                <i nz-icon nzType="warning" class="me-2"></i>
-                <span>Por favor, corrige los siguientes errores:</span>
-              </div>
-              <ul class="mb-0 mt-1">
-                <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
-              </ul>
-              <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
             </div>
 
             <form (ngSubmit)="CreateClient()">
@@ -191,14 +157,10 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.firstName"
                     [(ngModel)]="FirstName" 
                     name="firstName"
                     placeholder="Ej: Juan"
                     required>
-                  <div *ngIf="formErrors.firstName" class="invalid-feedback d-block">
-                    {{ formErrors.firstName }}
-                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -206,14 +168,10 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.lastName"
                     [(ngModel)]="LastName" 
                     name="lastName"
                     placeholder="Ej: Pérez"
                     required>
-                  <div *ngIf="formErrors.lastName" class="invalid-feedback d-block">
-                    {{ formErrors.lastName }}
-                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -221,14 +179,10 @@
                   <input 
                     type="email" 
                     class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.email"
                     [(ngModel)]="Email" 
                     name="email"
                     placeholder="Ej: juan@example.com"
                     required>
-                  <div *ngIf="formErrors.email" class="invalid-feedback d-block">
-                    {{ formErrors.email }}
-                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -236,14 +190,10 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.phone"
                     [(ngModel)]="Phone" 
                     name="phone"
                     placeholder="Ej: 1234567890"
                     required>
-                  <div *ngIf="formErrors.phone" class="invalid-feedback d-block">
-                    {{ formErrors.phone }}
-                  </div>
                 </div>
 
                 <!-- Vehículos -->
@@ -260,15 +210,6 @@
                             <small class="text-muted">
                               Año: {{ vehicle.year }} | Color: {{ vehicle.color }} | Patente: {{ vehicle.license_plate }}
                             </small>
-                            <div *ngIf="formErrors['vehicleBrand_' + i]" class="invalid-feedback d-block">
-                              {{ formErrors['vehicleBrand_' + i] }}
-                            </div>
-                            <div *ngIf="formErrors['vehicleModel_' + i]" class="invalid-feedback d-block">
-                              {{ formErrors['vehicleModel_' + i] }}
-                            </div>
-                            <div *ngIf="formErrors['vehicleLicensePlate_' + i]" class="invalid-feedback d-block">
-                              {{ formErrors['vehicleLicensePlate_' + i] }}
-                            </div>
                           </div>
                           <div class="col-auto">
                             <button type="button" class="btn btn-sm btn-outline-danger" (click)="RemoveVehicle(i)">
@@ -292,7 +233,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleBrand"
-                            placeholder="Marca *"
+                            placeholder="Marca"
                             name="vehicleBrand">
                         </div>
                         <div class="col-md">
@@ -300,7 +241,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleModel"
-                            placeholder="Modelo *"
+                            placeholder="Modelo"
                             name="vehicleModel">
                         </div>
                         <div class="col-md">
@@ -308,7 +249,7 @@
                             type="number" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleYear"
-                            placeholder="Año *"
+                            placeholder="Año"
                             min="1900"
                             name="vehicleYear">
                         </div>
@@ -317,7 +258,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleColor"
-                            placeholder="Color *"
+                            placeholder="Color"
                             name="vehicleColor">
                         </div>
                         <div class="col-md">
@@ -325,7 +266,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleLicensePlate"
-                            placeholder="Patente *"
+                            placeholder="Patente"
                             name="vehicleLicensePlate">
                         </div>
                         <div class="col-md-auto">
@@ -345,7 +286,7 @@
                     <button 
                       type="button" 
                       class="btn btn-outline-secondary btn-sm"
-                      (click)="goBack()">
+                      (click)="showListView()">
                       <i nz-icon nzType="arrow-left"></i>
                       Volver
                     </button>
@@ -383,23 +324,8 @@
           <div class="card-body">
             <!-- Mensaje de error del formulario -->
             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
-              <div class="d-flex align-items-center">
-                <i nz-icon nzType="exclamation-circle" class="me-2"></i>
-                <span>{{ modalError }}</span>
-              </div>
+              {{ modalError }}
               <button type="button" class="btn-close" (click)="clearModalError()"></button>
-            </div>
-
-            <!-- Errores de validación del formulario -->
-            <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
-              <div class="d-flex align-items-center">
-                <i nz-icon nzType="warning" class="me-2"></i>
-                <span>Por favor, corrige los siguientes errores:</span>
-              </div>
-              <ul class="mb-0 mt-1">
-                <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
-              </ul>
-              <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
             </div>
 
             <form (ngSubmit)="EditClient()">
@@ -410,14 +336,10 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.firstName"
                     [(ngModel)]="FirstNameEdit" 
                     name="firstNameEdit"
                     placeholder="Ej: Juan"
                     required>
-                  <div *ngIf="formErrors.firstName" class="invalid-feedback d-block">
-                    {{ formErrors.firstName }}
-                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -425,14 +347,10 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.lastName"
                     [(ngModel)]="LastNameEdit" 
                     name="lastNameEdit"
                     placeholder="Ej: Pérez"
                     required>
-                  <div *ngIf="formErrors.lastName" class="invalid-feedback d-block">
-                    {{ formErrors.lastName }}
-                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -440,14 +358,10 @@
                   <input 
                     type="email" 
                     class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.email"
                     [(ngModel)]="EmailEdit" 
                     name="emailEdit"
                     placeholder="Ej: juan@example.com"
                     required>
-                  <div *ngIf="formErrors.email" class="invalid-feedback d-block">
-                    {{ formErrors.email }}
-                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -455,14 +369,10 @@
                   <input 
                     type="text" 
                     class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.phone"
                     [(ngModel)]="PhoneEdit" 
                     name="phoneEdit"
                     placeholder="Ej: 1234567890"
                     required>
-                  <div *ngIf="formErrors.phone" class="invalid-feedback d-block">
-                    {{ formErrors.phone }}
-                  </div>
                 </div>
 
                 <!-- Vehículos -->
@@ -479,15 +389,6 @@
                             <small class="text-muted">
                               Año: {{ vehicle.year }} | Color: {{ vehicle.color }} | Patente: {{ vehicle.license_plate }}
                             </small>
-                            <div *ngIf="formErrors['vehicleBrand_' + i]" class="invalid-feedback d-block">
-                              {{ formErrors['vehicleBrand_' + i] }}
-                            </div>
-                            <div *ngIf="formErrors['vehicleModel_' + i]" class="invalid-feedback d-block">
-                              {{ formErrors['vehicleModel_' + i] }}
-                            </div>
-                            <div *ngIf="formErrors['vehicleLicensePlate_' + i]" class="invalid-feedback d-block">
-                              {{ formErrors['vehicleLicensePlate_' + i] }}
-                            </div>
                           </div>
                           <div class="col-auto">
                             <button type="button" class="btn btn-sm btn-outline-danger" (click)="RemoveVehicle(i)">
@@ -511,7 +412,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleBrand"
-                            placeholder="Marca *"
+                            placeholder="Marca"
                             name="vehicleBrand">
                         </div>
                         <div class="col-md">
@@ -519,7 +420,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleModel"
-                            placeholder="Modelo *"
+                            placeholder="Modelo"
                             name="vehicleModel">
                         </div>
                         <div class="col-md">
@@ -527,7 +428,7 @@
                             type="number" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleYear"
-                            placeholder="Año *"
+                            placeholder="Año"
                             min="1900"
                             name="vehicleYear">
                         </div>
@@ -536,7 +437,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleColor"
-                            placeholder="Color *"
+                            placeholder="Color"
                             name="vehicleColor">
                         </div>
                         <div class="col-md">
@@ -544,7 +445,7 @@
                             type="text" 
                             class="form-control form-control-sm"
                             [(ngModel)]="NewVehicleLicensePlate"
-                            placeholder="Patente *"
+                            placeholder="Patente"
                             name="vehicleLicensePlate">
                         </div>
                         <div class="col-md-auto">
@@ -564,7 +465,7 @@
                     <button 
                       type="button" 
                       class="btn btn-outline-secondary btn-sm"
-                      (click)="goBack()">
+                      (click)="showListView()">
                       <i nz-icon nzType="arrow-left"></i>
                       Volver
                     </button>
@@ -596,7 +497,7 @@
               <button 
                 type="button" 
                 class="btn btn-outline-secondary btn-sm"
-                (click)="goBack()">
+                (click)="showListView()">
                 <i nz-icon nzType="arrow-left"></i>
                 Volver
               </button>
@@ -630,7 +531,7 @@
                     <div class="card-header bg-light py-2 px-3">
                       <div class="d-flex justify-content-between align-items-center">
                         <strong>Venta #{{ serviceSale.sale_id }}</strong>
-                        <span class="text-muted">{{ formatDate(serviceSale.created_at) }}</span>
+                        <span class="text-white">{{ formatDate(serviceSale.created_at) }}</span>
                       </div>
                     </div>
                     <div class="card-body">
@@ -641,7 +542,7 @@
                         </div>
                         <div class="col-md-6 text-end">
                           <small class="text-muted">Total:</small>
-                          <h5 class="text-success mb-0">${{ serviceSale.sale_total }}</h5>
+                          <h5 class="text-success mb-0">${{ formatNumber(serviceSale.sale_total) }}</h5>
                         </div>
                       </div>
                       
@@ -657,13 +558,13 @@
                           <tbody>
                             <tr *ngFor="let service of serviceSale.services">
                               <td>{{ service.name }}</td>
-                              <td class="text-end">${{ service.price }}</td>
+                              <td class="text-end">${{ formatNumber(service.price) }}</td>
                             </tr>
                           </tbody>
                           <tfoot>
                             <tr>
                               <th>Total</th>
-                              <th class="text-end">${{ getServicesTotal(serviceSale.services) }}</th>
+                              <th class="text-end">${{ formatNumber(getServicesTotal(serviceSale.services)) }}</th>
                             </tr>
                           </tfoot>
                         </table>
@@ -691,7 +592,7 @@
                     <div class="card-header bg-light py-2 px-3">
                       <div class="d-flex justify-content-between align-items-center">
                         <strong>Venta #{{ productSale.sale_id }}</strong>
-                        <span class="text-muted">{{ formatDate(productSale.created_at) }}</span>
+                        <span class="text-white">{{ formatDate(productSale.created_at) }}</span>
                       </div>
                     </div>
                     <div class="card-body">
@@ -702,7 +603,7 @@
                         </div>
                         <div class="col-md-6 text-end">
                           <small class="text-muted">Total:</small>
-                          <h5 class="text-success mb-0">${{ productSale.sale_total }}</h5>
+                          <h5 class="text-success mb-0">${{ formatNumber(productSale.sale_total) }}</h5>
                         </div>
                       </div>
                       
@@ -721,14 +622,14 @@
                             <tr *ngFor="let product of productSale.products">
                               <td>{{ product.name }}</td>
                               <td class="text-center">{{ product.quantity }}</td>
-                              <td class="text-end">${{ product.unit_price }}</td>
-                              <td class="text-end">${{ product.subtotal }}</td>
+                              <td class="text-end">${{ formatNumber(product.unit_price) }}</td>
+                              <td class="text-end">${{ formatNumber(product.subtotal) }}</td>
                             </tr>
                           </tbody>
                           <tfoot>
                             <tr>
                               <th colspan="3">Total</th>
-                              <th class="text-end">${{ getProductsTotal(productSale.products) }}</th>
+                              <th class="text-end">${{ formatNumber(getProductsTotal(productSale.products)) }}</th>
                             </tr>
                           </tfoot>
                         </table>
@@ -744,43 +645,125 @@
     </div>
   </div>
 
-  <!-- Modal Ver Detalles del Cliente -->
+  <!-- Modal Ver Detalles del Cliente - MEJORADO -->
   <div class="modal fade" id="viewClientModal" tabindex="-1" aria-labelledby="viewClientModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="viewClientModalLabel">Detalles del Cliente</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-header" style="background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%); border: none;">
+          <h5 class="modal-title text-white" id="viewClientModalLabel">
+            <i nz-icon nzType="user" class="me-2"></i>
+            Detalles del Cliente
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body p-4">
+          <!-- Información Personal -->
           <div class="row mb-4">
-            <div class="col-md-6">
-              <h6 class="text-primary">Información Personal</h6>
-              <p><strong>Nombre:</strong> {{ SelectedClient?.first_name }} {{ SelectedClient?.last_name }}</p>
-              <p><strong>Email:</strong> {{ SelectedClient?.email }}</p>
-              <p><strong>Teléfono:</strong> {{ SelectedClient?.phone }}</p>
-            </div>
-          </div>
-          
-          <h6 class="text-primary">Vehículos</h6>
-          <div *ngIf="SelectedClient?.vehicles && SelectedClient.vehicles.length > 0" class="row">
-            <div *ngFor="let vehicle of SelectedClient.vehicles" class="col-md-6 mb-3">
-              <div class="card">
+            <div class="col-12">
+              <div class="card border-0 shadow-sm">
+                <div class="card-header py-3" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                  <h6 class="mb-0 text-dark">
+                    <i nz-icon nzType="idcard" class="me-2 text-primary"></i>
+                    Información Personal
+                  </h6>
+                </div>
                 <div class="card-body">
-                  <h6 class="card-title">{{ vehicle.brand }} {{ vehicle.model }}</h6>
-                  <p class="card-text mb-1"><small>Año: {{ vehicle.year }}</small></p>
-                  <p class="card-text mb-1"><small>Color: {{ vehicle.color }}</small></p>
-                  <p class="card-text mb-0"><small>Patente: {{ vehicle.license_plate }}</small></p>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <div class="d-flex align-items-center">
+                        <i nz-icon nzType="number" class="text-primary me-3" style="font-size: 18px;"></i>
+                        <div>
+                          <small class="text-muted d-block">ID del Cliente</small>
+                          <strong class="text-dark">#{{ SelectedClient?.id }}</strong>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <div class="d-flex align-items-center">
+                        <i nz-icon nzType="user" class="text-primary me-3" style="font-size: 18px;"></i>
+                        <div>
+                          <small class="text-muted d-block">Nombre Completo</small>
+                          <strong class="text-dark">{{ SelectedClient?.first_name }} {{ SelectedClient?.last_name }}</strong>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <div class="d-flex align-items-center">
+                        <i nz-icon nzType="mail" class="text-primary me-3" style="font-size: 18px;"></i>
+                        <div>
+                          <small class="text-muted d-block">Email</small>
+                          <strong class="text-dark">{{ SelectedClient?.email }}</strong>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <div class="d-flex align-items-center">
+                        <i nz-icon nzType="phone" class="text-primary me-3" style="font-size: 18px;"></i>
+                        <div>
+                          <small class="text-muted d-block">Teléfono</small>
+                          <strong class="text-dark">{{ SelectedClient?.phone }}</strong>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div *ngIf="!SelectedClient?.vehicles || SelectedClient.vehicles.length === 0" class="alert alert-info">
-            No hay vehículos registrados para este cliente.
+          
+          <!-- Vehículos -->
+          <div class="row">
+            <div class="col-12">
+              <h6 class="text-primary mb-3">
+                <i nz-icon nzType="car" class="me-2"></i>
+                Vehículos Registrados
+                <span class="badge bg-primary ms-2">{{ SelectedClient?.vehicles?.length || 0 }}</span>
+              </h6>
+              
+              <div *ngIf="SelectedClient?.vehicles && SelectedClient.vehicles.length > 0" class="row g-3">
+                <div *ngFor="let vehicle of SelectedClient.vehicles" class="col-md-6">
+                  <div class="card h-100 border-0 shadow-sm hover-card">
+                    <div class="card-body p-4">
+                      <div class="d-flex align-items-start mb-3">
+                        <div class="vehicle-icon me-3">
+                          <i nz-icon nzType="car" style="font-size: 24px; color: #6c63b8;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                          <h6 class="card-title mb-2 text-dark">{{ vehicle.brand }} {{ vehicle.model }}</h6>
+                          <div class="vehicle-details">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                              <small class="text-muted">Año</small>
+                              <strong class="text-dark">{{ vehicle.year }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                              <small class="text-muted">Color</small>
+                              <strong class="text-dark">{{ vehicle.color }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                              <small class="text-muted">Patente</small>
+                              <strong class="text-primary">{{ vehicle.license_plate }}</strong>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div *ngIf="!SelectedClient?.vehicles || SelectedClient.vehicles.length === 0" class="text-center py-5">
+                <i nz-icon nzType="car" style="font-size: 48px; color: #6c757d;" class="mb-3"></i>
+                <p class="text-muted mb-2">No hay vehículos registrados</p>
+                <small class="text-muted">Este cliente no tiene vehículos asociados</small>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i nz-icon nzType="close" class="me-1"></i>
+            Cerrar
+          </button>
         </div>
       </div>
     </div>

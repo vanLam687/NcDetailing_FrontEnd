@@ -103,6 +103,26 @@
   color: white;
 }
 
+.btn-success {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #219653 0%, #1e8449 100%);
+}
+
+.btn-outline-success {
+  background: transparent;
+  border: 2px solid #27ae60;
+  color: #27ae60;
+}
+
+.btn-outline-success:hover {
+  background: #27ae60;
+  color: white;
+}
+
 .btn-sm {
   padding: 3px 6px;
   font-size: 11px;
@@ -280,9 +300,11 @@
 /* Badges */
 .badge {
   font-size: 10px;
-  padding: 3px 6px;
-  border-radius: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .bg-danger {

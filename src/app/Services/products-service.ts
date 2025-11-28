@@ -33,16 +33,23 @@ export class ProductsService {
     };
   }
 
-  getProducts(name?: string, category_id?: string) {
+  getProducts(name?: string, category_id?: string, status?: string) {
     const params: any = {};
     if (name) params.name = name;
     if (category_id) params.category_id = category_id;
+    if (status) params.status = status;
     
     return this.http.get(this.url, { ...this.getHeaders(), params });
   }
 
-  getCategories() {
-    return this.http.get(this.url + '/categories', this.getHeaders());
+  getCategories(status?: string) {
+    const params: any = {};
+    if (status) params.status = status;
+    
+    return this.http.get(this.url + '/categories', { 
+      ...this.getHeaders(), 
+      params 
+    });
   }
 
   getProductById(id: string) {
@@ -56,21 +63,29 @@ export class ProductsService {
   putProduct(id: string, product: any) {
     return this.http.put(this.url + '/' + id, product, this.getHeaders());
   }
+
   deleteProduct(id: string) {
     return this.http.delete(this.url + '/' + id, this.getHeaders());
+  }
+
+  restoreProduct(id: string) {
+    return this.http.patch(this.url + '/' + id + '/restore', {}, this.getHeaders());
   }
 
   postCategory(category: any) {
     return this.http.post(this.url + '/category', category, this.getHeaders());
   }
 
-  // Nuevos métodos para categorías
   putCategory(id: string, category: any) {
     return this.http.put(this.url + '/category/' + id, category, this.getHeaders());
   }
 
   deleteCategory(id: string) {
     return this.http.delete(this.url + '/category/' + id, this.getHeaders());
+  }
+
+  restoreCategory(id: string) {
+    return this.http.patch(this.url + '/category/' + id + '/restore', {}, this.getHeaders());
   }
 
   getCategoryById(id: string) {
