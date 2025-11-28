@@ -14,7 +14,7 @@ export class NavbarComponent {
 
   constructor(private router: Router, public authService: AuthService) {}
 
-  // Reemplazar la propiedad isAdmin por métodos más específicos
+  // Getters para usar en la plantilla
   get isAdmin(): boolean {
     return this.authService.isAdmin();
   }
@@ -23,35 +23,49 @@ export class NavbarComponent {
     return this.authService.isEmployee();
   }
 
-  // Verificar permisos para rutas específicas
+  // --- Permisos de Rutas ---
+
+  // Dashboard: Visible para todos (Admin y Empleado)
+  canAccessDashboard(): boolean {
+    return this.authService.hasPermission([1, 2]);
+  }
+
+  // Métricas: Solo Admin
   canAccessMetrics(): boolean {
-    return this.authService.hasPermission([1]); // Solo admin
+    return this.authService.hasPermission([1]);
   }
 
-  canAccessEmployees(): boolean {
-    return this.authService.hasPermission([1]); // Solo admin
-  }
-
+  // Ventas: Visible para todos
   canAccessSales(): boolean {
-    return this.authService.hasPermission([1, 2]); // Admin y empleado
+    return this.authService.hasPermission([1, 2]);
   }
 
+  // Clientes: Visible para todos
   canAccessClients(): boolean {
-    return this.authService.hasPermission([1, 2]); // Admin y empleado
+    return this.authService.hasPermission([1, 2]);
   }
 
+  // Servicios: Visible para todos (pero con restricciones internas)
   canAccessServices(): boolean {
-    return this.authService.hasPermission([1, 2]); // Admin y empleado
+    return this.authService.hasPermission([1, 2]);
   }
 
+  // Productos: Visible para todos (pero con restricciones internas)
   canAccessProducts(): boolean {
-    return this.authService.hasPermission([1, 2]); // Admin y empleado
+    return this.authService.hasPermission([1, 2]);
   }
 
-  // Auditorías - Solo Admin
-  canAccessAudit(): boolean {
-    return this.authService.hasPermission([1]); // Solo admin
+  // Empleados: Solo Admin
+  canAccessEmployees(): boolean {
+    return this.authService.hasPermission([1]);
   }
+
+  // Auditorías: Solo Admin
+  canAccessAudit(): boolean {
+    return this.authService.hasPermission([1]);
+  }
+
+  // --- Helpers de Usuario ---
 
   getUserName(): string {
     const user = this.authService.getCurrentUser();
