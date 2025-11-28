@@ -131,13 +131,13 @@
                 </td>
                 <td class="text-center pe-2">
                   <div class="d-flex gap-1 justify-content-center">
-                    <!-- Botón para ver cambios -->
+                    <!-- Botón para ver cambios - CAMBIADO DE LÁPIZ A OJO -->
                     <button 
                       *ngIf="hasChanges(log.changes)"
                       class="btn btn-outline-info btn-sm"
                       (click)="viewChanges(log.changes)"
                       title="Ver cambios">
-                      <i nz-icon nzType="edit"></i>
+                      <i nz-icon nzType="eye"></i>
                     </button>
                     
                     <!-- Botón para ver error -->
@@ -168,7 +168,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">
-            <i nz-icon nzType="file-text" class="me-2"></i>
+            <i nz-icon nzType="eye" class="me-2"></i>
             Detalles de Cambios
           </h5>
           <button type="button" class="btn-close" (click)="closeChangesModal()"></button>
