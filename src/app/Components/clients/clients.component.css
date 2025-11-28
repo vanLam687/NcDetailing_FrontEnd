@@ -389,3 +389,15 @@ i[nz-icon] {
 .bg-primary {
   background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
 }
+.btn-light-outline {
+  background: transparent;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+}
+
+.btn-light-outline:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+}

@@ -51,7 +51,7 @@ export class LoginComponent implements OnInit {
           this.showSuccessNotification('¡Bienvenido!');
           this.router.navigate(['/home/']);
         } else {
-          this.errorMessage = 'Credenciales incorrectas. Por favor, verifique sus datos.';
+          this.errorMessage = 'Credenciales inválidas.';
         }
       },
       error: (error) => {
@@ -65,7 +65,6 @@ export class LoginComponent implements OnInit {
     this.clearFormErrors();
     let isValid = true;
 
-    // Validar usuario
     if (!this.username || this.username.trim() === '') {
       this.formErrors.username = 'El usuario es requerido';
       isValid = false;
@@ -74,12 +73,8 @@ export class LoginComponent implements OnInit {
       isValid = false;
     }
 
-    // Validar contraseña
     if (!this.password || this.password.trim() === '') {
       this.formErrors.password = 'La contraseña es requerida';
-      isValid = false;
-    } else if (this.password.length < 4) {
-      this.formErrors.password = 'La contraseña debe tener al menos 4 caracteres';
       isValid = false;
     }
 
@@ -89,56 +84,22 @@ export class LoginComponent implements OnInit {
   handleError(error: any): void {
     this.clearFormErrors();
     
-    if (error.error?.mensaje) {
-      this.errorMessage = error.error.mensaje;
-    } 
-    else if (error.error?.message) {
-      this.errorMessage = error.error.message;
-    } 
-    else if (error.error?.error) {
-      if (typeof error.error.error === 'string') {
-        this.errorMessage = error.error.error;
-      } else if (error.error.error.details) {
-        const details = error.error.error.details;
-        this.errorMessage = details.map((detail: any) => {
-          return detail.message;
-        }).join(', ');
-      } else {
-        this.errorMessage = error.error.error;
-      }
+    // Interpretación de códigos de estado para mensajes predeterminados
+    if (error.status === 0) {
+      this.errorMessage = 'Error de conexión. Verifique su internet.';
     }
-    else if (typeof error.error === 'string') {
-      this.errorMessage = error.error;
-    }
-    else if (error.status === 0) {
-      this.errorMessage = 'Error de conexión. No se puede conectar al servidor.';
-    }
-    else if (error.status === 400) {
-      this.errorMessage = 'Solicitud incorrecta. Verifique los datos ingresados.';
-    }
-    else if (error.status === 401) {
-      this.errorMessage = 'Credenciales incorrectas. Por favor, verifique su usuario y contraseña.';
-    }
-    else if (error.status === 403) {
-      this.errorMessage = 'Acceso denegado. No tiene permisos para acceder al sistema.';
-    }
-    else if (error.status === 404) {
-      this.errorMessage = 'Servicio no encontrado.';
-    }
-    else if (error.status === 409) {
-      this.errorMessage = 'Conflicto en el servidor.';
+    else if (error.status === 400 || error.status === 401 || error.status === 404) {
+      // Agrupamos errores de datos/auth para no dar pistas
+      this.errorMessage = 'Credenciales inválidas.';
     }
     else if (error.status === 500) {
-      this.errorMessage = 'Error interno del servidor. Por favor, intente más tarde.';
+      this.errorMessage = 'Error interno del servidor. Intente más tarde.';
     }
     else if (error.status === 503) {
-      this.errorMessage = 'Servicio no disponible. Por favor, intente más tarde.';
-    }
-    else if (error.statusText) {
-      this.errorMessage = `Error ${error.status}: ${error.statusText}`;
+      this.errorMessage = 'Servicio no disponible temporalmente.';
     }
     else {
-      this.errorMessage = 'Ha ocurrido un error inesperado. Por favor, intente nuevamente.';
+      this.errorMessage = 'Ocurrió un error inesperado. Intente nuevamente.';
     }
   }
 
@@ -175,26 +136,12 @@ export class LoginComponent implements OnInit {
     
     notification.innerHTML = `
       <div class="d-flex align-items-center">
-        <span style="
-          font-size: 22px;
-          font-weight: bold;
-          color: white;
-          margin-right: 12px;
-          line-height: 1;
-        ">
-          ✔
-        </span>
+        <span style="font-size: 22px; font-weight: bold; color: white; margin-right: 12px; line-height: 1;">✔</span>
         <div class="flex-grow-1">
-          <strong class="me-auto" 
-            style="font-size: 16px; display: block; margin-bottom: 4px;">
-            ¡Éxito!
-          </strong>
+          <strong class="me-auto" style="font-size: 16px; display: block; margin-bottom: 4px;">¡Éxito!</strong>
           <div style="font-size: 14px; opacity: 0.95;">${message}</div>
         </div>
-        <button type="button" class="btn-close btn-close-white" 
-          data-bs-dismiss="alert"
-          style="filter: brightness(0) invert(1); opacity: 0.8; margin-left: 16px;">
-        </button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" style="filter: brightness(0) invert(1); opacity: 0.8; margin-left: 16px;"></button>
       </div>
     `;
 
@@ -202,34 +149,16 @@ export class LoginComponent implements OnInit {
       const style = document.createElement('style');
       style.id = 'toast-styles';
       style.textContent = `
-        @keyframes slideInRight {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        .custom-toast {
-          backdrop-filter: blur(10px);
-          border-left: 4px solid #1e8449 !important;
-        }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .custom-toast { backdrop-filter: blur(10px); border-left: 4px solid #1e8449 !important; }
       `;
       document.head.appendChild(style);
     }
-
     document.body.appendChild(notification);
-
     setTimeout(() => {
       if (notification.parentNode) {
         notification.style.animation = 'slideInRight 0.3s ease-out reverse';
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-          }
-        }, 300);
+        setTimeout(() => { if (notification.parentNode) notification.parentNode.removeChild(notification); }, 300);
       }
     }, 4000);
   }

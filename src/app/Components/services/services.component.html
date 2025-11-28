@@ -1,7 +1,6 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-12">
-      <!-- Header super compacto -->
       <div class="card shadow-sm mb-2">
         <div class="card-body py-1 px-3">
           <div class="d-flex justify-content-between align-items-center">
@@ -62,7 +61,6 @@
         </div>
       </div>
 
-      <!-- Mensaje de error general -->
       <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
         <div class="d-flex align-items-center">
           <i nz-icon nzType="exclamation-circle" class="me-2"></i>
@@ -71,10 +69,8 @@
         <button type="button" class="btn-close" (click)="clearError()"></button>
       </div>
 
-      <!-- VISTA: Lista de Servicios -->
       <div *ngIf="activeView === 'list'">
         
-        <!-- Filtros ultra compactos -->
         <div class="card shadow-sm mb-2">
           <div class="card-body py-1 px-3">
             <div class="row g-1 align-items-center">
@@ -114,7 +110,6 @@
           </div>
         </div>
 
-        <!-- Tabla de servicios -->
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3">
             <h6 class="mb-0">Servicios</h6>
@@ -135,7 +130,6 @@
                   <td style="color: #333;">{{ service.category || '-' }}</td>
                   <td style="color: #333;"><strong>${{ service.price }}</strong></td>
                   <td class="text-center pe-2">
-                    <!-- Si estamos viendo inactivos --> 
                     <ng-container *ngIf="ServiceStatus === 'inactive'; else activeActions">
                       <button 
                         class="btn btn-outline-success btn-sm me-1"
@@ -147,7 +141,6 @@
                       </button>
                     </ng-container>
 
-                    <!-- Acciones para servicios activos/todos -->
                     <ng-template #activeActions>
                       <button 
                         class="btn btn-outline-primary btn-sm me-1"
@@ -170,7 +163,6 @@
         </div>
       </div>
 
-      <!-- VISTA: Lista de Categorías -->
       <div *ngIf="activeView === 'categories'">
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center">
@@ -238,7 +230,6 @@
         </div>
       </div>
 
-      <!-- VISTA: Crear Servicio -->
       <div *ngIf="activeView === 'create'">
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3">
@@ -248,7 +239,6 @@
             </h6>
           </div>
           <div class="card-body">
-            <!-- Mensaje de error del formulario -->
             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
               <div class="d-flex align-items-center">
                 <i nz-icon nzType="exclamation-circle" class="me-2"></i>
@@ -257,7 +247,6 @@
               <button type="button" class="btn-close" (click)="clearModalError()"></button>
             </div>
 
-            <!-- Errores de validación del formulario -->
             <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
               <div class="d-flex align-items-center">
                 <i nz-icon nzType="warning" class="me-2"></i>
@@ -271,7 +260,6 @@
 
             <form (ngSubmit)="CreateService()">
               <div class="row g-2">
-                <!-- Nombre del Servicio -->
                 <div class="col-12">
                   <label class="form-label fw-bold mb-1">Nombre *</label>
                   <input 
@@ -287,7 +275,6 @@
                   </div>
                 </div>
 
-                <!-- Precio y Categoría -->
                 <div class="col-md-6">
                   <label class="form-label fw-bold mb-1">Precio *</label>
                   <div class="input-group input-group-sm">
@@ -335,7 +322,6 @@
                   </div>
                 </div>
 
-                <!-- Botones del formulario -->
                 <div class="col-12">
                   <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                     <button 
@@ -367,7 +353,6 @@
         </div>
       </div>
 
-      <!-- VISTA: Editar Servicio -->
       <div *ngIf="activeView === 'edit'">
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3">
@@ -377,7 +362,6 @@
             </h6>
           </div>
           <div class="card-body">
-            <!-- Mensaje de error del formulario -->
             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
               <div class="d-flex align-items-center">
                 <i nz-icon nzType="exclamation-circle" class="me-2"></i>
@@ -386,7 +370,6 @@
               <button type="button" class="btn-close" (click)="clearModalError()"></button>
             </div>
 
-            <!-- Errores de validación del formulario -->
             <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
               <div class="d-flex align-items-center">
                 <i nz-icon nzType="warning" class="me-2"></i>
@@ -400,7 +383,6 @@
 
             <form (ngSubmit)="EditService()">
               <div class="row g-2">
-                <!-- Nombre del Servicio -->
                 <div class="col-12">
                   <label class="form-label fw-bold mb-1">Nombre *</label>
                   <input 
@@ -416,7 +398,6 @@
                   </div>
                 </div>
 
-                <!-- Precio y Categoría -->
                 <div class="col-md-6">
                   <label class="form-label fw-bold mb-1">Precio *</label>
                   <div class="input-group input-group-sm">
@@ -464,7 +445,6 @@
                   </div>
                 </div>
 
-                <!-- Botones del formulario -->
                 <div class="col-12">
                   <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                     <button 
@@ -492,7 +472,6 @@
     </div>
   </div>
 
-  <!-- Modal para crear categoría -->
   <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -537,7 +516,6 @@
     </div>
   </div>
 
-  <!-- Modal para editar categoría -->
   <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -582,7 +560,6 @@
     </div>
   </div>
 
-  <!-- Modal Eliminar Servicio -->
   <div class="modal fade" id="deleteServiceModal" tabindex="-1" aria-labelledby="deleteServiceModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -593,6 +570,14 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-center">
+          
+          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3 text-start" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
+          </div>
+
           <div class="mb-4">
             <i nz-icon nzType="exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i>
           </div>
@@ -607,7 +592,7 @@
           <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
             Cancelar
           </button>
-          <button type="button" class="btn btn-danger" (click)="DeleteService()" data-bs-dismiss="modal">
+          <button type="button" class="btn btn-danger" (click)="DeleteService()">
             Eliminar Servicio
           </button>
         </div>
@@ -615,7 +600,6 @@
     </div>
   </div>
 
-  <!-- Modal Restaurar Servicio -->
   <div class="modal fade" id="restoreServiceModal" tabindex="-1" aria-labelledby="restoreServiceModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -648,7 +632,6 @@
     </div>
   </div>
 
-  <!-- Modal Eliminar Categoría -->
   <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -659,6 +642,14 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-center">
+          
+          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3 text-start" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
+          </div>
+
           <div class="mb-4">
             <i nz-icon nzType="exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i>
           </div>
@@ -673,7 +664,7 @@
           <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
             Cancelar
           </button>
-          <button type="button" class="btn btn-danger" (click)="DeleteCategory()" data-bs-dismiss="modal">
+          <button type="button" class="btn btn-danger" (click)="DeleteCategory()">
             Eliminar Categoría
           </button>
         </div>
@@ -681,7 +672,6 @@
     </div>
   </div>
 
-  <!-- Modal Restaurar Categoría -->
   <div class="modal fade" id="restoreCategoryModal" tabindex="-1" aria-labelledby="restoreCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">

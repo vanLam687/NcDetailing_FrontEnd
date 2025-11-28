@@ -17,17 +17,17 @@ export class ProductsComponent implements OnInit {
   DataSourceCategories: any[] = [];
   filteredCategories: any[] = [];
 
-  // Variables para lista
+  // Filtros
   SearchName: string = '';
   SelectedCategory: string = '';
-
-  // Nuevo: estados para filtros (productos y categorías)
   ProductStatus: 'active' | 'inactive' | 'all' = 'active';
   CategoryStatus: 'active' | 'inactive' | 'all' = 'active';
 
-  // Variables para formulario
+  // Navegación
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
+  private historyStack: string[] = ['list'];
   
+  // Formulario Producto
   ProductName: string = '';
   ProductDescription: string = '';
   ProductPrice: number = 0;
@@ -35,23 +35,22 @@ export class ProductsComponent implements OnInit {
   ProductMinStock: number = 0;
   ProductCategoryId: number = 0;
   ProductCategoryName: string = '';
+  
+  // Acciones Producto
   ProductToDeleteName: string = '';
   ProductToRestoreName: string = '';
-
   IdEdit: number = 0;
   IdDelete: number = 0;
   IdRestore: number = 0;
+  SelectedProduct: any = null;
 
-  // Variables para categorías
+  // Acciones Categoría
   CategoryName: string = '';
   CategoryToEdit: any = null;
   CategoryToDelete: any = null;
   CategoryToRestore: any = null;
 
-  // Para navegación
-  SelectedProduct: any = null;
-  private historyStack: string[] = ['list'];
-
+  // Errores
   errorMessage: string = '';
   modalError: string = '';
   formErrors: any = {};
@@ -65,8 +64,9 @@ export class ProductsComponent implements OnInit {
     }
   }
 
+  // --- CARGA DE DATOS ---
+
   GetProducts(): void {
-    // Convert SelectedCategory (string name) to category_id if possible
     const selectedCategoryObj = this.DataSourceCategories.find(c => c.name === this.SelectedCategory);
     const categoryIdParam = selectedCategoryObj ? selectedCategoryObj.id : undefined;
 
@@ -76,10 +76,7 @@ export class ProductsComponent implements OnInit {
         this.clearError();
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
+        if (error.status === 401) { this.authService.logout(); return; }
         this.handleError(error);
       }
     });
@@ -93,31 +90,24 @@ export class ProductsComponent implements OnInit {
         this.clearError();
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
+        if (error.status === 401) { this.authService.logout(); return; }
         this.handleError(error);
       }
     });
   }
 
-  // Navegación entre vistas
+  // --- NAVEGACIÓN ---
+
   showListView(): void {
     this.activeView = 'list';
-    this.clearError();
-    this.clearModalError();
-    this.clearFormErrors();
+    this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetProducts();
     this.addToHistory('list');
   }
 
   showCreateForm(): void {
     this.activeView = 'create';
-    this.clearForm();
-    this.clearError();
-    this.clearModalError();
-    this.clearFormErrors();
+    this.clearForm(); this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.addToHistory('create');
   }
 
@@ -135,22 +125,17 @@ export class ProductsComponent implements OnInit {
     const category = this.DataSourceCategories.find(cat => cat.id === product.category_id);
     this.ProductCategoryName = category ? category.name : '';
     
-    this.clearError();
-    this.clearModalError();
-    this.clearFormErrors();
+    this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.addToHistory('edit');
   }
 
   showCategoriesView(): void {
     this.activeView = 'categories';
-    this.clearError();
-    this.clearModalError();
-    this.clearFormErrors();
+    this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetCategories();
     this.addToHistory('categories');
   }
 
-  // Métodos para navegar desde el header
   showEditBack(): void {
     if (this.SelectedProduct) {
       this.activeView = 'edit';
@@ -158,43 +143,29 @@ export class ProductsComponent implements OnInit {
     }
   }
 
-  // Método para verificar si se puede mostrar edición
-  canShowEdit(): boolean {
-    return this.SelectedProduct !== null;
-  }
+  canShowEdit(): boolean { return this.SelectedProduct !== null; }
 
-  // Métodos auxiliares para manejar el historial de navegación
   private addToHistory(view: string): void {
     this.historyStack.push(view);
-    // Mantener solo los últimos 10 elementos en el historial
-    if (this.historyStack.length > 10) {
-      this.historyStack.shift();
-    }
+    if (this.historyStack.length > 10) this.historyStack.shift();
   }
 
-  // Método para volver atrás
   goBack(): void {
     if (this.historyStack.length > 1) {
-      this.historyStack.pop(); // Remover vista actual
+      this.historyStack.pop();
       const previousView = this.historyStack[this.historyStack.length - 1];
       this.activeView = previousView as 'list' | 'create' | 'edit' | 'categories';
-      
-      // Si volvemos al listado, limpiar el producto seleccionado
-      if (this.activeView === 'list') {
-        this.SelectedProduct = null;
-      }
+      if (this.activeView === 'list') this.SelectedProduct = null;
     } else {
       this.showListView();
     }
   }
 
+  // --- FORMULARIOS Y VALIDACIÓN ---
+
   clearForm(): void {
-    this.ProductName = '';
-    this.ProductDescription = '';
-    this.ProductPrice = 0;
-    this.ProductStock = 0;
-    this.ProductMinStock = 0;
-    this.ProductCategoryId = 0;
+    this.ProductName = ''; this.ProductDescription = ''; this.ProductPrice = 0;
+    this.ProductStock = 0; this.ProductMinStock = 0; this.ProductCategoryId = 0;
     this.ProductCategoryName = '';
     this.clearFormErrors();
   }
@@ -212,151 +183,72 @@ export class ProductsComponent implements OnInit {
     this.filteredCategories = this.DataSourceCategories;
   }
 
-  // Validación de formularios - CORREGIDA
   validateProductForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
-
-    // Validar nombre
     if (!this.ProductName || this.ProductName.trim() === '') {
-      this.formErrors.productName = 'El nombre del producto es requerido';
-      isValid = false;
-    } else if (this.ProductName.length > 100) {
-      this.formErrors.productName = 'El nombre no puede exceder los 100 caracteres';
-      isValid = false;
+      this.formErrors.productName = 'El nombre es requerido'; isValid = false;
     }
-
-    // Validar precio
     if (!this.ProductPrice || this.ProductPrice <= 0) {
-      this.formErrors.productPrice = 'El precio debe ser mayor a 0';
-      isValid = false;
+      this.formErrors.productPrice = 'Precio debe ser mayor a 0'; isValid = false;
     }
-
-    // Validar stock
-    if (this.ProductStock === null || this.ProductStock === undefined) {
-      this.formErrors.productStock = 'El stock es requerido';
-      isValid = false;
-    } else if (!Number.isInteger(this.ProductStock)) {
-      this.formErrors.productStock = 'El stock debe ser un número entero';
-      isValid = false;
-    } else if (this.ProductStock < 0) {
-      this.formErrors.productStock = 'El stock no puede ser negativo';
-      isValid = false;
+    if (this.ProductStock === null || this.ProductStock < 0) {
+      this.formErrors.productStock = 'Stock inválido'; isValid = false;
     }
-
-    // Validar stock mínimo
-    if (this.ProductMinStock === null || this.ProductMinStock === undefined) {
-      this.formErrors.productMinStock = 'El stock mínimo es requerido';
-      isValid = false;
-    } else if (!Number.isInteger(this.ProductMinStock)) {
-      this.formErrors.productMinStock = 'El stock mínimo debe ser un número entero';
-      isValid = false;
-    } else if (this.ProductMinStock < 0) {
-      this.formErrors.productMinStock = 'El stock mínimo no puede ser negativo';
-      isValid = false;
+    if (this.ProductMinStock === null || this.ProductMinStock < 0) {
+      this.formErrors.productMinStock = 'Stock mínimo inválido'; isValid = false;
     }
-
-    // Validar categoría
-    if (!this.ProductCategoryId || this.ProductCategoryId === 0) {
-      this.formErrors.productCategory = 'Debe seleccionar una categoría';
-      isValid = false;
+    if (!this.ProductCategoryId) {
+      this.formErrors.productCategory = 'Categoría requerida'; isValid = false;
     }
-
-    // Validar descripción - CORREGIDO: usar productDescription en lugar de serviceDescription
-    if (!this.ProductDescription || this.ProductDescription.trim() === '') {
-      this.formErrors.productDescription = 'La descripción es requerida';
-      isValid = false;
-    } else if (this.ProductDescription.length > 500) {
-      this.formErrors.productDescription = 'La descripción no puede exceder los 500 caracteres';
-      isValid = false;
-    }
-
     return isValid;
   }
 
   validateCategoryForm(): boolean {
     this.clearFormErrors();
-    let isValid = true;
-
     if (!this.CategoryName || this.CategoryName.trim() === '') {
-      this.formErrors.categoryName = 'El nombre de la categoría es requerido';
-      isValid = false;
-    } else if (this.CategoryName.length > 50) {
-      this.formErrors.categoryName = 'El nombre no puede exceder los 50 caracteres';
-      isValid = false;
+      this.formErrors.categoryName = 'Nombre requerido'; return false;
     }
-
-    return isValid;
+    return true;
   }
 
-  // CRUD Operations para Productos
+  // --- CRUD PRODUCTOS ---
+
   CreateProduct(): void {
-    if (!this.validateProductForm()) {
-      return;
-    }
-
-    // Si la descripción está vacía o solo tiene espacios, enviar null
-    const descriptionValue = this.ProductDescription && this.ProductDescription.trim() !== '' 
-      ? this.ProductDescription.trim() 
-      : null;
-
+    if (!this.validateProductForm()) return;
+    const descriptionValue = this.ProductDescription?.trim() || null;
     const product = {
-      name: this.ProductName.trim(),
-      description: descriptionValue,
-      price: this.ProductPrice,
-      stock: this.ProductStock,
-      min_stock: this.ProductMinStock,
+      name: this.ProductName.trim(), description: descriptionValue,
+      price: this.ProductPrice, stock: this.ProductStock, min_stock: this.ProductMinStock,
       category_id: this.ProductCategoryId
     };
-
     this.service.postProduct(product).subscribe({
       next: () => {
-        this.clearModalError();
-        this.clearFormErrors();
-        this.showSuccessNotification('Producto creado correctamente');
+        this.showSuccessNotification('Producto creado');
         this.showListView();
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
+        if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
     });
   }
 
   EditProduct(): void {
-    if (!this.validateProductForm()) {
-      return;
-    }
-
-    // Si la descripción está vacía o solo tiene espacios, enviar null
-    const descriptionValue = this.ProductDescription && this.ProductDescription.trim() !== '' 
-      ? this.ProductDescription.trim() 
-      : null;
-
+    if (!this.validateProductForm()) return;
+    const descriptionValue = this.ProductDescription?.trim() || null;
     const product: any = {
-      name: this.ProductName.trim(),
-      description: descriptionValue,
-      price: this.ProductPrice,
-      stock: this.ProductStock,
-      min_stock: this.ProductMinStock,
+      name: this.ProductName.trim(), description: descriptionValue,
+      price: this.ProductPrice, stock: this.ProductStock, min_stock: this.ProductMinStock,
       category_id: this.ProductCategoryId
     };
-
     this.service.putProduct(this.IdEdit.toString(), product).subscribe({
       next: () => {
-        this.clearModalError();
-        this.clearFormErrors();
-        this.showSuccessNotification('Producto actualizado correctamente');
+        this.showSuccessNotification('Producto actualizado');
         this.showListView();
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
+        if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
     });
@@ -365,409 +257,176 @@ export class ProductsComponent implements OnInit {
   DatosDelete(product: any): void {
     this.IdDelete = product.id;
     this.ProductToDeleteName = product.name;
-    this.clearError();
-    this.clearModalError();
-    this.clearFormErrors();
+    this.clearError(); this.clearModalError();
   }
 
   DeleteProduct(): void {
     this.service.deleteProduct(this.IdDelete.toString()).subscribe({
       next: () => {
-        this.clearError();
-        this.clearModalError();
-        this.clearFormErrors();
-        this.showSuccessNotification('Producto eliminado correctamente');
+        this.showSuccessNotification('Producto eliminado');
         this.GetProducts();
         this.closeModal('deleteProductModal');
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
+        if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
     });
   }
 
-  // Nuevos métodos para restaurar con modal de confirmación
   DatosRestoreProduct(product: any): void {
     this.IdRestore = product.id;
     this.ProductToRestoreName = product.name;
-    this.clearError();
-    this.clearModalError();
-    this.clearFormErrors();
+    this.clearError(); this.clearModalError();
   }
 
   RestoreProductConfirm(): void {
     this.service.restoreProduct(this.IdRestore.toString()).subscribe({
       next: () => {
-        this.clearError();
-        this.clearModalError();
-        this.clearFormErrors();
-        this.showSuccessNotification('Producto restaurado correctamente');
+        this.showSuccessNotification('Producto restaurado');
         this.GetProducts();
         this.closeModal('restoreProductModal');
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
+        if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
     });
   }
 
-  // CRUD Operations para Categorías
+  // --- CRUD CATEGORÍAS ---
+
   CreateCategory(): void {
-    if (!this.validateCategoryForm()) {
-      return;
-    }
-
-    const category = {
-      name: this.CategoryName.trim()
-    };
-
-    this.service.postCategory(category).subscribe({
+    if (!this.validateCategoryForm()) return;
+    this.service.postCategory({ name: this.CategoryName.trim() }).subscribe({
       next: () => {
-        this.clearModalError();
-        this.clearFormErrors();
-        this.showSuccessNotification('Categoría creada correctamente');
-        this.CategoryName = '';
-        this.GetCategories();
-        this.closeModal('createCategoryModal');
+        this.showSuccessNotification('Categoría creada');
+        this.CategoryName = ''; this.GetCategories(); this.closeModal('createCategoryModal');
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
+        if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
     });
   }
 
   EditCategory(): void {
-    if (!this.validateCategoryForm()) {
-      return;
-    }
-
-    const category = {
-      name: this.CategoryName.trim()
-    };
-
-    this.service.putCategory(this.CategoryToEdit.id.toString(), category).subscribe({
+    if (!this.validateCategoryForm()) return;
+    this.service.putCategory(this.CategoryToEdit.id.toString(), { name: this.CategoryName.trim() }).subscribe({
       next: () => {
-        this.clearModalError();
-        this.clearFormErrors();
-        this.showSuccessNotification('Categoría actualizada correctamente');
-        this.CategoryName = '';
-        this.CategoryToEdit = null;
-        this.GetCategories();
-        this.closeModal('editCategoryModal');
+        this.showSuccessNotification('Categoría actualizada');
+        this.CategoryName = ''; this.CategoryToEdit = null; this.GetCategories(); this.closeModal('editCategoryModal');
       },
-      error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
-        this.handleModalError(error);
+      error: (error) => { 
+        if (error.status === 401) { this.authService.logout(); return; } 
+        this.handleModalError(error); 
       }
     });
   }
 
-  DatosDeleteCategory(category: any): void {
-    this.CategoryToDelete = category;
-    this.clearError();
-    this.clearModalError();
-    this.clearFormErrors();
+  DatosDeleteCategory(category: any): void { 
+    this.CategoryToDelete = category; 
+    this.clearError(); this.clearModalError(); 
   }
 
   DeleteCategory(): void {
     this.service.deleteCategory(this.CategoryToDelete.id.toString()).subscribe({
-      next: () => {
-        this.clearError();
-        this.clearModalError();
-        this.clearFormErrors();
-        this.showSuccessNotification('Categoría eliminada correctamente');
-        this.CategoryToDelete = null;
-        this.GetCategories();
-        this.closeModal('deleteCategoryModal');
+      next: () => { 
+        this.showSuccessNotification('Categoría eliminada'); 
+        this.CategoryToDelete = null; 
+        this.GetCategories(); 
+        this.closeModal('deleteCategoryModal'); 
       },
-      error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
+      error: (error) => { 
+        if (error.status === 401) { this.authService.logout(); return; } 
+        // -------------------------------------------------------------
+        // MANEJO ESPECÍFICO DE ERROR 409 PARA ELIMINACIÓN DE CATEGORÍA
+        // -------------------------------------------------------------
+        if (error.status === 409) {
+          this.modalError = 'No se puede eliminar la categoría porque tiene productos asociados.';
           return;
         }
-        this.handleModalError(error);
+        this.handleModalError(error); 
       }
     });
   }
 
-  // Nuevos métodos para restaurar categorías con modal de confirmación
-  DatosRestoreCategory(category: any): void {
-    this.CategoryToRestore = category;
-    this.clearError();
-    this.clearModalError();
-    this.clearFormErrors();
+  DatosRestoreCategory(category: any): void { 
+    this.CategoryToRestore = category; 
+    this.clearError(); this.clearModalError(); 
   }
 
   RestoreCategoryConfirm(): void {
     this.service.restoreCategory(this.CategoryToRestore.id.toString()).subscribe({
-      next: () => {
-        this.clearError();
-        this.clearModalError();
-        this.clearFormErrors();
-        this.showSuccessNotification('Categoría restaurada correctamente');
-        this.CategoryToRestore = null;
-        this.GetCategories();
-        this.closeModal('restoreCategoryModal');
+      next: () => { 
+        this.showSuccessNotification('Categoría restaurada'); 
+        this.CategoryToRestore = null; 
+        this.GetCategories(); 
+        this.closeModal('restoreCategoryModal'); 
       },
-      error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
-        this.handleModalError(error);
+      error: (error) => { 
+        if (error.status === 401) { this.authService.logout(); return; } 
+        this.handleModalError(error); 
       }
     });
   }
 
-  DatosEditCategory(category: any): void {
-    this.CategoryToEdit = category;
-    this.CategoryName = category.name;
-    this.clearError();
-    this.clearModalError();
-    this.clearFormErrors();
+  DatosEditCategory(category: any): void { 
+    this.CategoryToEdit = category; 
+    this.CategoryName = category.name; 
+    this.clearError(); this.clearModalError(); 
   }
 
-  ApplyFilters(): void {
-    this.GetProducts();
-  }
+  // --- FILTROS ---
 
-  ClearFilters(): void {
-    this.SearchName = '';
-    this.SelectedCategory = '';
-    this.ProductStatus = 'active';
-    this.GetProducts();
-  }
+  ApplyFilters(): void { this.GetProducts(); }
+  ClearFilters(): void { this.SearchName = ''; this.SelectedCategory = ''; this.ProductStatus = 'active'; this.GetProducts(); }
+  onProductStatusChange(newStatus: 'active' | 'inactive' | 'all'): void { this.ProductStatus = newStatus; this.GetProducts(); }
+  onCategoryStatusChange(newStatus: 'active' | 'inactive' | 'all'): void { this.CategoryStatus = newStatus; this.GetCategories(); }
 
-  // Cuando cambia el filtro de estado de productos
-  onProductStatusChange(newStatus: 'active' | 'inactive' | 'all'): void {
-    this.ProductStatus = newStatus;
-    this.GetProducts();
-  }
+  // --- HELPERS ---
 
-  // Cuando cambia el filtro de estado de categorías
-  onCategoryStatusChange(newStatus: 'active' | 'inactive' | 'all'): void {
-    this.CategoryStatus = newStatus;
-    this.GetCategories();
-  }
-
-  // Método para cerrar modales
   private closeModal(modalId: string): void {
     const modal = document.getElementById(modalId);
-    if (modal) {
-      const modalInstance = (window as any).bootstrap.Modal.getInstance(modal);
-      if (modalInstance) {
-        modalInstance.hide();
-      }
-    }
+    if (modal) { const i = (window as any).bootstrap.Modal.getInstance(modal); if (i) i.hide(); }
   }
 
-  // Método para mostrar notificaciones de éxito - MEJORADO
   private showSuccessNotification(message: string): void {
-    // Crear elemento de notificación con diseño mejorado
-    const notification = document.createElement('div');
-    notification.className = 'alert alert-success alert-dismissible fade show custom-toast';
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      min-width: 350px;
-      max-width: 450px;
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-      color: white;
-      padding: 16px 20px;
-      animation: slideInRight 0.3s ease-out;
-    `;
-    
-    notification.innerHTML = `
-      <div class="d-flex align-items-center">
-
-        <!-- CHECK NORMAL -->
-        <span style="
-          font-size: 22px;
-          font-weight: bold;
-          color: white;
-          margin-right: 12px;
-          line-height: 1;
-        ">
-          ✔
-        </span>
-
-        <div class="flex-grow-1">
-          <strong class="me-auto" 
-            style="font-size: 16px; display: block; margin-bottom: 4px;">
-            ¡Éxito!
-          </strong>
-          <div style="font-size: 14px; opacity: 0.95;">${message}</div>
-        </div>
-
-        <button type="button" class="btn-close btn-close-white" 
-          data-bs-dismiss="alert"
-          style="filter: brightness(0) invert(1); opacity: 0.8; margin-left: 16px;">
-        </button>
-
-      </div>
-    `;
-
-    // Agregar estilos CSS para la animación
-    if (!document.querySelector('#toast-styles')) {
-      const style = document.createElement('style');
-      style.id = 'toast-styles';
-      style.textContent = `
-        @keyframes slideInRight {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        
-        .custom-toast {
-          backdrop-filter: blur(10px);
-          border-left: 4px solid #1e8449 !important;
-        }
-      `;
-      document.head.appendChild(style);
-    }
-
-    // Agregar al body
-    document.body.appendChild(notification);
-
-    // Auto-remover después de 4 segundos
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.style.animation = 'slideInRight 0.3s ease-out reverse';
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-          }
-        }, 300);
-      }
-    }, 4000);
+    const n = document.createElement('div');
+    n.className = 'alert alert-success alert-dismissible fade show custom-toast';
+    n.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;min-width:350px;background:linear-gradient(135deg,#27ae60 0%,#229954 100%);color:white;padding:16px 20px;`;
+    n.innerHTML = `<div class="d-flex align-items-center"><span style="font-size:22px;margin-right:12px;">✔</span><div><strong>¡Éxito!</strong><div>${message}</div></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button></div>`;
+    document.body.appendChild(n);
+    setTimeout(() => { if(n.parentNode) n.parentNode.removeChild(n); }, 4000);
   }
 
-  handleError(error: any): void {
-    this.clearFormErrors();
-    
-    if (error.error?.mensaje) {
-      this.errorMessage = error.error.mensaje;
-    } 
-    else if (error.error?.message) {
-      this.errorMessage = error.error.message;
-    } 
-    else if (error.error?.error) {
-      if (typeof error.error.error === 'string') {
-        this.errorMessage = error.error.error;
-      } else if (error.error.error.details) {
-        const details = error.error.error.details;
-        this.errorMessage = details.map((detail: any) => {
-          return detail.message;
-        }).join(', ');
-      } else {
-        this.errorMessage = error.error.error;
-      }
-    }
-    else if (typeof error.error === 'string') {
-      this.errorMessage = error.error;
-    }
-    else if (error.status === 0) {
-      this.errorMessage = 'Error de conexión. No se puede conectar al servidor.';
-    }
-    else if (error.status === 400) {
-      this.errorMessage = 'Solicitud incorrecta. Verifique los datos ingresados.';
-    }
-    else if (error.status === 409) {
-      this.errorMessage = 'El registro ya existe.';
-    }
-    else if (error.status === 404) {
-      this.errorMessage = 'Recurso no encontrado.';
-    }
-    else if (error.status === 500) {
-      this.errorMessage = 'Error interno del servidor.';
-    }
-    else {
-      this.errorMessage = 'Ha ocurrido un error inesperado.';
+  // --- MANEJO DE ERRORES GENÉRICO ---
+
+  private getGenericErrorMessage(status: number): string {
+    switch (status) {
+      case 0: return 'Error de conexión. Verifique su internet.';
+      case 400: return 'Datos incorrectos. Verifique los campos.';
+      case 401: return 'Sesión expirada. Por favor inicie sesión nuevamente.';
+      case 403: return 'No tiene permisos para realizar esta acción.';
+      case 404: return 'Producto o categoría no encontrada.';
+      case 409: return 'Ya existe un registro con ese nombre.'; // Mensaje por defecto para conflictos (Create/Edit)
+      case 500: return 'Error interno del servidor.';
+      default: return 'Ocurrió un error inesperado.';
     }
   }
 
-  handleModalError(error: any): void {
-    this.clearFormErrors();
-    
-    if (error.error?.mensaje) {
-      this.modalError = error.error.mensaje;
-    } 
-    else if (error.error?.message) {
-      this.modalError = error.error.message;
-    } 
-    else if (error.error?.error) {
-      if (typeof error.error.error === 'string') {
-        this.modalError = error.error.error;
-      } else if (error.error.error.details) {
-        const details = error.error.error.details;
-        this.modalError = details.map((detail: any) => {
-          return detail.message;
-        }).join(', ');
-      } else {
-        this.modalError = error.error.error;
-      }
-    }
-    else if (typeof error.error === 'string') {
-      this.modalError = error.error;
-    }
-    else if (error.status === 0) {
-      this.modalError = 'Error de conexión. No se puede conectar al servidor.';
-    }
-    else if (error.status === 400) {
-      this.modalError = 'Solicitud incorrecta. Verifique los datos ingresados.';
-    }
-    else if (error.status === 409) {
-      this.modalError = 'Ya existe un registro con ese nombre.';
-    }
-    else if (error.status === 404) {
-      this.modalError = 'El registro no fue encontrado.';
-    }
-    else if (error.status === 500) {
-      this.modalError = 'Error interno del servidor.';
-    }
-    else {
-      this.modalError = 'Ha ocurrido un error inesperado.';
-    }
+  handleError(error: any): void { 
+    this.clearFormErrors(); 
+    this.errorMessage = this.getGenericErrorMessage(error.status); 
   }
 
-  clearError(): void {
-    this.errorMessage = '';
+  handleModalError(error: any): void { 
+    this.clearFormErrors(); 
+    this.modalError = this.getGenericErrorMessage(error.status); 
   }
-
-  clearModalError(): void {
-    this.modalError = '';
-  }
-
-  clearFormErrors(): void {
-    this.formErrors = {};
-  }
-
-  hasFormErrors(): boolean {
-    return Object.keys(this.formErrors).length > 0;
-  }
+  
+  clearError(): void { this.errorMessage = ''; }
+  clearModalError(): void { this.modalError = ''; }
+  clearFormErrors(): void { this.formErrors = {}; }
+  hasFormErrors(): boolean { return Object.keys(this.formErrors).length > 0; }
 }
