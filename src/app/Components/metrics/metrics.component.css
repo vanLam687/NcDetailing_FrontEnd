@@ -1,0 +1,255 @@
+/* =====================================================
+   MÉTRICAS – ESTILO PRODUCTS (PALETA MORADO SUAVE)
+   ===================================================== */
+
+/* Fondo general */
+.metrics-container,
+.container-fluid.p-4 {
+  background: linear-gradient(135deg, #fafbff 0%, #f7f8fc 100%);
+  min-height: 100vh;
+  padding: 12px !important;
+}
+
+/* -----------------------------------------------------
+   HEADER PRINCIPAL
+   ----------------------------------------------------- */
+.card-header.bg-white {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e6e8f5 !important;
+}
+
+.card-header h3 {
+  font-weight: 600;
+  font-size: 1.35rem;
+  color: #6c63b8 !important; /* Morado como acento */
+}
+
+/* -----------------------------------------------------
+   BOTÓN EXPORTAR PDF
+   ----------------------------------------------------- */
+.btn-success {
+  background: #27ae60 !important;
+  border: none;
+  border-radius: 7px;
+  font-weight: 600;
+  padding: 0.45rem 1.2rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-success:hover {
+  background: #239b54 !important;
+}
+
+.btn-success:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-success:disabled:not(.exporting-hidden) {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-success:disabled:not(.exporting-hidden)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: loading-shimmer 1.5s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.exporting-hidden {
+  display: none !important;
+}
+
+/* -----------------------------------------------------
+   BOTONES DE FILTRO (menos violeta)
+   ----------------------------------------------------- */
+.btn-filter {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 0.45rem 1rem;
+  border: 1px solid #d6d8e7;
+  background: #ffffff;
+  color: #66708a;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-filter.btn-primary {
+  background: #6c63b8 !important;
+  border-color: #6c63b8 !important;
+  color: white;
+}
+
+.btn-filter.btn-outline-primary {
+  background: white;
+  border: 1px solid #6c63b8 !important;
+  color: #6c63b8 !important;
+}
+
+.btn-filter.btn-outline-primary:hover {
+  background: #6c63b8 !important;
+  color: white !important;
+}
+
+/* -----------------------------------------------------
+   FORMULARIOS
+   ----------------------------------------------------- */
+.form-control {
+  border-radius: 7px;
+  border: 1px solid #cfd3eb;
+}
+
+.form-control:focus {
+  border-color: #6c63b8;
+  box-shadow: 0 0 0 0.1rem rgba(108, 99, 184, 0.25);
+}
+
+.form-label {
+  font-weight: 500;
+  color: #556b82;
+}
+
+/* -----------------------------------------------------
+   TARJETAS PRINCIPALES (menos saturación violeta)
+   ----------------------------------------------------- */
+.card {
+  border: 1px solid #e7e9f4;
+  border-radius: 12px;
+  background: white;
+}
+
+.card.shadow-sm {
+  box-shadow: 0 1px 6px rgba(125, 120, 170, 0.10) !important;
+}
+
+.bg-success { background: #27ae60 !important; }
+.bg-primary { background: #6c63b8 !important; }
+.bg-info { background: #7a6fc1 !important; }
+
+.bg-light {
+  background: #f7f8ff !important;
+  border: 1px solid #e6e8f5 !important;
+  color: #7586a5 !important;
+}
+
+.card-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #69728a;
+}
+
+.card-text {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #2f3d56;
+}
+
+/* Tarjetas con fondo coloreado → texto blanco */
+.bg-success .card-text,
+.bg-primary .card-text,
+.bg-info .card-text,
+.bg-success .card-title,
+.bg-primary .card-title,
+.bg-info .card-title {
+  color: #ffffff !important;
+}
+
+/* -----------------------------------------------------
+   LISTA TOP CLIENTES
+   ----------------------------------------------------- */
+.list-group-item {
+  border-bottom: 1px solid #eceffa;
+}
+
+.list-group-item:hover {
+  background-color: #f4f5ff;
+}
+
+/* -----------------------------------------------------
+   ALERTAS
+   ----------------------------------------------------- */
+.alert {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.alert-danger {
+  background: #e74c3c !important;
+  color: white !important;
+}
+
+.alert-warning {
+  background: #f7e3a6 !important;
+  color: #4a4a4a !important;
+}
+
+/* -----------------------------------------------------
+   PDF HEADER
+   ----------------------------------------------------- */
+.pdf-header {
+  border-bottom: 2px solid #6c63b8;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.pdf-header h2 {
+  color: #2f3d56;
+  font-weight: 700;
+}
+
+.pdf-header p {
+  color: #7a889c;
+}
+
+/* -----------------------------------------------------
+   GRÁFICOS
+   ----------------------------------------------------- */
+apx-chart {
+  display: block;
+  border-radius: 10px;
+  padding: 5px;
+  background: #ffffff;
+  border: 1px solid #eceffa;
+}
+
+/* -----------------------------------------------------
+   ESTADOS VACÍOS
+   ----------------------------------------------------- */
+.text-center.text-muted.p-5 {
+  background: #f5f6ff;
+  border-radius: 10px;
+  border: 1px dashed #cbcfea;
+  color: #8a96a8 !important;
+}
+
+/* -----------------------------------------------------
+   MEDIA QUERIES
+   ----------------------------------------------------- */
+@media (max-width: 768px) {
+  .btn-filter {
+    padding: 0.35rem 0.75rem;
+  }
+
+  .card-text {
+    font-size: 1.3rem;
+  }
+}
+
+.btn-success .spinner-border {
+  margin-right: 6px;
+}

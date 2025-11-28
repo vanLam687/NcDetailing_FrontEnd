@@ -30,11 +30,19 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
+
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+  {
+    "glob": "**/*",
+    "input": "src/assets",
+    "output": "/assets"
+  }
             ],
             "styles": [
+              "src/custom-theme.scss",
+              "node_modules/ng-zorro-antd/ng-zorro-antd.css",
               "src/styles.css"
             ]
           },
@@ -92,11 +100,17 @@
               }
             ],
             "styles": [
+              "node_modules/ng-zorro-antd/ng-zorro-antd.css",
+
               "src/styles.css"
             ]
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": false
   }
+  
 }

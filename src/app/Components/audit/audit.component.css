@@ -1,0 +1,322 @@
+.container-fluid {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f5f7ff 100%);
+  min-height: calc(100vh - 70px);
+  padding: 12px !important;
+}
+
+.card {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(88, 81, 160, 0.08);
+  background: white;
+  margin-bottom: 8px;
+}
+
+.card-header {
+  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
+  border: none;
+  border-radius: 8px 8px 0 0 !important;
+  padding: 8px 12px !important;
+}
+
+.card-header h5, .card-header h6 {
+  color: white;
+  font-weight: 600;
+  margin: 0;
+}
+
+.card-body {
+  padding: 12px !important;
+}
+
+.btn {
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 4px 8px;
+  font-size: 12px;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%);
+  color: white;
+}
+
+.btn-secondary {
+  background: #8a9bb8;
+  color: white;
+}
+
+.btn-outline-info {
+  background: transparent;
+  border: 2px solid #17a2b8;
+  color: #17a2b8;
+}
+
+.btn-outline-info:hover {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-outline-danger {
+  background: transparent;
+  border: 2px solid #e74c3c;
+  color: #e74c3c;
+}
+
+.btn-outline-danger:hover {
+  background: #e74c3c;
+  color: white;
+}
+
+.form-control, .form-select {
+  border-radius: 6px;
+  border: 1px solid rgba(117, 134, 165, 0.3);
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.compact-table {
+  font-size: 12px;
+}
+
+.compact-table thead th {
+  padding: 6px 3px !important;
+  font-size: 11px;
+  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
+  color: white !important;
+  border: none;
+}
+
+.compact-table tbody td {
+  padding: 6px 3px !important;
+  font-size: 12px;
+  color: #333 !important;
+  border: none;
+}
+
+.table-row {
+  transition: all 0.2s ease;
+}
+
+.table-row:hover {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%) !important;
+}
+
+/* Badges para tipos de acción */
+.badge-success {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%) !important;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.badge-warning {
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%) !important;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.badge-danger {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.badge-info {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.badge-secondary {
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%) !important;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #7586a5 !important;
+  font-size: 10px;
+}
+
+.text-success {
+  color: #27ae60 !important;
+  font-weight: 600;
+}
+
+.alert {
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 12px;
+  margin-bottom: 8px;
+  border: none;
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, #ffeaea 0%, #ffdbdb 100%);
+  color: #e74c3c;
+  border-left: 4px solid #e74c3c;
+}
+
+/* Estilos para los modales */
+.modal-backdrop {
+  opacity: 0.5;
+}
+
+.modal {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(88, 81, 160, 0.2);
+  background: #1a202c;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+  border: none;
+  padding: 16px 20px;
+  border-bottom: 1px solid #2d3748;
+}
+
+.modal-header .modal-title {
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.modal-body {
+  padding: 0;
+  max-height: 60vh;
+  overflow: auto;
+  background: #1a202c;
+}
+
+.modal-footer {
+  border-top: 1px solid #2d3748;
+  padding: 16px 20px;
+  background: #1a202c;
+  border-radius: 0 0 12px 12px;
+}
+
+/* Estilos para el contenido JSON */
+.json-content {
+  background: #1a202c;
+  color: #e2e8f0;
+  padding: 20px;
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 50vh;
+  overflow: auto;
+  border: none;
+}
+
+/* Estilos para el contenido de error */
+.error-content {
+  background: #1a202c;
+  color: #feb2b2;
+  padding: 20px;
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 50vh;
+  overflow: auto;
+  border: none;
+}
+
+/* Scroll personalizado para los modales */
+.json-content::-webkit-scrollbar,
+.error-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.json-content::-webkit-scrollbar-track,
+.error-content::-webkit-scrollbar-track {
+  background: #2d3748;
+  border-radius: 4px;
+}
+
+.json-content::-webkit-scrollbar-thumb,
+.error-content::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 4px;
+}
+
+.json-content::-webkit-scrollbar-thumb:hover,
+.error-content::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* Animación para el mensaje de copiado */
+.text-success {
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Estilos para los botones de acción en la tabla */
+.d-flex.gap-1 {
+  gap: 4px !important;
+}
+
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 8px !important;
+  }
+  
+  .modal-dialog {
+    margin: 20px;
+  }
+  
+  .json-content,
+  .error-content {
+    font-size: 11px;
+    padding: 12px;
+  }
+  
+  .btn-outline-info,
+  .btn-outline-danger {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}

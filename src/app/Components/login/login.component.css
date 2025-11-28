@@ -1,0 +1,20 @@
+/* Agregar al archivo login.component.css */
+.is-invalid {
+  border-color: #e74c3c !important;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
+}
+
+.invalid-feedback {
+  display: block;
+  font-size: 12px;
+  color: #e74c3c;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+  font-size: 14px;
+}

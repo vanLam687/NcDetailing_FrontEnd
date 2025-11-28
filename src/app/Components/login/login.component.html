@@ -1,0 +1,110 @@
+<div class="d-flex min-vh-100 align-items-center justify-content-center p-3" style="background-color: #f8f9fa;">
+  <div class="card shadow-sm border-0" style="width: 100%; max-width: 400px;">
+    <div class="card-body p-4">
+      <div class="text-center mb-4">
+        <!-- Titulo pro -->
+        <div class="mb-3">
+          <i nz-icon nzType="car" class="text-primary" style="font-size: 48px;"></i>
+        </div>
+        <h3 class="card-title text-primary mb-2">NC Detailing</h3>
+        <p class="text-secondary">Ingresa a tu cuenta</p>
+      </div>
+
+      <form nz-form (ngSubmit)="Login()">
+        <!-- Campo de usuario -->
+        <div class="mb-3">
+          <nz-form-item>
+            <nz-form-control>
+              <label class="form-label fw-bold mb-1">Usuario *</label>
+              <nz-input-group nzPrefixIcon="user" nzSize="large">
+                <input 
+                  type="text" 
+                  nz-input 
+                  [(ngModel)]="username" 
+                  name="username"
+                  placeholder="Usuario" 
+                  required
+                  [class.is-invalid]="formErrors.username"
+                  class="form-control"
+                />
+              </nz-input-group>
+              <div *ngIf="formErrors.username" class="invalid-feedback d-block">
+                {{ formErrors.username }}
+              </div>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <!-- Campo de contraseña -->
+        <div class="mb-3">
+          <nz-form-item>
+            <nz-form-control>
+              <label class="form-label fw-bold mb-1">Contraseña *</label>
+              <nz-input-group nzPrefixIcon="lock" nzSize="large">
+                <input 
+                  type="password" 
+                  nz-input 
+                  [(ngModel)]="password" 
+                  name="password"
+                  placeholder="Contraseña" 
+                  required
+                  (keyup.enter)="Login()"
+                  [class.is-invalid]="formErrors.password"
+                  class="form-control"
+                />
+              </nz-input-group>
+              <div *ngIf="formErrors.password" class="invalid-feedback d-block">
+                {{ formErrors.password }}
+              </div>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <!-- Errores de validación del formulario -->
+        <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+          <div class="d-flex align-items-center">
+            <i nz-icon nzType="warning" class="me-2"></i>
+            <span>Por favor, corrige los siguientes errores:</span>
+          </div>
+          <ul class="mb-0 mt-1">
+            <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
+          </ul>
+          <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
+        </div>
+
+        <!-- error handler -->
+        <div *ngIf="errorMessage" class="mb-3">
+          <nz-alert 
+            nzType="error" 
+            [nzMessage]="errorMessage" 
+            nzShowIcon
+            nzCloseable
+            (nzOnClose)="clearError()"
+          ></nz-alert>
+        </div>
+
+        <!-- Botón de login -->
+        <button 
+          nz-button 
+          nzType="primary" 
+          nzSize="large" 
+          nzBlock 
+          type="submit"
+          class="mb-3"
+          [disabled]="!username || !password || isLoading"
+          [nzLoading]="isLoading"
+        >
+          <i nz-icon nzType="login" class="me-2"></i>
+          {{ isLoading ? 'Ingresando...' : 'Ingresar' }}
+        </button>
+      </form>
+
+      <!-- para que no quede tan seco -->
+      <div class="text-center">
+        <small class="text-muted">
+          Sistema de gestión de detailing automotriz
+        </small>
+      </div>
+    </div>
+  </div>
+</div>

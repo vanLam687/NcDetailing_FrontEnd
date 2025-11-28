@@ -1,0 +1,245 @@
+<div class="container-fluid p-4 metrics-container">
+
+  <div class="card shadow-sm mb-4 border-0">
+    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+      <h3 class="text-primary mb-0"><i nz-icon nzType="dashboard"></i> Dashboard de Métricas</h3>
+
+      <button class="btn btn-success d-flex align-items-center gap-2"
+              (click)="exportToPDF()" 
+              [disabled]="isExporting || !metricsData">
+
+        <span *ngIf="isExporting" class="spinner-border spinner-border-sm" role="status"></span>
+
+        <span>
+          <i *ngIf="!isExporting" nz-icon nzType="file-pdf"></i>
+          {{ isExporting ? 'Exportando...' : 'Exportar PDF' }}
+        </span>
+      </button>
+    </div>
+
+    <div class="card-body">
+      <!-- Filtros -->
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <button type="button" class="btn btn-filter"
+                [class.btn-primary]="selectedFilter === 'weekly' && !startDate"
+                [class.btn-outline-secondary]="selectedFilter !== 'weekly' || startDate"
+                (click)="selectFilter('weekly')">
+          <i nz-icon nzType="calendar"></i> Semanal
+        </button>
+
+        <button type="button" class="btn btn-filter"
+                [class.btn-primary]="selectedFilter === 'monthly' && !startDate"
+                [class.btn-outline-secondary]="selectedFilter !== 'monthly' || startDate"
+                (click)="selectFilter('monthly')">
+          <i nz-icon nzType="calendar"></i> Mensual
+        </button>
+
+        <button type="button" class="btn btn-filter"
+                [class.btn-primary]="selectedFilter === 'yearly' && !startDate"
+                [class.btn-outline-secondary]="selectedFilter !== 'yearly' || startDate"
+                (click)="selectFilter('yearly')">
+          <i nz-icon nzType="calendar"></i> Anual
+        </button>
+      </div>
+
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label small">Fecha Inicio:</label>
+          <input type="date" class="form-control" [(ngModel)]="startDate">
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label small">Fecha Fin:</label>
+          <input type="date" class="form-control" [(ngModel)]="endDate">
+        </div>
+
+        <div class="col-md-3">
+          <button class="btn btn-primary w-100" (click)="applyCustomRange()" [disabled]="!startDate || !endDate">
+            <i nz-icon nzType="search"></i> Aplicar Rango
+          </button>
+        </div>
+
+        <div class="col-md-3 text-end" *ngIf="metricsData?.range">
+          <span class="badge bg-secondary">
+            Rango: {{ metricsData.range.start }} a {{ metricsData.range.end }}
+            ({{ metricsData.range.breakdown === 'daily' ? 'Diario' : 'Mensual' }})
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center p-5">
+    <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+    <p class="mt-2">Cargando métricas...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="alert alert-danger" (click)="clearError()">
+    {{ errorMessage }}
+  </div>
+
+  <!-- DASHBOARD - Exportable -->
+  <div #dashboardContent *ngIf="!isLoading && metricsData" class="pdf-content">
+
+    <div class="pdf-header text-center mb-4 d-print-block">
+      <h2 class="text-dark mb-1">Dashboard de Métricas</h2>
+      <p class="text-muted mb-3">
+        Período: {{ metricsData.range.start }} a {{ metricsData.range.end }} |
+        Generado: {{ today | date:'medium' }}
+      </p>
+    </div>
+
+    <!-- Métricas rápidas -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card quick-card bg-light-green text-dark shadow-sm h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title"><i nz-icon nzType="dollar"></i> Ingresos Totales</h5>
+            <p class="card-text display-6">{{ metricsData.general.totalRevenue | currency:'ARS':'symbol':'1.2-2' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card quick-card bg-light-blue text-dark shadow-sm h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title"><i nz-icon nzType="tool"></i> Ingresos Servicios</h5>
+            <p class="card-text display-6">{{ metricsData.general.totalServiceRevenue | currency:'ARS':'symbol':'1.2-2' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card quick-card bg-light-cyan text-dark shadow-sm h-100">
+          <div class="card-body text-center">
+            <h5 class="card-title"><i nz-icon nzType="shopping"></i> Ingresos Productos</h5>
+            <p class="card-text display-6">{{ metricsData.general.totalProductRevenue | currency:'ARS':'symbol':'1.2-2' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="card quick-card bg-light shadow-sm h-100 border">
+          <div class="card-body text-center">
+            <h5 class="card-title"><i nz-icon nzType="team"></i> Clientes Atendidos</h5>
+            <p class="card-text display-6">{{ metricsData.general.totalClientsAttended }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráficos principales -->
+    <div class="row mb-4">
+      <div class="col-md-8">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="card-title text-center mb-3">Ingresos por Tipo y Período</h6>
+
+            <apx-chart
+              [series]="breakdownChartOptions.series"
+              [chart]="breakdownChartOptions.chart"
+              [xaxis]="breakdownChartOptions.xaxis"
+              [yaxis]="breakdownChartOptions.yaxis"
+              [title]="breakdownChartOptions.title"
+              [tooltip]="breakdownChartOptions.tooltip">
+            </apx-chart>
+
+            <div *ngIf="!metricsData?.breakdown?.length" class="text-center text-muted p-5">
+              No hay datos para este período.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h6 class="card-title text-center mb-3">Ingresos por Método de Pago</h6>
+
+            <apx-chart
+              [series]="paymentChartOptions.series"
+              [chart]="paymentChartOptions.chart"
+              [labels]="paymentChartOptions.labels"
+              [title]="paymentChartOptions.title"
+              [legend]="paymentChartOptions.legend"
+              [tooltip]="paymentChartOptions.tooltip">
+            </apx-chart>
+
+            <div *ngIf="!metricsData?.paymentMethods?.length" class="text-center text-muted p-5">
+              No hay datos de métodos de pago.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tops -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-light text-center fw-bold">Top Productos</div>
+          <div class="card-body">
+            <apx-chart
+                [series]="topProductsChartOptions.series"
+                [chart]="topProductsChartOptions.chart"
+                [xaxis]="topProductsChartOptions.xaxis"
+                [yaxis]="topProductsChartOptions.yaxis"
+                [title]="topProductsChartOptions.title"
+                [plotOptions]="topProductsChartOptions.plotOptions">
+            </apx-chart>
+
+            <div *ngIf="!metricsData?.top?.products?.length" class="text-center text-muted p-5">
+              No hay datos de productos.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-light text-center fw-bold">Top Servicios</div>
+          <div class="card-body">
+            <apx-chart
+                [series]="topServicesChartOptions.series"
+                [chart]="topServicesChartOptions.chart"
+                [xaxis]="topServicesChartOptions.xaxis"
+                [yaxis]="topServicesChartOptions.yaxis"
+                [title]="topServicesChartOptions.title"
+                [plotOptions]="topServicesChartOptions.plotOptions">
+            </apx-chart>
+
+            <div *ngIf="!metricsData?.top?.services?.length" class="text-center text-muted p-5">
+              No hay datos de servicios.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-light text-center fw-bold">Top Clientes</div>
+          <div class="card-body">
+
+            <div *ngIf="!metricsData?.top?.clients?.length" class="text-center text-muted p-5">
+              No hay datos de clientes.
+            </div>
+
+            <ul class="list-group list-group-flush" *ngIf="metricsData?.top?.clients?.length">
+              <li *ngFor="let client of metricsData.top.clients"
+                  class="list-group-item d-flex justify-content-between align-items-center">
+                {{ client.client }}
+                <span class="badge bg-success rounded-pill">
+                  {{ client.total | currency:'ARS':'symbol':'1.0-0' }}
+                </span>
+              </li>
+            </ul>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

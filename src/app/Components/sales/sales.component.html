@@ -1,0 +1,832 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow-sm mb-2">
+        <div class="card-body py-1 px-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+              <h5 class="mb-0" style="color: #333;">Gestión de Ventas</h5>
+              <div class="vr" style="height: 16px;"></div>
+              <div class="btn-group" role="group">
+                <button 
+                  type="button" 
+                  class="btn btn-sm" 
+                  [class.btn-primary]="activeView === 'products'"
+                  [class.btn-outline-primary]="activeView !== 'products'"
+                  (click)="showProductsView()">
+                  <i nz-icon nzType="shopping-cart"></i>
+                  Productos
+                </button>
+                <button 
+                  type="button" 
+                  class="btn btn-sm" 
+                  [class.btn-primary]="activeView === 'services'"
+                  [class.btn-outline-primary]="activeView !== 'services'"
+                  (click)="showServicesView()">
+                  <i nz-icon nzType="car"></i>
+                  Servicios
+                </button>
+              </div>
+            </div>
+            
+            <div class="d-flex gap-1">
+              <button 
+                class="btn btn-outline-primary btn-sm"
+                data-bs-toggle="modal" 
+                data-bs-target="#createServiceSaleModal"
+                (click)="showCreateServiceSale()">
+                <i nz-icon nzType="car"></i>
+                + Venta Servicio
+              </button>
+              <button 
+                class="btn btn-primary btn-sm"
+                data-bs-toggle="modal" 
+                data-bs-target="#createProductSaleModal"
+                (click)="showCreateProductSale()">
+                <i nz-icon nzType="shopping-cart"></i>
+                + Venta Producto
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
+        <div class="d-flex align-items-center">
+          <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+        <button type="button" class="btn-close" (click)="clearError()"></button>
+      </div>
+
+      <div class="card shadow-sm mb-2">
+        <div class="card-body py-1 px-3">
+          <div class="row g-1 align-items-center">
+            <div class="col-md-2">
+              <input 
+                type="text" 
+                class="form-control form-control-sm"
+                [(ngModel)]="FilterClientName"
+                placeholder="Buscar cliente...">
+            </div>
+            <div class="col-md-2">
+              <input type="date" class="form-control form-control-sm" [(ngModel)]="FilterStartDate">
+            </div>
+            <div class="col-md-2">
+              <input type="date" class="form-control form-control-sm" [(ngModel)]="FilterEndDate">
+            </div>
+            <div class="col-md-2">
+              <select class="form-select form-select-sm" [(ngModel)]="FilterPaymentStatus">
+                <option value="">Todo Estado Pago</option>
+                <option value="1">Pendiente</option>
+                <option value="2">Pagado</option>
+                <option value="3">Cancelado</option>
+              </select>
+            </div>
+            <div class="col-md-2" *ngIf="activeView === 'services'">
+              <select class="form-select form-select-sm" [(ngModel)]="FilterServiceStatus">
+                <option value="">Todo Estado Servicio</option>
+                <option value="1">Pendiente</option>
+                <option value="2">En Progreso</option>
+                <option value="3">Completado</option>
+                <option value="4">Cancelado</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-primary btn-sm me-1" (click)="ApplyFilters()">
+                <i nz-icon nzType="search"></i>
+              </button>
+              <button class="btn btn-secondary btn-sm" (click)="ClearFilters()">
+                <i nz-icon nzType="clear"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-header py-2 px-3">
+          <h6 class="mb-0">
+            <i nz-icon [nzType]="activeView === 'products' ? 'shopping-cart' : 'car'"></i>
+            {{ activeView === 'products' ? 'Ventas de Productos' : 'Ventas de Servicios' }}
+          </h6>
+        </div>
+        <div class="card-body p-0">
+          <nz-table 
+            #salesTable 
+            [nzData]="activeView === 'products' ? DataSourceSalesProducts : DataSourceSalesServices" 
+            class="w-100 compact-table" 
+            nzSize="small">
+            <thead>
+              <tr>
+                <th class="ps-2">ID</th>
+                <th>Cliente</th>
+                <th>Detalles</th>
+                <th>Total</th>
+                <th>Método Pago</th>
+                <th>Estado Pago</th>
+                <th *ngIf="activeView === 'services'">Estado Servicio</th>
+                <th>Fecha</th>
+                <th class="text-center pe-2">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let sale of salesTable.data" class="table-row">
+                <td class="ps-2"><strong>#{{ sale.sale_id }}</strong></td>
+                <td>{{ sale.client_name }}</td>
+                <td>
+                  <div *ngIf="sale.products" 
+                       class="product-list-tooltip" 
+                       [title]="getProductsTooltip(sale.products)">
+                    <div class="d-flex align-items-center">
+                      <i nz-icon nzType="shopping-cart" class="me-1" style="font-size: 12px;"></i>
+                      <small class="text-muted">{{ sale.products.length }} producto(s)</small>
+                    </div>
+                  </div>
+                  
+                  <div *ngIf="sale.services" 
+                       class="service-list-tooltip" 
+                       [title]="getServicesTooltip(sale.services)">
+                    <div class="d-flex align-items-center">
+                      <i nz-icon nzType="tool" class="me-1" style="font-size: 12px;"></i>
+                      <small class="text-muted">{{ sale.services.length }} servicio(s)</small>
+                    </div>
+                  </div>
+                </td>
+                <td><strong>${{ sale.sale_total | number:'1.2-2' }}</strong></td>
+                <td>{{ sale.payment_method }}</td>
+                <td>
+                  <span class="fw-bold" 
+                        [class.text-warning]="sale.payment_status === 'Pendiente'"
+                        [class.text-success]="sale.payment_status === 'Pagado'"
+                        [class.text-danger]="sale.payment_status === 'Cancelado'">
+                    {{ sale.payment_status }}
+                  </span>
+                </td>
+                
+                <td *ngIf="activeView === 'services'">
+                  <span class="fw-bold"
+                        [style.color]="sale.service_status === 'En Progreso' ? 'black' : (sale.service_status === 'Pendiente' ? '#7586a5' : '')"
+                        [class.text-success]="sale.service_status === 'Completado'"
+                        [class.text-danger]="sale.service_status === 'Cancelado'">
+                    {{ sale.service_status }}
+                  </span>
+                </td>
+
+                <td>{{ formatDate(sale.created_at) }}</td>
+                <td class="text-center pe-2">
+                  <button 
+                    class="btn btn-outline-info btn-sm me-1"
+                    (click)="ViewSaleDetails(sale)">
+                    <i nz-icon nzType="eye"></i>
+                  </button>
+
+                  <span class="d-inline-block" 
+                        [title]="(sale.payment_status === 'Pagado' || sale.payment_status === 'Cancelado') ? 'No se puede modificar el estado de pago' : 'Actualizar estado de pago'">
+                    <button 
+                      class="btn btn-outline-warning btn-sm me-1"
+                      data-bs-toggle="modal" 
+                      data-bs-target="#updatePaymentModal"
+                      (click)="DatosUpdatePayment(sale)"
+                      [disabled]="sale.payment_status === 'Pagado' || sale.payment_status === 'Cancelado'"
+                      [style.pointer-events]="(sale.payment_status === 'Pagado' || sale.payment_status === 'Cancelado') ? 'none' : 'auto'">
+                      <i nz-icon nzType="dollar"></i>
+                    </button>
+                  </span>
+                  <button 
+                    *ngIf="activeView === 'services'"
+                    class="btn btn-outline-primary btn-sm"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#updateServiceStatusModal"
+                    (click)="DatosUpdateServiceStatus(sale)"
+                    title="Actualizar estado de servicio">
+                    <i nz-icon nzType="tool"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="createProductSaleModal" tabindex="-1" aria-labelledby="createProductSaleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createProductSaleModalLabel">
+            <i nz-icon nzType="shopping-cart" class="me-2"></i>
+            Nueva Venta de Productos
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
+          </div>
+
+          <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="warning" class="me-2"></i>
+              <span>Por favor, corrige los siguientes errores:</span>
+            </div>
+            <ul class="mb-0 mt-1">
+              <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
+            </ul>
+            <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label fw-bold mb-1">Cliente *</label>
+              <div class="dropdown">
+                <input 
+                  type="text" 
+                  class="form-control form-control-sm" 
+                  [class.is-invalid]="formErrors.client"
+                  [(ngModel)]="clientSearchTerm"
+                  (input)="filterClients($event)"
+                  placeholder="Buscar cliente..."
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                <ul class="dropdown-menu w-100">
+                  <li *ngFor="let client of filteredClients">
+                    <a class="dropdown-item" href="javascript:void(0)" (click)="selectClient(client)">
+                      {{ client.first_name }} {{ client.last_name }}
+                      <small class="text-muted d-block">{{ client.email }} | {{ client.phone }}</small>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div *ngIf="formErrors.client" class="invalid-feedback d-block">
+                {{ formErrors.client }}
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-bold mb-1">Método Pago *</label>
+              <select class="form-select form-select-sm" 
+                      [class.is-invalid]="formErrors.paymentMethod"
+                      [(ngModel)]="NewProdSale_PaymentMethodId">
+                <option [ngValue]="0">Seleccionar...</option>
+                <option *ngFor="let method of DataSourcePaymentMethods" [ngValue]="method.id">
+                  {{ method.name }}
+                </option>
+              </select>
+              <div *ngIf="formErrors.paymentMethod" class="invalid-feedback d-block">
+                {{ formErrors.paymentMethod }}
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-bold mb-1">Estado Pago</label>
+              <select class="form-select form-select-sm" [(ngModel)]="NewProdSale_PaymentStatusId">
+                <option [ngValue]="1">Pendiente</option>
+                <option [ngValue]="2">Pagado</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-bold mb-1">Observaciones</label>
+              <textarea 
+                class="form-control form-control-sm" 
+                [(ngModel)]="NewProdSale_Observations" 
+                rows="2"
+                placeholder="Observaciones adicionales..."></textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-bold mb-1">Productos *</label>
+              
+              <div class="mb-2">
+                <div *ngIf="NewProdSale_ProductsList.length === 0" class="alert alert-warning py-1">
+                  <small>No hay productos agregados a la venta.</small>
+                </div>
+                <div *ngFor="let item of NewProdSale_ProductsList; let i = index" class="card mb-1">
+                  <div class="card-body py-1 px-2">
+                    <div class="row align-items-center">
+                      <div class="col">
+                        <strong>{{ item.name }}</strong><br>
+                        <small class="text-muted">
+                          {{ item.quantity }} x ${{ item.price | number:'1.2-2' }} = <strong>${{ (item.quantity * item.price) | number:'1.2-2' }}</strong>
+                        </small>
+                        <div *ngIf="formErrors['productStock_' + i]" class="invalid-feedback d-block">
+                          {{ formErrors['productStock_' + i] }}
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="RemoveProductFromSale(i)">
+                          <i nz-icon nzType="delete"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header bg-light py-1 px-2">
+                  <h6 class="mb-0" style="font-size: 12px;">Agregar Producto</h6>
+                </div>
+                <div class="card-body py-2 px-2">
+                  <div class="row g-1 align-items-end">
+                    <div class="col-md-7">
+                      <label class="form-label small">Producto</label>
+                      <div class="dropdown">
+                        <input 
+                          type="text" 
+                          class="form-control form-control-sm" 
+                          [(ngModel)]="productSearchTerm"
+                          (input)="filterProducts($event)"
+                          placeholder="Buscar producto..."
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                        <ul class="dropdown-menu w-100">
+                          <li *ngFor="let product of filteredProducts">
+                            <a class="dropdown-item" href="javascript:void(0)" (click)="selectProduct(product)">
+                              {{ product.name }}
+                              <small class="text-muted d-block">
+                                ${{ product.price }} | Stock: {{ product.stock }}
+                              </small>
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label small">Cantidad</label>
+                      <input type="number" class="form-control form-control-sm" [(ngModel)]="Temp_ProductQty" min="1" placeholder="Cant.">
+                    </div>
+                    <div class="col-md-3">
+                      <button class="btn btn-primary btn-sm w-100" (click)="AddProductToSale()">
+                        <i nz-icon nzType="plus"></i> Agregar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="formErrors.products" class="invalid-feedback d-block">
+                {{ formErrors.products }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="d-flex justify-content-between align-items-center w-100">
+            <h5 class="text-success mb-0">TOTAL: ${{ calculateTotal(NewProdSale_ProductsList) | number:'1.2-2' }}</h5>
+            <div class="d-flex gap-1">
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
+                Cancelar
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" (click)="CreateProductSale()">
+                Crear Venta
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="createServiceSaleModal" tabindex="-1" aria-labelledby="createServiceSaleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createServiceSaleModalLabel">
+            <i nz-icon nzType="car" class="me-2"></i>
+            Nueva Venta de Servicios
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
+          </div>
+
+          <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="warning" class="me-2"></i>
+              <span>Por favor, corrige los siguientes errores:</span>
+            </div>
+            <ul class="mb-0 mt-1">
+              <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
+            </ul>
+            <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label fw-bold mb-1">Cliente *</label>
+              <div class="dropdown">
+                <input 
+                  type="text" 
+                  class="form-control form-control-sm" 
+                  [class.is-invalid]="formErrors.client"
+                  [(ngModel)]="clientSearchTerm"
+                  (input)="filterClients($event)"
+                  placeholder="Buscar cliente..."
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                <ul class="dropdown-menu w-100">
+                  <li *ngFor="let client of filteredClients">
+                    <a class="dropdown-item" href="javascript:void(0)" (click)="selectClient(client)">
+                      {{ client.first_name }} {{ client.last_name }}
+                      <small class="text-muted d-block">{{ client.email }} | {{ client.phone }}</small>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div *ngIf="formErrors.client" class="invalid-feedback d-block">
+                {{ formErrors.client }}
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-bold mb-1">Vehículo *</label>
+              <select class="form-select form-select-sm" 
+                      [class.is-invalid]="formErrors.vehicle"
+                      [(ngModel)]="NewSvcSale_VehicleId" 
+                      [disabled]="ClientVehiclesList.length === 0">
+                <option [ngValue]="0">Seleccionar vehículo...</option>
+                <option *ngFor="let v of ClientVehiclesList" [ngValue]="v.id">
+                  {{ v.brand }} {{ v.model }} ({{ v.license_plate }})
+                </option>
+              </select>
+              <div *ngIf="formErrors.vehicle" class="invalid-feedback d-block">
+                {{ formErrors.vehicle }}
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-bold mb-1">Método Pago *</label>
+              <select class="form-select form-select-sm" 
+                      [class.is-invalid]="formErrors.paymentMethod"
+                      [(ngModel)]="NewSvcSale_PaymentMethodId">
+                <option [ngValue]="0">Seleccionar...</option>
+                <option *ngFor="let method of DataSourcePaymentMethods" [ngValue]="method.id">
+                  {{ method.name }}
+                </option>
+              </select>
+              <div *ngIf="formErrors.paymentMethod" class="invalid-feedback d-block">
+                {{ formErrors.paymentMethod }}
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-bold mb-1">Estado Pago</label>
+              <select class="form-select form-select-sm" [(ngModel)]="NewSvcSale_PaymentStatusId">
+                <option [ngValue]="1">Pendiente</option>
+                <option [ngValue]="2">Pagado</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-bold mb-1">Observaciones</label>
+              <textarea 
+                class="form-control form-control-sm" 
+                [(ngModel)]="NewSvcSale_Observations" 
+                rows="2"
+                placeholder="Observaciones adicionales..."></textarea>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-bold mb-1">Servicios *</label>
+              
+              <div class="mb-2">
+                <div *ngIf="NewSvcSale_ServicesList.length === 0" class="alert alert-warning py-1">
+                  <small>No hay servicios agregados a la venta.</small>
+                </div>
+                <div *ngFor="let item of NewSvcSale_ServicesList; let i = index" class="card mb-1">
+                  <div class="card-body py-1 px-2">
+                    <div class="row align-items-center">
+                      <div class="col">
+                        <strong>{{ item.name }}</strong>
+                        <small class="text-muted"> - ${{ item.price | number:'1.2-2' }}</small>
+                      </div>
+                      <div class="col-auto">
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="RemoveServiceFromSale(i)">
+                          <i nz-icon nzType="delete"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header bg-light py-1 px-2">
+                  <h6 class="mb-0" style="font-size: 12px;">Agregar Servicio</h6>
+                </div>
+                <div class="card-body py-2 px-2">
+                  <label class="form-label small">Servicio</label>
+                  <div class="d-flex gap-2">
+                    <div class="dropdown w-100">
+                        <input 
+                          type="text" 
+                          class="form-control form-control-sm" 
+                          [(ngModel)]="serviceSearchTerm"
+                          (input)="filterServices($event)"
+                          placeholder="Buscar servicio..."
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false">
+                        <ul class="dropdown-menu w-100">
+                          <li *ngFor="let service of filteredServices">
+                            <a class="dropdown-item" href="javascript:void(0)" (click)="selectService(service)">
+                              {{ service.name }}
+                              <small class="text-muted d-block">${{ service.price }}</small>
+                            </a>
+                          </li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-primary btn-sm" (click)="AddServiceToSale()" style="min-width: 90px;">
+                        <i nz-icon nzType="plus"></i> Agregar
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="formErrors.services" class="invalid-feedback d-block">
+                {{ formErrors.services }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="d-flex justify-content-between align-items-center w-100">
+            <h5 class="text-success mb-0">TOTAL: ${{ calculateTotal(NewSvcSale_ServicesList) | number:'1.2-2' }}</h5>
+            <div class="d-flex gap-1">
+              <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
+                Cancelar
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" (click)="CreateServiceSale()">
+                Crear Venta
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="viewProductSaleModal" tabindex="-1" aria-labelledby="viewProductSaleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewProductSaleModalLabel">
+          <i nz-icon nzType="shopping-cart" class="me-2"></i>
+          Detalles de Venta de Productos #{{ SelectedSale?.sale_id }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" *ngIf="SelectedSale">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <h6 class="text-primary">Información General</h6>
+            <p class="mb-1"><strong>Cliente:</strong> {{ SelectedSale.client_name }}</p>
+            <p class="mb-1"><strong>Fecha:</strong> {{ formatDate(SelectedSale.created_at) }}</p>
+            <p class="mb-1"><strong>Método Pago:</strong> {{ SelectedSale.payment_method }}</p>
+            
+            <p class="mb-1"><strong>Estado Pago:</strong> 
+              <span class="fw-bold ms-2" 
+                    [class.text-warning]="SelectedSale.payment_status === 'Pendiente'"
+                    [class.text-success]="SelectedSale.payment_status === 'Pagado'"
+                    [class.text-danger]="SelectedSale.payment_status === 'Cancelado'">
+                {{ SelectedSale.payment_status }}
+              </span>
+            </p>
+          </div>
+          <div class="col-md-6 text-end">
+            <h6 class="text-primary">Monto Total</h6>
+            <h3 class="text-success fw-bold">${{ SelectedSale.sale_total | number:'1.2-2' }}</h3>
+          </div>
+        </div>
+        
+        <h6 class="text-primary">Productos de la Venta</h6>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th class="text-end">Precio Unitario</th>
+                <th class="text-center">Cantidad</th>
+                <th class="text-end">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of SelectedSale.products">
+                <td>{{ item.product_name }}</td>
+                <td class="text-end">${{ item.price | number:'1.2-2' }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-end">${{ (item.price * item.quantity) | number:'1.2-2' }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" class="text-end fw-bold">
+                  Total: <span class="ms-1">${{ SelectedSale.sale_total | number:'1.2-2' }}</span>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="modal fade" id="viewServiceSaleModal" tabindex="-1" aria-labelledby="viewServiceSaleModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewServiceSaleModalLabel">
+          <i nz-icon nzType="car" class="me-2"></i>
+          Detalles de Venta de Servicios #{{ SelectedSale?.sale_id }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" *ngIf="SelectedSale">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <h6 class="text-primary">Información General</h6>
+            <p class="mb-1"><strong>Cliente:</strong> {{ SelectedSale.client_name }}</p>
+            <p class="mb-1"><strong>Vehículo:</strong> {{ SelectedSale.vehicle_info }}</p>
+            <p class="mb-1"><strong>Fecha:</strong> {{ formatDate(SelectedSale.created_at) }}</p>
+            <p class="mb-1"><strong>Método Pago:</strong> {{ SelectedSale.payment_method }}</p>
+            
+            <p class="mb-1"><strong>Estado Pago:</strong> 
+              <span class="fw-bold ms-2" 
+                    [class.text-warning]="SelectedSale.payment_status === 'Pendiente'"
+                    [class.text-success]="SelectedSale.payment_status === 'Pagado'"
+                    [class.text-danger]="SelectedSale.payment_status === 'Cancelado'">
+                {{ SelectedSale.payment_status }}
+              </span>
+            </p>
+
+            <p class="mb-0">
+              <strong>Estado Servicio:</strong> 
+              <span class="fw-bold ms-2"
+                    [style.color]="SelectedSale.service_status === 'En Progreso' ? 'black' : ''"
+                    [class.text-muted]="SelectedSale.service_status === 'Pendiente'"
+                    [class.text-success]="SelectedSale.service_status === 'Completado'"
+                    [class.text-danger]="SelectedSale.service_status === 'Cancelado'">
+                {{ SelectedSale.service_status }}
+              </span>
+            </p>
+          </div>
+          
+          <div class="col-md-6 text-end">
+            <h6 class="text-primary">Monto Total</h6>
+            <h3 class="text-success fw-bold">${{ SelectedSale.sale_total | number:'1.2-2' }}</h3>
+          </div>
+        </div>
+        
+        <h6 class="text-primary">Servicios Contratados</h6>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Servicio</th>
+                <th class="text-end">Precio</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of SelectedSale.services">
+                <td>{{ item.service_name }}</td>
+                <td class="text-end">${{ item.price | number:'1.2-2' }}</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="2" class="text-end fw-bold">
+                  Total: <span class="ms-1">${{ SelectedSale.sale_total | number:'1.2-2' }}</span>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div *ngIf="SelectedSale.observations" class="mt-3">
+          <h6 class="text-primary">Observaciones</h6>
+          <p class="mb-0">{{ SelectedSale.observations }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <div class="modal fade" id="updatePaymentModal" tabindex="-1" aria-labelledby="updatePaymentModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title w-100 text-center" id="updatePaymentModalLabel" style="font-weight: 600;">
+            Actualizar Estado de Pago
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="mb-3">
+            <i nz-icon nzType="dollar" style="font-size: 48px; color: #f39c12;"></i>
+          </div>
+          <p class="mb-3" style="color: #666; line-height: 1.5;">
+            Actualizar estado de pago para la venta <strong>#{{ IdUpdatePayment }}</strong><br>
+            del cliente <strong>{{ ClientNameUpdatePayment }}</strong>
+          </p>
+          
+          <div *ngIf="isSaleFinalized" class="alert alert-warning mb-3">
+            <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+            Esta venta está <strong>{{ currentPaymentStatus }}</strong> y no se puede modificar su estado.
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nuevo Estado</label>
+            <select class="form-select" [(ngModel)]="NewPaymentStatusId" [disabled]="isSaleFinalized">
+              <option [ngValue]="1">Pendiente</option>
+              <option [ngValue]="2">Pagado</option>
+              <option [ngValue]="3">Cancelado</option>
+            </select>
+          </div>
+
+          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
+          </div>
+        </div>
+        <div class="modal-footer border-0 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary btn-sm me-2" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-warning btn-sm" (click)="UpdatePaymentStatus()" 
+                  [disabled]="isSaleFinalized || !hasPaymentStatusChanged">
+            Actualizar Estado
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="updateServiceStatusModal" tabindex="-1" aria-labelledby="updateServiceStatusModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title w-100 text-center" id="updateServiceStatusModalLabel" style="font-weight: 600;">
+            Actualizar Estado de Servicio
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="mb-3">
+            <i nz-icon nzType="tool" style="font-size: 48px; color: #3498db;"></i>
+          </div>
+          <p class="mb-3" style="color: #666; line-height: 1.5;">
+            Actualizar estado de servicio para la venta <strong>#{{ IdUpdateServiceStatus }}</strong><br>
+            del cliente <strong>{{ ClientNameUpdateService }}</strong>
+          </p>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nuevo Estado</label>
+            <select class="form-select" [(ngModel)]="NewServiceStatusId">
+              <option [ngValue]="1">Pendiente</option>
+              <option [ngValue]="2">En Progreso</option>
+              <option [ngValue]="3">Completado</option>
+              <option [ngValue]="4">Cancelado</option>
+            </select>
+          </div>
+
+          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+            <div class="d-flex align-items-center">
+              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
+              <span>{{ modalError }}</span>
+            </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
+          </div>
+        </div>
+        <div class="modal-footer border-0 justify-content-center">
+          <button type="button" class="btn btn-outline-secondary btn-sm me-2" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-primary btn-sm" (click)="UpdateServiceStatus()" 
+                  [disabled]="!hasServiceStatusChanged">
+            Actualizar Estado
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

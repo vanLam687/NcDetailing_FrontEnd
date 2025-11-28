@@ -1,0 +1,131 @@
+<div class="app-container">
+  <!-- Header superior -->
+  <header class="app-header">
+    <div class="header-content">
+      <div class="brand-section">
+        <div class="brand-logo">
+          <div class="logo-icon">NC</div>
+          <h1 class="brand-name">Detailing</h1>
+        </div>
+        <button class="sidebar-toggle" (click)="toggleSidebar()">
+          <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>
+        </button>
+      </div>
+      
+      <div class="user-section">
+        <div class="user-info">
+          <span class="user-greeting">Hola, {{getUserName()}}</span>
+          <span class="user-role">{{getUserRoleName()}}</span>
+        </div>
+        <div class="user-avatar">
+          {{getUserInitial()}}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- Sidebar mejorado -->
+    <aside class="app-sidebar" [class.collapsed]="isCollapsed">
+      <nav class="sidebar-nav">
+        
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+              <div class="nav-icon">
+                <i nz-icon nzType="dashboard"></i>
+              </div>
+              <span class="nav-label">Dashboard</span>
+            </a>
+          </li>
+
+          <!-- Métricas - Solo Admin -->
+          <li class="nav-item" *ngIf="canAccessMetrics()">
+            <a class="nav-link" routerLink="/home/metrics" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="bar-chart"></i>
+              </div>
+              <span class="nav-label">Métricas</span>
+            </a>
+          </li>
+
+          <!-- Ventas - Admin y Empleado -->
+          <li class="nav-item" *ngIf="canAccessSales()">
+            <a class="nav-link" routerLink="/home/sales" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="dollar"></i>
+              </div>
+              <span class="nav-label">Ventas</span>
+            </a>
+          </li>
+
+          <!-- Clientes - Admin y Empleado -->
+          <li class="nav-item" *ngIf="canAccessClients()">
+            <a class="nav-link" routerLink="/home/clients" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="user"></i>
+              </div>
+              <span class="nav-label">Clientes</span>
+            </a>
+          </li>
+          
+          <!-- Servicios - Admin y Empleado -->
+          <li class="nav-item" *ngIf="canAccessServices()">
+            <a class="nav-link" routerLink="/home/services" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="tool"></i>
+              </div>
+              <span class="nav-label">Servicios</span>
+            </a>
+          </li>
+          
+          <!-- Productos - Admin y Empleado -->
+          <li class="nav-item" *ngIf="canAccessProducts()">
+            <a class="nav-link" routerLink="/home/products" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="shopping"></i>
+              </div>
+              <span class="nav-label">Productos</span>
+            </a>
+          </li>
+
+          <!-- Empleados - Solo Admin -->
+          <li class="nav-item" *ngIf="canAccessEmployees()">
+            <a class="nav-link" routerLink="/home/employees" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="team"></i>
+              </div>
+              <span class="nav-label">Empleados</span>
+            </a>
+          </li>
+
+          <!-- Auditorías - Solo Admin -->
+          <li class="nav-item" *ngIf="canAccessAudit()">
+            <a class="nav-link" routerLink="/home/audit" routerLinkActive="active">
+              <div class="nav-icon">
+                <i nz-icon nzType="audit"></i>
+              </div>
+              <span class="nav-label">Auditorías</span>
+            </a>
+          </li>
+
+        </ul>
+
+      </nav>
+      
+      <div class="sidebar-footer">
+        <button class="sidebar-logout" (click)="logout()" *ngIf="!isCollapsed">
+          <i nz-icon nzType="logout"></i>
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Área de contenido principal -->
+    <main class="app-main">
+      <div class="main-content">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+</div>
