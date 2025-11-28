@@ -15,15 +15,11 @@ export class EmployeesComponent implements OnInit {
 
   // Datos
   DataSourceEmployees: any[] = [];
-
-  // Estados de vista
   activeView: 'list' | 'form' = 'list';
   isEditMode: boolean = false;
-
-  // Filtro de estado
   EmployeeStatus: 'active' | 'inactive' = 'active';
 
-  // Formulario de empleado
+  // Formulario
   Name: string = '';
   Username: string = '';
   Email: string = '';
@@ -36,11 +32,9 @@ export class EmployeesComponent implements OnInit {
   EmailEdit: string = '';
   PasswordEdit: string = '';
 
-  // Eliminación
+  // Eliminación/Restauración
   IdDelete: number = 0;
   EmployeeToDeleteName: string = '';
-
-  // Restauración
   IdRestore: number = 0;
   EmployeeToRestoreName: string = '';
 
@@ -78,74 +72,49 @@ export class EmployeesComponent implements OnInit {
   showEditForm(employee: any): void {
     this.activeView = 'form';
     this.isEditMode = true;
-    
     this.IdEdit = employee.id;
     this.NameEdit = employee.name;
     this.UsernameEdit = employee.username;
     this.EmailEdit = employee.email;
     this.PasswordEdit = '';
-    
     this.clearError();
     this.clearModalError();
     this.clearFormErrors();
   }
 
-  // Validación de formulario
   validateEmployeeForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
-
-    // Validar nombre
+    // Validaciones front
     if (!this.currentName || this.currentName.trim() === '') {
       this.formErrors.name = 'El nombre es requerido';
       isValid = false;
-    } else if (this.currentName.length > 100) {
-      this.formErrors.name = 'El nombre no puede exceder los 100 caracteres';
-      isValid = false;
     }
-
-    // Validar usuario
     if (!this.currentUsername || this.currentUsername.trim() === '') {
       this.formErrors.username = 'El usuario es requerido';
       isValid = false;
-    } else if (this.currentUsername.length > 50) {
-      this.formErrors.username = 'El usuario no puede exceder los 50 caracteres';
-      isValid = false;
     }
-
-    // Validar email
     if (!this.currentEmail || this.currentEmail.trim() === '') {
       this.formErrors.email = 'El email es requerido';
       isValid = false;
     } else if (!this.isValidEmail(this.currentEmail)) {
-      this.formErrors.email = 'El formato del email no es válido';
-      isValid = false;
-    } else if (this.currentEmail.length > 100) {
-      this.formErrors.email = 'El email no puede exceder los 100 caracteres';
+      this.formErrors.email = 'Formato de email inválido';
       isValid = false;
     }
-
-    // Validar contraseña (solo para crear)
     if (!this.isEditMode) {
       if (!this.currentPassword || this.currentPassword.trim() === '') {
         this.formErrors.password = 'La contraseña es requerida';
         isValid = false;
-      } else if (this.currentPassword.length < 6) {
-        this.formErrors.password = 'La contraseña debe tener al menos 6 caracteres';
-        isValid = false;
       }
     }
-
     return isValid;
   }
 
-  // Validar formato de email
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 
-  // Servicios
   GetEmployees(): void {
     this.service.GetEmployees(this.EmployeeStatus).subscribe({
       next: (data: any) => {
@@ -153,73 +122,49 @@ export class EmployeesComponent implements OnInit {
         this.clearError();
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
+        if (error.status === 401) { this.authService.logout(); return; }
         this.handleError(error);
       }
     });
   }
 
   CreateEmployee(): void {
-    if (!this.validateEmployeeForm()) {
-      return;
-    }
-
+    if (!this.validateEmployeeForm()) return;
     const employee = {
       name: this.Name.trim(),
       username: this.Username.trim(),
       email: this.Email.trim(),
       password: this.Password
     };
-
     this.service.PostEmployee(employee).subscribe({
       next: () => {
-        this.clearError();
-        this.clearModalError();
-        this.clearFormErrors();
         this.showSuccessNotification('Empleado creado correctamente');
         this.showListView();
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
+        if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
     });
   }
 
   EditEmployee(): void {
-    if (!this.validateEmployeeForm()) {
-      return;
-    }
-
+    if (!this.validateEmployeeForm()) return;
     const employee: any = {
       name: this.NameEdit.trim(),
       username: this.UsernameEdit.trim(),
       email: this.EmailEdit.trim()
     };
-
     if (this.PasswordEdit && this.PasswordEdit.trim() !== '') {
       employee.password = this.PasswordEdit;
     }
-
     this.service.PutEmployee(this.IdEdit.toString(), employee).subscribe({
       next: () => {
-        this.clearError();
-        this.clearModalError();
-        this.clearFormErrors();
         this.showSuccessNotification('Empleado actualizado correctamente');
         this.showListView();
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
+        if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
     });
@@ -230,354 +175,131 @@ export class EmployeesComponent implements OnInit {
     this.EmployeeToDeleteName = employee.name;
     this.clearError();
     this.clearModalError();
-    this.clearFormErrors();
   }
 
   DeleteEmployee(): void {
     this.service.DeleteEmployee(this.IdDelete.toString()).subscribe({
       next: () => {
-        this.clearError();
-        this.clearModalError();
-        this.clearFormErrors();
         this.showSuccessNotification('Empleado eliminado correctamente');
         this.GetEmployees();
         this.closeModal('deleteEmployeeModal');
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
+        if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
     });
   }
 
-  // Nuevos métodos para restaurar con modal de confirmación
   DatosRestoreEmployee(employee: any): void {
     this.IdRestore = employee.id;
     this.EmployeeToRestoreName = employee.name;
     this.clearError();
     this.clearModalError();
-    this.clearFormErrors();
   }
 
   RestoreEmployeeConfirm(): void {
     this.service.RestoreEmployee(this.IdRestore.toString()).subscribe({
       next: () => {
-        this.clearError();
-        this.clearModalError();
-        this.clearFormErrors();
         this.showSuccessNotification('Empleado restaurado correctamente');
         this.GetEmployees();
         this.closeModal('restoreEmployeeModal');
       },
       error: (error) => {
-        if (error.status === 401) {
-          this.authService.logout();
-          return;
-        }
+        if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
     });
   }
 
-  // Cuando cambia el filtro de estado de empleados
   onEmployeeStatusChange(newStatus: 'active' | 'inactive'): void {
     this.EmployeeStatus = newStatus;
     this.GetEmployees();
   }
 
-  // Método para cerrar modales
   private closeModal(modalId: string): void {
     const modal = document.getElementById(modalId);
     if (modal) {
       const modalInstance = (window as any).bootstrap.Modal.getInstance(modal);
-      if (modalInstance) {
-        modalInstance.hide();
-      }
+      if (modalInstance) modalInstance.hide();
     }
   }
 
-  // Método para mostrar notificaciones de éxito
   private showSuccessNotification(message: string): void {
-    // Crear elemento de notificación con diseño mejorado
     const notification = document.createElement('div');
     notification.className = 'alert alert-success alert-dismissible fade show custom-toast';
     notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      min-width: 350px;
-      max-width: 450px;
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-      color: white;
-      padding: 16px 20px;
-      animation: slideInRight 0.3s ease-out;
+      position: fixed; top: 20px; right: 20px; z-index: 9999;
+      min-width: 350px; max-width: 450px; border: none; border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15); background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+      color: white; padding: 16px 20px; animation: slideInRight 0.3s ease-out;
     `;
-    
     notification.innerHTML = `
       <div class="d-flex align-items-center">
-        <!-- CHECK NORMAL -->
-        <span style="
-          font-size: 22px;
-          font-weight: bold;
-          color: white;
-          margin-right: 12px;
-          line-height: 1;
-        ">
-          ✔
-        </span>
-
+        <span style="font-size: 22px; font-weight: bold; color: white; margin-right: 12px; line-height: 1;">✔</span>
         <div class="flex-grow-1">
-          <strong class="me-auto" 
-            style="font-size: 16px; display: block; margin-bottom: 4px;">
-            ¡Éxito!
-          </strong>
+          <strong class="me-auto" style="font-size: 16px; display: block; margin-bottom: 4px;">¡Éxito!</strong>
           <div style="font-size: 14px; opacity: 0.95;">${message}</div>
         </div>
-
-        <button type="button" class="btn-close btn-close-white" 
-          data-bs-dismiss="alert"
-          style="filter: brightness(0) invert(1); opacity: 0.8; margin-left: 16px;">
-        </button>
-      </div>
-    `;
-
-    // Agregar estilos CSS para la animación
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" style="filter: brightness(0) invert(1); opacity: 0.8; margin-left: 16px;"></button>
+      </div>`;
+    
     if (!document.querySelector('#toast-styles')) {
       const style = document.createElement('style');
       style.id = 'toast-styles';
-      style.textContent = `
-        @keyframes slideInRight {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        
-        .custom-toast {
-          backdrop-filter: blur(10px);
-          border-left: 4px solid #1e8449 !important;
-        }
-      `;
+      style.textContent = `@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } .custom-toast { backdrop-filter: blur(10px); border-left: 4px solid #1e8449 !important; }`;
       document.head.appendChild(style);
     }
-
-    // Agregar al body
     document.body.appendChild(notification);
-
-    // Auto-remover después de 4 segundos
     setTimeout(() => {
       if (notification.parentNode) {
         notification.style.animation = 'slideInRight 0.3s ease-out reverse';
-        setTimeout(() => {
-          if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-          }
-        }, 300);
+        setTimeout(() => { if (notification.parentNode) notification.parentNode.removeChild(notification); }, 300);
       }
     }, 4000);
   }
 
-  // Getters para el formulario
-  get currentName(): string {
-    return this.isEditMode ? this.NameEdit : this.Name;
-  }
+  // Getters/Setters helpers
+  get currentName(): string { return this.isEditMode ? this.NameEdit : this.Name; }
+  set currentName(value: string) { if (this.isEditMode) this.NameEdit = value; else this.Name = value; }
+  get currentUsername(): string { return this.isEditMode ? this.UsernameEdit : this.Username; }
+  set currentUsername(value: string) { if (this.isEditMode) this.UsernameEdit = value; else this.Username = value; }
+  get currentEmail(): string { return this.isEditMode ? this.EmailEdit : this.Email; }
+  set currentEmail(value: string) { if (this.isEditMode) this.EmailEdit = value; else this.Email = value; }
+  get currentPassword(): string { return this.isEditMode ? this.PasswordEdit : this.Password; }
+  set currentPassword(value: string) { if (this.isEditMode) this.PasswordEdit = value; else this.Password = value; }
 
-  set currentName(value: string) {
-    if (this.isEditMode) {
-      this.NameEdit = value;
-    } else {
-      this.Name = value;
+  // --- MANEJO DE ERRORES GENÉRICO ---
+  private getGenericErrorMessage(status: number): string {
+    switch (status) {
+      case 0: return 'Error de conexión. Verifique su internet.';
+      case 400: return 'Datos incorrectos. Verifique los campos.';
+      case 401: return 'Sesión expirada. Inicie sesión nuevamente.';
+      case 403: return 'No tiene permisos para esta acción.';
+      case 404: return 'Empleado no encontrado.';
+      case 409: return 'Ya existe un empleado con ese usuario o email.';
+      case 500: return 'Error interno del servidor.';
+      default: return 'Ocurrió un error inesperado.';
     }
   }
 
-  get currentUsername(): string {
-    return this.isEditMode ? this.UsernameEdit : this.Username;
-  }
-
-  set currentUsername(value: string) {
-    if (this.isEditMode) {
-      this.UsernameEdit = value;
-    } else {
-      this.Username = value;
-    }
-  }
-
-  get currentEmail(): string {
-    return this.isEditMode ? this.EmailEdit : this.Email;
-  }
-
-  set currentEmail(value: string) {
-    if (this.isEditMode) {
-      this.EmailEdit = value;
-    } else {
-      this.Email = value;
-    }
-  }
-
-  get currentPassword(): string {
-    return this.isEditMode ? this.PasswordEdit : this.Password;
-  }
-
-  set currentPassword(value: string) {
-    if (this.isEditMode) {
-      this.PasswordEdit = value;
-    } else {
-      this.Password = value;
-    }
-  }
-
-  // Manejo de errores
   handleError(error: any): void {
     this.clearFormErrors();
-    
-    if (error.error?.mensaje) {
-      this.errorMessage = error.error.mensaje;
-    } 
-    else if (error.error?.message) {
-      this.errorMessage = error.error.message;
-    } 
-    else if (error.error?.error) {
-      // Extraer mensajes específicos de validación
-      if (typeof error.error.error === 'string') {
-        this.errorMessage = error.error.error;
-      } else if (error.error.error.details) {
-        // Manejar errores de Joi
-        const details = error.error.error.details;
-        this.errorMessage = details.map((detail: any) => {
-          // Traducir mensajes de Joi a español
-          if (detail.type === 'string.empty') {
-            return `"${detail.context.label}" no puede estar vacío`;
-          } else if (detail.type === 'string.max') {
-            return `"${detail.context.label}" no puede exceder los ${detail.context.limit} caracteres`;
-          } else if (detail.type === 'string.email') {
-            return `"${detail.context.label}" debe ser un email válido`;
-          } else if (detail.type === 'any.required') {
-            return `"${detail.context.label}" es requerido`;
-          }
-          return detail.message;
-        }).join(', ');
-      } else {
-        this.errorMessage = error.error.error;
-      }
-    }
-    else if (typeof error.error === 'string') {
-      this.errorMessage = error.error;
-    }
-    else if (error.status === 0) {
-      this.errorMessage = 'Error de conexión. No se puede conectar al servidor.';
-    }
-    else if (error.status === 400) {
-      this.errorMessage = 'Solicitud incorrecta. Verifique los datos ingresados.';
-    }
-    else if (error.status === 409) {
-      this.errorMessage = 'El empleado ya existe.';
-    }
-    else if (error.status === 404) {
-      this.errorMessage = 'Empleado no encontrado.';
-    }
-    else if (error.status === 500) {
-      this.errorMessage = 'Error interno del servidor.';
-    }
-    else {
-      this.errorMessage = 'Ha ocurrido un error inesperado.';
-    }
+    this.errorMessage = this.getGenericErrorMessage(error.status);
   }
 
   handleModalError(error: any): void {
     this.clearFormErrors();
-    
-    if (error.error?.mensaje) {
-      this.modalError = error.error.mensaje;
-    } 
-    else if (error.error?.message) {
-      this.modalError = error.error.message;
-    } 
-    else if (error.error?.error) {
-      // Extraer mensajes específicos de validación
-      if (typeof error.error.error === 'string') {
-        this.modalError = error.error.error;
-      } else if (error.error.error.details) {
-        // Manejar errores de Joi
-        const details = error.error.error.details;
-        this.modalError = details.map((detail: any) => {
-          // Traducir mensajes de Joi a español
-          if (detail.type === 'string.empty') {
-            return `"${detail.context.label}" no puede estar vacío`;
-          } else if (detail.type === 'string.max') {
-            return `"${detail.context.label}" no puede exceder los ${detail.context.limit} caracteres`;
-          } else if (detail.type === 'string.email') {
-            return `"${detail.context.label}" debe ser un email válido`;
-          } else if (detail.type === 'any.required') {
-            return `"${detail.context.label}" es requerido`;
-          }
-          return detail.message;
-        }).join(', ');
-      } else {
-        this.modalError = error.error.error;
-      }
-    }
-    else if (typeof error.error === 'string') {
-      this.modalError = error.error;
-    }
-    else if (error.status === 0) {
-      this.modalError = 'Error de conexión. No se puede conectar al servidor.';
-    }
-    else if (error.status === 400) {
-      this.modalError = 'Solicitud incorrecta. Verifique los datos ingresados.';
-    }
-    else if (error.status === 409) {
-      this.modalError = 'Ya existe un empleado con ese nombre de usuario o email.';
-    }
-    else if (error.status === 404) {
-      this.modalError = 'El empleado no fue encontrado.';
-    }
-    else if (error.status === 500) {
-      this.modalError = 'Error interno del servidor.';
-    }
-    else {
-      this.modalError = 'Ha ocurrido un error inesperado.';
-    }
+    this.modalError = this.getGenericErrorMessage(error.status);
   }
 
-  clearError(): void {
-    this.errorMessage = '';
-  }
-
-  clearModalError(): void {
-    this.modalError = '';
-  }
-
-  clearFormErrors(): void {
-    this.formErrors = {};
-  }
-
-  hasFormErrors(): boolean {
-    return Object.keys(this.formErrors).length > 0;
-  }
-
+  clearError(): void { this.errorMessage = ''; }
+  clearModalError(): void { this.modalError = ''; }
+  clearFormErrors(): void { this.formErrors = {}; }
+  hasFormErrors(): boolean { return Object.keys(this.formErrors).length > 0; }
   clearForm(): void {
-    this.Name = '';
-    this.Username = '';
-    this.Email = '';
-    this.Password = '';
-    
-    this.NameEdit = '';
-    this.UsernameEdit = '';
-    this.EmailEdit = '';
-    this.PasswordEdit = '';
-    
-    this.clearModalError();
-    this.clearFormErrors();
+    this.Name = ''; this.Username = ''; this.Email = ''; this.Password = '';
+    this.NameEdit = ''; this.UsernameEdit = ''; this.EmailEdit = ''; this.PasswordEdit = '';
+    this.clearModalError(); this.clearFormErrors();
   }
 }

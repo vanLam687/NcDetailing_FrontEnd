@@ -15,11 +15,7 @@ export class ClientsComponent implements OnInit {
 
   // Datos
   DataSourceClients: any[] = [];
-
-  // Estados de vista
   activeView: 'list' | 'create' | 'edit' | 'history' = 'list';
-
-  // Filtros
   SearchTerm: string = '';
 
   // Formulario de cliente
@@ -61,7 +57,6 @@ export class ClientsComponent implements OnInit {
     }
   }
 
-  // Navegación entre vistas
   showListView(): void {
     this.activeView = 'list';
     this.clearForm();
@@ -85,7 +80,6 @@ export class ClientsComponent implements OnInit {
     this.EmailEdit = client.email;
     this.PhoneEdit = client.phone;
     
-    // Cargar vehículos del cliente
     this.service.getClientVehicles(client.id.toString()).subscribe({
       next: (data: any) => {
         this.VehiclesEdit = data.data || [];
@@ -96,7 +90,6 @@ export class ClientsComponent implements OnInit {
         this.VehiclesEdit = [];
       }
     });
-    
     this.clearError();
   }
 
@@ -106,7 +99,6 @@ export class ClientsComponent implements OnInit {
     this.loadClientHistory(client.id);
   }
 
-  // Cargar historial del cliente
   loadClientHistory(clientId: number): void {
     this.HistoryLoading = true;
     this.service.getClientHistory(clientId.toString()).subscribe({
@@ -123,7 +115,6 @@ export class ClientsComponent implements OnInit {
     });
   }
 
-  // Servicios
   GetClients(): void {
     this.service.getClients(this.SearchTerm).subscribe({
       next: (data: any) => {
@@ -191,7 +182,6 @@ export class ClientsComponent implements OnInit {
     this.clearError();
   }
 
-  // Gestión de vehículos
   AddVehicle(): void {
     if (this.NewVehicleBrand && this.NewVehicleModel && this.NewVehicleYear && 
         this.NewVehicleColor && this.NewVehicleLicensePlate) {
@@ -209,10 +199,8 @@ export class ClientsComponent implements OnInit {
       } else {
         this.Vehicles.push(vehicle);
       }
-      
       this.clearModalError();
       
-      // Limpiar campos
       this.NewVehicleBrand = '';
       this.NewVehicleModel = '';
       this.NewVehicleYear = new Date().getFullYear();
@@ -225,7 +213,6 @@ export class ClientsComponent implements OnInit {
 
   RemoveVehicle(index: number): void {
     if (this.activeView === 'edit') {
-      // Marcar como eliminado si ya tiene ID, o simplemente remover si es nuevo
       if (this.VehiclesEdit[index].id) {
         this.VehiclesEdit[index].deleted = true;
       } else {
@@ -246,92 +233,60 @@ export class ClientsComponent implements OnInit {
     this.GetClients();
   }
 
-  // Formatear fecha
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
     });
   }
 
-  // Formatear números (quitar ceros a la izquierda)
   formatNumber(value: any): string {
     if (value === null || value === undefined) return '0';
-    
     const num = Number(value);
     if (isNaN(num)) return String(value).replace(/^0+/, '');
-    
     return num.toString().replace(/^0+/, '');
   }
 
-  // Calcular total de servicios
   getServicesTotal(services: any[]): number {
     return services.reduce((total, service) => total + (service.price || 0), 0);
   }
 
-  // Calcular total de productos
   getProductsTotal(products: any[]): number {
     return products.reduce((total, product) => total + (product.subtotal || 0), 0);
   }
 
-  // Tooltip para vehículos
   getVehiclesTooltip(vehicles: any[]): string {
-    if (!vehicles || vehicles.length === 0) {
-      return 'Sin vehículos';
-    }
-    
+    if (!vehicles || vehicles.length === 0) return 'Sin vehículos';
     return vehicles.map(vehicle => 
       `${vehicle.brand} ${vehicle.model} (${vehicle.license_plate}) - ${vehicle.year}`
     ).join('\n');
   }
 
-  // Helpers
   getFullName(client: any): string {
     return `${client.first_name} ${client.last_name}`;
   }
 
-  handleError(error: any): void {
-    if (error.error?.mensaje) {
-      this.errorMessage = error.error.mensaje;
-    } 
-    else if (error.error?.message) {
-      this.errorMessage = error.error.message;
-    }
-    else if (error.error?.error) {
-      this.errorMessage = error.error.error;
-    }
-    else if (typeof error.error === 'string') {
-      this.errorMessage = error.error;
-    }
-    else if (error.status === 0) {
-      this.errorMessage = 'Error de conexión. No se puede conectar al servidor.';
-    }
-    else if (error.statusText) {
-      this.errorMessage = `Error ${error.status}: ${error.statusText}`;
-    }
-    else {
-      this.errorMessage = 'Ha ocurrido un error inesperado.';
+  // --- MANEJO DE ERRORES GENÉRICO ---
+
+  private getGenericErrorMessage(status: number): string {
+    switch (status) {
+      case 0: return 'Error de conexión. Verifique su internet.';
+      case 400: return 'Datos incorrectos. Verifique la información ingresada.';
+      case 401: return 'Sesión expirada. Por favor inicie sesión nuevamente.';
+      case 403: return 'No tiene permisos para realizar esta acción.';
+      case 404: return 'Cliente no encontrado.';
+      case 409: return 'Ya existe un cliente con ese email o patente.';
+      case 500: return 'Error interno del servidor.';
+      default: return 'Ocurrió un error inesperado.';
     }
   }
 
+  handleError(error: any): void {
+    this.errorMessage = this.getGenericErrorMessage(error.status);
+  }
+
   handleModalError(error: any): void {
-    if (error.error?.mensaje) {
-      this.modalError = error.error.mensaje;
-    } else if (error.error?.message) {
-      this.modalError = error.error.message;
-    } else if (error.error?.error) {
-      this.modalError = error.error.error;
-    } else if (typeof error.error === 'string') {
-      this.modalError = error.error;
-    } else if (error.status === 0) {
-      this.modalError = 'Error de conexión. No se puede conectar al servidor.';
-    } else {
-      this.modalError = 'Ha ocurrido un error inesperado.';
-    }
+    this.modalError = this.getGenericErrorMessage(error.status);
   }
 
   clearError(): void {
@@ -348,19 +303,16 @@ export class ClientsComponent implements OnInit {
     this.Email = '';
     this.Phone = '';
     this.Vehicles = [];
-    
     this.FirstNameEdit = '';
     this.LastNameEdit = '';
     this.EmailEdit = '';
     this.PhoneEdit = '';
     this.VehiclesEdit = [];
-    
     this.NewVehicleBrand = '';
     this.NewVehicleModel = '';
     this.NewVehicleYear = new Date().getFullYear();
     this.NewVehicleColor = '';
     this.NewVehicleLicensePlate = '';
-    
     this.modalError = '';
   }
 }
