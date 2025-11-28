@@ -1,4 +1,3 @@
-/* Agregar al archivo login.component.css */
 .is-invalid {
   border-color: #e74c3c !important;
   box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1) !important;
@@ -17,4 +16,16 @@
   color: #333;
   margin-bottom: 6px;
   font-size: 14px;
+}
+
+/* 👁 Icono de mostrar/ocultar contraseña */
+.password-eye {
+  font-size: 18px;
+  cursor: pointer;
+  color: #666;
+  transition: 0.2s ease;
+}
+
+.password-eye:hover {
+  color: #000;
 }

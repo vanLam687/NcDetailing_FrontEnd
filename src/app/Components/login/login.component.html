@@ -1,8 +1,9 @@
 <div class="d-flex min-vh-100 align-items-center justify-content-center p-3" style="background-color: #f8f9fa;">
   <div class="card shadow-sm border-0" style="width: 100%; max-width: 400px;">
     <div class="card-body p-4">
+
+      <!-- HEADER -->
       <div class="text-center mb-4">
-        <!-- Titulo pro -->
         <div class="mb-3">
           <i nz-icon nzType="car" class="text-primary" style="font-size: 48px;"></i>
         </div>
@@ -11,11 +12,13 @@
       </div>
 
       <form nz-form (ngSubmit)="Login()">
-        <!-- Campo de usuario -->
+
+        <!-- Usuario -->
         <div class="mb-3">
           <nz-form-item>
             <nz-form-control>
               <label class="form-label fw-bold mb-1">Usuario *</label>
+
               <nz-input-group nzPrefixIcon="user" nzSize="large">
                 <input 
                   type="text" 
@@ -28,6 +31,7 @@
                   class="form-control"
                 />
               </nz-input-group>
+
               <div *ngIf="formErrors.username" class="invalid-feedback d-block">
                 {{ formErrors.username }}
               </div>
@@ -35,14 +39,15 @@
           </nz-form-item>
         </div>
 
-        <!-- Campo de contraseña -->
+        <!-- Contraseña con icono de ver -->
         <div class="mb-3">
           <nz-form-item>
             <nz-form-control>
               <label class="form-label fw-bold mb-1">Contraseña *</label>
-              <nz-input-group nzPrefixIcon="lock" nzSize="large">
+
+              <nz-input-group nzPrefixIcon="lock" nzSize="large" [nzSuffix]="suffixPassTemplate">
                 <input 
-                  type="password" 
+                  [type]="showPassword ? 'text' : 'password'"
                   nz-input 
                   [(ngModel)]="password" 
                   name="password"
@@ -53,6 +58,17 @@
                   class="form-control"
                 />
               </nz-input-group>
+
+              <!-- Template para icono -->
+              <ng-template #suffixPassTemplate>
+                <i 
+                  nz-icon 
+                  [nzType]="showPassword ? 'eye-invisible' : 'eye'" 
+                  class="password-eye"
+                  (click)="togglePassword()">
+                </i>
+              </ng-template>
+
               <div *ngIf="formErrors.password" class="invalid-feedback d-block">
                 {{ formErrors.password }}
               </div>
@@ -60,7 +76,7 @@
           </nz-form-item>
         </div>
 
-        <!-- Errores de validación del formulario -->
+        <!-- Errores de validación -->
         <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
           <div class="d-flex align-items-center">
             <i nz-icon nzType="warning" class="me-2"></i>
@@ -72,18 +88,12 @@
           <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
         </div>
 
-        <!-- error handler -->
+        <!-- Error del backend -->
         <div *ngIf="errorMessage" class="mb-3">
-          <nz-alert 
-            nzType="error" 
-            [nzMessage]="errorMessage" 
-            nzShowIcon
-            nzCloseable
-            (nzOnClose)="clearError()"
-          ></nz-alert>
+          <nz-alert nzType="error" [nzMessage]="errorMessage" nzShowIcon nzCloseable (nzOnClose)="clearError()"></nz-alert>
         </div>
 
-        <!-- Botón de login -->
+        <!-- Botón ingresar -->
         <button 
           nz-button 
           nzType="primary" 
@@ -99,12 +109,12 @@
         </button>
       </form>
 
-      <!-- para que no quede tan seco -->
       <div class="text-center">
         <small class="text-muted">
           Sistema de gestión de detailing automotriz
         </small>
       </div>
+
     </div>
   </div>
 </div>

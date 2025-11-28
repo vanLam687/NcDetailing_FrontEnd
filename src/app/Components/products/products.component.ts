@@ -55,6 +55,11 @@ export class ProductsComponent implements OnInit {
   modalError: string = '';
   formErrors: any = {};
 
+  // Getter para verificar si es admin desde la vista
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
       this.GetProducts();
@@ -106,12 +111,14 @@ export class ProductsComponent implements OnInit {
   }
 
   showCreateForm(): void {
+    if (!this.isAdmin) return; // Protección extra
     this.activeView = 'create';
     this.clearForm(); this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.addToHistory('create');
   }
 
   showEditForm(product: any): void {
+    if (!this.isAdmin) return; // Protección extra
     this.activeView = 'edit';
     this.SelectedProduct = product;
     this.IdEdit = product.id;
@@ -130,6 +137,7 @@ export class ProductsComponent implements OnInit {
   }
 
   showCategoriesView(): void {
+    if (!this.isAdmin) return; // Protección extra
     this.activeView = 'categories';
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetCategories();
@@ -137,7 +145,7 @@ export class ProductsComponent implements OnInit {
   }
 
   showEditBack(): void {
-    if (this.SelectedProduct) {
+    if (this.SelectedProduct && this.isAdmin) {
       this.activeView = 'edit';
       this.addToHistory('edit');
     }
@@ -215,6 +223,7 @@ export class ProductsComponent implements OnInit {
   // --- CRUD PRODUCTOS ---
 
   CreateProduct(): void {
+    if (!this.isAdmin) return;
     if (!this.validateProductForm()) return;
     const descriptionValue = this.ProductDescription?.trim() || null;
     const product = {
@@ -235,6 +244,7 @@ export class ProductsComponent implements OnInit {
   }
 
   EditProduct(): void {
+    if (!this.isAdmin) return;
     if (!this.validateProductForm()) return;
     const descriptionValue = this.ProductDescription?.trim() || null;
     const product: any = {
@@ -261,6 +271,7 @@ export class ProductsComponent implements OnInit {
   }
 
   DeleteProduct(): void {
+    if (!this.isAdmin) return;
     this.service.deleteProduct(this.IdDelete.toString()).subscribe({
       next: () => {
         this.showSuccessNotification('Producto eliminado');
@@ -281,6 +292,7 @@ export class ProductsComponent implements OnInit {
   }
 
   RestoreProductConfirm(): void {
+    if (!this.isAdmin) return;
     this.service.restoreProduct(this.IdRestore.toString()).subscribe({
       next: () => {
         this.showSuccessNotification('Producto restaurado');
@@ -297,6 +309,7 @@ export class ProductsComponent implements OnInit {
   // --- CRUD CATEGORÍAS ---
 
   CreateCategory(): void {
+    if (!this.isAdmin) return;
     if (!this.validateCategoryForm()) return;
     this.service.postCategory({ name: this.CategoryName.trim() }).subscribe({
       next: () => {
@@ -311,6 +324,7 @@ export class ProductsComponent implements OnInit {
   }
 
   EditCategory(): void {
+    if (!this.isAdmin) return;
     if (!this.validateCategoryForm()) return;
     this.service.putCategory(this.CategoryToEdit.id.toString(), { name: this.CategoryName.trim() }).subscribe({
       next: () => {
@@ -330,6 +344,7 @@ export class ProductsComponent implements OnInit {
   }
 
   DeleteCategory(): void {
+    if (!this.isAdmin) return;
     this.service.deleteCategory(this.CategoryToDelete.id.toString()).subscribe({
       next: () => { 
         this.showSuccessNotification('Categoría eliminada'); 
@@ -339,9 +354,6 @@ export class ProductsComponent implements OnInit {
       },
       error: (error) => { 
         if (error.status === 401) { this.authService.logout(); return; } 
-        // -------------------------------------------------------------
-        // MANEJO ESPECÍFICO DE ERROR 409 PARA ELIMINACIÓN DE CATEGORÍA
-        // -------------------------------------------------------------
         if (error.status === 409) {
           this.modalError = 'No se puede eliminar la categoría porque tiene productos asociados.';
           return;
@@ -357,6 +369,7 @@ export class ProductsComponent implements OnInit {
   }
 
   RestoreCategoryConfirm(): void {
+    if (!this.isAdmin) return;
     this.service.restoreCategory(this.CategoryToRestore.id.toString()).subscribe({
       next: () => { 
         this.showSuccessNotification('Categoría restaurada'); 
@@ -409,7 +422,7 @@ export class ProductsComponent implements OnInit {
       case 401: return 'Sesión expirada. Por favor inicie sesión nuevamente.';
       case 403: return 'No tiene permisos para realizar esta acción.';
       case 404: return 'Producto o categoría no encontrada.';
-      case 409: return 'Ya existe un registro con ese nombre.'; // Mensaje por defecto para conflictos (Create/Edit)
+      case 409: return 'Ya existe un registro con ese nombre.';
       case 500: return 'Error interno del servidor.';
       default: return 'Ocurrió un error inesperado.';
     }

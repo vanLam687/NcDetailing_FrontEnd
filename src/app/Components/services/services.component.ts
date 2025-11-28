@@ -53,6 +53,11 @@ export class ServicesComponent implements OnInit {
   modalError: string = '';
   formErrors: any = {};
 
+  // Getter de Admin
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
       this.GetServices();
@@ -101,12 +106,14 @@ export class ServicesComponent implements OnInit {
   }
 
   showCreateForm(): void { 
+    if (!this.isAdmin) return;
     this.activeView = 'create'; 
     this.clearForm(); this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.addToHistory('create'); 
   }
 
   showEditForm(service: any): void {
+    if (!this.isAdmin) return;
     this.activeView = 'edit'; 
     this.SelectedService = service; 
     this.IdEdit = service.id;
@@ -123,6 +130,7 @@ export class ServicesComponent implements OnInit {
   }
 
   showCategoriesView(): void { 
+    if (!this.isAdmin) return;
     this.activeView = 'categories'; 
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetCategories(); 
@@ -130,7 +138,7 @@ export class ServicesComponent implements OnInit {
   }
 
   showEditBack(): void { 
-    if (this.SelectedService) { 
+    if (this.SelectedService && this.isAdmin) { 
       this.activeView = 'edit'; 
       this.addToHistory('edit'); 
     } 
@@ -192,6 +200,7 @@ export class ServicesComponent implements OnInit {
   // --- CRUD SERVICIOS ---
 
   CreateService(): void {
+    if (!this.isAdmin) return;
     if(!this.validateServiceForm()) return;
     this.service.postService({name: this.ServiceName.trim(), price: this.ServicePrice, category_id: this.ServiceCategoryId}).subscribe({
       next: () => { this.showSuccessNotification('Servicio creado'); this.showListView(); },
@@ -200,6 +209,7 @@ export class ServicesComponent implements OnInit {
   }
 
   EditService(): void {
+    if (!this.isAdmin) return;
     if(!this.validateServiceForm()) return;
     this.service.putService(this.IdEdit.toString(), {name: this.ServiceName.trim(), price: this.ServicePrice, category_id: this.ServiceCategoryId}).subscribe({
       next: () => { this.showSuccessNotification('Servicio actualizado'); this.showListView(); },
@@ -214,6 +224,7 @@ export class ServicesComponent implements OnInit {
   }
 
   DeleteService(): void {
+    if (!this.isAdmin) return;
     this.service.deleteService(this.IdDelete.toString()).subscribe({
       next: () => { 
         this.showSuccessNotification('Servicio eliminado'); 
@@ -231,6 +242,7 @@ export class ServicesComponent implements OnInit {
   }
 
   RestoreServiceConfirm(): void {
+    if (!this.isAdmin) return;
     this.service.restoreService(this.IdRestore.toString()).subscribe({
       next: () => { 
         this.showSuccessNotification('Servicio restaurado'); 
@@ -244,6 +256,7 @@ export class ServicesComponent implements OnInit {
   // --- CRUD CATEGORÍAS ---
 
   CreateCategory(): void {
+    if (!this.isAdmin) return;
     if(!this.validateCategoryForm()) return;
     this.service.postCategory({name: this.CategoryName.trim()}).subscribe({
       next: () => { 
@@ -256,6 +269,7 @@ export class ServicesComponent implements OnInit {
   }
 
   EditCategory(): void {
+    if (!this.isAdmin) return;
     if(!this.validateCategoryForm()) return;
     this.service.putCategory(this.CategoryToEdit.id.toString(), {name: this.CategoryName.trim()}).subscribe({
       next: () => { 
@@ -273,6 +287,7 @@ export class ServicesComponent implements OnInit {
   }
 
   DeleteCategory(): void {
+    if (!this.isAdmin) return;
     this.service.deleteCategory(this.CategoryToDelete.id.toString()).subscribe({
       next: () => { 
         this.showSuccessNotification('Categoría eliminada'); 
@@ -282,9 +297,6 @@ export class ServicesComponent implements OnInit {
       },
       error: (e) => { 
         if(e.status===401){this.authService.logout();return;} 
-        // -------------------------------------------------------------
-        // MANEJO ESPECÍFICO DE ERROR 409 PARA ELIMINACIÓN DE CATEGORÍA
-        // -------------------------------------------------------------
         if (e.status === 409) {
           this.modalError = 'No se puede eliminar la categoría porque tiene servicios asociados.';
           return;
@@ -300,6 +312,7 @@ export class ServicesComponent implements OnInit {
   }
 
   RestoreCategoryConfirm(): void {
+    if (!this.isAdmin) return;
     this.service.restoreCategory(this.CategoryToRestore.id.toString()).subscribe({
       next: () => { 
         this.showSuccessNotification('Categoría restaurada'); 

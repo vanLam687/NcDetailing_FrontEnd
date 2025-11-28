@@ -139,28 +139,6 @@
   border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-.logout-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  color: var(--white);
-  padding: 10px 16px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-size: 14px;
-  font-weight: 500;
-  backdrop-filter: blur(10px);
-}
-
-.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-}
-
 /* Layout del cuerpo */
 .app-body {
   display: flex;
@@ -178,58 +156,18 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 5;
   border-right: 1px solid rgba(117, 134, 165, 0.1);
-  min-height: 100%; /* <-- FIX agregado */
+  min-height: 100%;
 }
 
 .app-sidebar.collapsed {
   width: 80px;
 }
 
-.user-profile-sidebar {
-  padding: 24px 20px;
-  border-bottom: 1px solid rgba(117, 134, 165, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: linear-gradient(135deg, var(--white) 0%, #f5f2ff 100%);
-}
-
-.profile-avatar {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, var(--accent-purple) 0%, var(--light-purple) 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--white);
-  font-weight: 700;
-  font-size: 18px;
-  box-shadow: 0 4px 12px rgba(210, 63, 229, 0.3);
-}
-
-.profile-info {
-  flex: 1;
-}
-
-.profile-name {
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--primary-purple);
-  margin-bottom: 2px;
-}
-
-.profile-role {
-  font-size: 13px;
-  color: var(--blue-gray);
-  font-weight: 500;
-}
-
 .sidebar-nav {
   padding: 20px 0;
-  flex-grow: 0;     /* <-- FIX */
-  flex-shrink: 1;   /* <-- FIX */
-  overflow-y: auto; /* <-- FIX */
+  flex-grow: 0;
+  flex-shrink: 1;
+  overflow-y: auto;
 }
 
 .nav-menu {
@@ -307,6 +245,7 @@
   overflow: hidden;
 }
 
+/* Footer del sidebar */
 .sidebar-footer {
   padding: 20px;
   border-top: 1px solid rgba(117, 134, 165, 0.1);
@@ -314,16 +253,19 @@
   flex-direction: column;
   gap: 16px;
   background: linear-gradient(180deg, #f9f7ff 0%, var(--white) 100%);
+  margin-top: auto;
 }
 
+/* Botón de cerrar sesión - SIMPLE */
 .sidebar-logout {
-  background: linear-gradient(135deg, #f4f2f5 0%, #f7eff3 100%);
+  background: transparent;
   border: 1px solid var(--light-pink);
   color: var(--accent-purple);
   padding: 12px 16px;
   border-radius: 10px;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -339,11 +281,18 @@
   box-shadow: 0 6px 16px rgba(210, 63, 229, 0.3);
 }
 
-.app-version {
-  font-size: 12px;
-  color: var(--blue-gray);
-  text-align: center;
-  font-weight: 500;
+/* Cuando el sidebar está colapsado */
+.app-sidebar.collapsed .sidebar-logout {
+  justify-content: center;
+  padding: 12px;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto;
+  border-radius: 50%;
+}
+
+.app-sidebar.collapsed .sidebar-logout span {
+  display: none;
 }
 
 /* Contenido principal */
@@ -386,29 +335,6 @@
   .header-content {
     padding: 0 20px;
   }
-  
-  .logout-text {
-    display: none;
-  }
-  
-  .logout-btn {
-    padding: 10px;
-  }
-}
-
-/* Estados para sidebar colapsado */
-.app-sidebar.collapsed .user-profile-sidebar,
-.app-sidebar.collapsed .sidebar-logout span {
-  display: none;
-}
-
-.app-sidebar.collapsed .sidebar-logout {
-  justify-content: center;
-  padding: 12px;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  margin: 0 auto;
 }
 
 /* Animaciones suaves */
