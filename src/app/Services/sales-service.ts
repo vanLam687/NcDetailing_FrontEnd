@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class SalesService {
-  url = 'http://localhost:3000/api/sales'; // URL base de ventas
+  url = 'https://ncdetailing.up.railway.app/api/sales'; // URL base de ventas
 
   constructor(
     private http: HttpClient, 
