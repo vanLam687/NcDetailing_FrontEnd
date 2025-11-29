@@ -7,7 +7,8 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class ProductsService {
-  url = 'https://ncdetailing.up.railway.app/api/products';
+  url = 'http://localhost:3000/api/products';
+  //url = 'https://ncdetailing.up.railway.app/api/products';
 
   constructor(
     private http: HttpClient, 

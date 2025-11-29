@@ -6,7 +6,8 @@ import { AuthService } from './auth-service';
   providedIn: 'root'
 })
 export class ClientsService {
-  url = 'https://ncdetailing.up.railway.app/api/clients/';
+  url = 'http://localhost:3000/api/clients/';
+  //url = 'https://ncdetailing.up.railway.app/api/clients/';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

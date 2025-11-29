@@ -5,7 +5,8 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class UsersService {
-  url = 'https://ncdetailing.up.railway.app/api/users/';
+  url = 'http://localhost:3000/api/users/';
+  //url = 'https://ncdetailing.up.railway.app/api/users/';
 
   constructor(private httpClient: HttpClient) {}
 

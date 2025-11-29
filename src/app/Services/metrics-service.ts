@@ -8,7 +8,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class MetricsService {
-  url = 'https://ncdetailing.up.railway.app/api/metrics';
+  url = 'http://localhost:3000/api/metrics';
+  //url = 'https://ncdetailing.up.railway.app/api/metrics';
 
   constructor(
     private http: HttpClient,
@@ -41,6 +42,6 @@ export class MetricsService {
       httpParams = httpParams.set('startDate', params.startDate);
       httpParams = httpParams.set('endDate', params.endDate);
     }
-    return this.http.get(this.url + '/dashboard', { ...this.getHeaders(), params });
+    return this.http.get(this.url + '/dashboard', { ...this.getHeaders(), params: httpParams });
   }
 }

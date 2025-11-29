@@ -106,7 +106,6 @@
                 <tr>
                   <th class="ps-2" style="color: #333;">ID</th>
                   <th style="color: #333;">Nombre</th>
-                  <th style="color: #333;">Descripción</th>
                   <th style="color: #333;">Categoría</th>
                   <th style="color: #333;">Precio</th>
                   <th style="color: #333;">Stock</th>
@@ -118,7 +117,6 @@
                 <tr *ngFor="let product of productsTable.data" class="table-row">
                   <td class="ps-2" style="color: #333;"><strong>#{{ product.id }}</strong></td>
                   <td style="color: #333;"><strong>{{ product.name }}</strong></td>
-                  <td class="truncate" style="color: #333;">{{ product.description || 'Sin descripción' }}</td>
                   <td style="color: #333;">{{ product.category || '-' }}</td>
                   <td style="color: #333;"><strong>${{ product.price }}</strong></td>
                   <td style="color: #333;">
@@ -208,17 +206,15 @@
                         class="btn btn-outline-primary btn-sm me-1"
                         data-bs-toggle="modal" 
                         data-bs-target="#editCategoryModal"
-                        (click)="DatosEditCategory(category)">
+                        (click)="DatosEditCategory(category)" title="Editar">
                         <i nz-icon nzType="edit"></i>
-                        Editar
                       </button>
                       <button 
                         class="btn btn-outline-danger btn-sm"
                         data-bs-toggle="modal" 
                         data-bs-target="#deleteCategoryModal"
-                        (click)="DatosDeleteCategory(category)">
+                        (click)="DatosDeleteCategory(category)" title="Eliminar">
                         <i nz-icon nzType="delete"></i>
-                        Eliminar
                       </button>
                     </ng-template>
                   </td>
@@ -271,14 +267,6 @@
                     </ul>
                   </div>
                   <div *ngIf="formErrors.productCategory" class="invalid-feedback d-block">{{ formErrors.productCategory }}</div>
-                </div>
-                <div class="col-12">
-                  <label class="form-label fw-bold mb-1">Descripción *</label>
-                  <textarea class="form-control form-control-sm" [class.is-invalid]="formErrors.productDescription" [(ngModel)]="ProductDescription" name="productDescription" placeholder="Describe el producto..." rows="2" maxlength="500" required></textarea>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div *ngIf="formErrors.productDescription" class="invalid-feedback d-block">{{ formErrors.productDescription }}</div>
-                    <small class="text-muted">{{ ProductDescription.length }}/500</small>
-                  </div>
                 </div>
                 <div class="col-12">
                   <div class="d-flex justify-content-between align-items-center pt-2 border-top">
@@ -337,13 +325,6 @@
                     </ul>
                   </div>
                   <div *ngIf="formErrors.productCategory" class="invalid-feedback d-block">{{ formErrors.productCategory }}</div>
-                </div>
-                <div class="col-12">
-                  <label class="form-label fw-bold mb-1">Descripción *</label>
-                  <textarea class="form-control form-control-sm" [class.is-invalid]="formErrors.productDescription" [(ngModel)]="ProductDescription" name="productDescription" placeholder="Describe el producto..." rows="2" maxlength="500" required></textarea>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div *ngIf="formErrors.productDescription" class="invalid-feedback d-block">{{ formErrors.productDescription }}</div>
-                  </div>
                 </div>
                   <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center pt-2 border-top">
