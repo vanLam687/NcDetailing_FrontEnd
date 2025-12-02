@@ -5,6 +5,7 @@ import { SalesService } from '../../Services/sales-service';
 import { ClientsService } from '../../Services/clients-service';
 import { ProductsService } from '../../Services/products-service';
 import { ServicesService } from '../../Services/services-service';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-sales',
@@ -85,7 +86,8 @@ export class SalesComponent implements OnInit {
     private productsService: ProductsService,  
     private servicesService: ServicesService,  
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private notification: NzNotificationService
   ) {}
 
   ngOnInit(): void {
@@ -94,30 +96,6 @@ export class SalesComponent implements OnInit {
     } else {
       this.router.navigate(['/login']);
     }
-  }
-
-  showToast(message: string, type: 'success' | 'error' | 'warning' = 'success'): void {
-    const n = document.createElement('div');
-    n.className = 'alert alert-dismissible fade show custom-toast';
-    n.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;min-width:350px;padding:16px 20px;`;
-    
-    if (type === 'success') {
-      n.style.background = 'linear-gradient(135deg, #27ae60 0%, #229954 100%)';
-      n.style.color = 'white';
-      n.style.borderLeft = '4px solid #1e8449';
-    } else if (type === 'error') {
-      n.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
-      n.style.color = 'white';
-      n.style.borderLeft = '4px solid #a93226';
-    } else {
-      n.style.background = 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)';
-      n.style.color = 'white';
-      n.style.borderLeft = '4px solid #a84300';
-    }
-    
-    n.innerHTML = `<div class="d-flex align-items-center"><span style="font-size:22px;margin-right:12px;">${type === 'success' ? '✔' : type === 'error' ? '✖' : '⚠'}</span><div><strong>${type === 'success' ? '¡Éxito!' : type === 'error' ? 'Error' : 'Advertencia'}</strong><div>${message}</div></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button></div>`;
-    document.body.appendChild(n);
-    setTimeout(() => { if(n.parentNode) n.parentNode.removeChild(n); }, 4000);
   }
 
   closeModal(id: string): void { const m = document.getElementById(id); if(m){const i=(window as any).bootstrap.Modal.getInstance(m);if(i)i.hide();} }
@@ -155,7 +133,6 @@ export class SalesComponent implements OnInit {
     this.DataSourceServiceStatus = [{ id: 1, name: 'Pendiente' }, { id: 2, name: 'En Progreso' }, { id: 3, name: 'Completado' }, { id: 4, name: 'Cancelado' }];
   }
 
-  // Filters & Selection (simplified)
   filterClients(event: any): void { const t = event.target.value.toLowerCase(); this.filteredClients = this.DataSourceClients.filter(c => `${c.first_name} ${c.last_name}`.toLowerCase().includes(t)); }
   filterProducts(event: any): void { const t = event.target.value.toLowerCase(); this.filteredProducts = this.DataSourceMasterProducts.filter(p => p.name.toLowerCase().includes(t)); }
   filterServices(event: any): void { const t = event.target.value.toLowerCase(); this.filteredServices = this.DataSourceMasterServices.filter(s => s.name.toLowerCase().includes(t)); }
@@ -165,8 +142,8 @@ export class SalesComponent implements OnInit {
   selectService(s: any): void { this.Temp_ServiceId = s.id; this.serviceSearchTerm = s.name; this.clearFormErrors(); }
 
   GetSalesProducts(): void {
-    if (this.FilterStartDate && !this.FilterEndDate) { this.showToast('Seleccione fecha fin', 'warning'); return; }
-    if (!this.FilterStartDate && this.FilterEndDate) { this.showToast('Seleccione fecha inicio', 'warning'); return; }
+    if (this.FilterStartDate && !this.FilterEndDate) { this.notification.warning('Atención', 'Seleccione fecha fin'); return; }
+    if (!this.FilterStartDate && this.FilterEndDate) { this.notification.warning('Atención', 'Seleccione fecha inicio'); return; }
     this.salesService.getSalesProducts({clientName: this.FilterClientName, startDate: this.FilterStartDate, endDate: this.FilterEndDate, paymentStatusId: this.FilterPaymentStatus ? parseInt(this.FilterPaymentStatus) : null}).subscribe({
       next: (d: any) => { this.DataSourceSalesProducts = d.data; this.clearError(); },
       error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleError(e); }
@@ -174,8 +151,8 @@ export class SalesComponent implements OnInit {
   }
 
   GetSalesServices(): void {
-    if (this.FilterStartDate && !this.FilterEndDate) { this.showToast('Seleccione fecha fin', 'warning'); return; }
-    if (!this.FilterStartDate && this.FilterEndDate) { this.showToast('Seleccione fecha inicio', 'warning'); return; }
+    if (this.FilterStartDate && !this.FilterEndDate) { this.notification.warning('Atención', 'Seleccione fecha fin'); return; }
+    if (!this.FilterStartDate && this.FilterEndDate) { this.notification.warning('Atención', 'Seleccione fecha inicio'); return; }
     this.salesService.getSalesServices({clientName: this.FilterClientName, startDate: this.FilterStartDate, endDate: this.FilterEndDate, paymentStatusId: this.FilterPaymentStatus ? parseInt(this.FilterPaymentStatus) : null, serviceStatusId: this.FilterServiceStatus ? parseInt(this.FilterServiceStatus) : null}).subscribe({
       next: (d: any) => { this.DataSourceSalesServices = d.data; this.clearError(); },
       error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleError(e); }
@@ -185,7 +162,6 @@ export class SalesComponent implements OnInit {
   ApplyFilters(): void { this.GetSalesProducts(); this.GetSalesServices(); }
   ClearFilters(): void { this.FilterClientName = ''; this.FilterStartDate = ''; this.FilterEndDate = ''; this.FilterPaymentStatus = ''; this.FilterServiceStatus = ''; this.ApplyFilters(); }
 
-  // Validations
   validateProductSaleForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
@@ -205,7 +181,6 @@ export class SalesComponent implements OnInit {
     return isValid;
   }
 
-  // Logic to add/remove items (Product/Service) - Simplified
   AddProductToSale(): void {
     this.clearModalError();
     if (!this.Temp_ProductId || this.Temp_ProductQty <= 0) { this.modalError = 'Datos inválidos'; return; }
@@ -232,7 +207,6 @@ export class SalesComponent implements OnInit {
   }
   RemoveServiceFromSale(i: number): void { this.NewSvcSale_ServicesList.splice(i, 1); }
 
-  // Create Sales
   CreateProductSale(): void {
     if (!this.validateProductSaleForm()) return;
     const sale = {
@@ -241,7 +215,7 @@ export class SalesComponent implements OnInit {
       products: this.NewProdSale_ProductsList.map(p => ({ product_id: p.product_id, quantity: p.quantity }))
     };
     this.salesService.postSaleProducts(sale).subscribe({
-      next: () => { this.showToast('Venta creada', 'success'); this.GetSalesProducts(); this.closeModal('createProductSaleModal'); },
+      next: () => { this.notification.success('¡Éxito!', 'Venta creada correctamente'); this.GetSalesProducts(); this.closeModal('createProductSaleModal'); },
       error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
     });
   }
@@ -254,7 +228,7 @@ export class SalesComponent implements OnInit {
       observations: this.NewSvcSale_Observations, services: this.NewSvcSale_ServicesList.map(s => ({ service_id: s.service_id }))
     };
     this.salesService.postSalesServices(sale).subscribe({
-      next: () => { this.showToast('Venta creada', 'success'); this.GetSalesServices(); this.closeModal('createServiceSaleModal'); },
+      next: () => { this.notification.success('¡Éxito!', 'Venta creada correctamente'); this.GetSalesServices(); this.closeModal('createServiceSaleModal'); },
       error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
     });
   }
@@ -270,7 +244,6 @@ export class SalesComponent implements OnInit {
     else if (sale.services && sale.services.length > 0) { setTimeout(() => { this.closeModal('viewProductSaleModal'); new (window as any).bootstrap.Modal(document.getElementById('viewServiceSaleModal')).show(); }, 50); }
   }
 
-  // Updates
   DatosUpdatePayment(sale: any): void {
     this.IdUpdatePayment = sale.sale_id; this.ClientNameUpdatePayment = sale.client_name; this.currentPaymentStatus = sale.payment_status;
     this.isSaleFinalized = sale.payment_status === 'Pagado' || sale.payment_status === 'Cancelado';
@@ -283,7 +256,7 @@ export class SalesComponent implements OnInit {
   UpdatePaymentStatus(): void {
     if (this.isSaleFinalized || !this.hasPaymentStatusChanged) { this.modalError = 'No se puede modificar o sin cambios'; return; }
     this.salesService.updatePaymentStatus(this.IdUpdatePayment.toString(), this.NewPaymentStatusId).subscribe({
-      next: () => { this.showToast('Pago actualizado', 'success'); this.GetSalesProducts(); this.GetSalesServices(); this.closeModal('updatePaymentModal'); },
+      next: () => { this.notification.success('¡Éxito!', 'Pago actualizado correctamente'); this.GetSalesProducts(); this.GetSalesServices(); this.closeModal('updatePaymentModal'); },
       error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
     });
   }
@@ -300,12 +273,11 @@ export class SalesComponent implements OnInit {
   UpdateServiceStatus(): void {
     if (!this.hasServiceStatusChanged) { this.modalError = 'Sin cambios'; return; }
     this.salesService.updateServiceStatus(this.IdUpdateServiceStatus.toString(), this.NewServiceStatusId).subscribe({
-      next: () => { this.showToast('Estado servicio actualizado', 'success'); this.GetSalesServices(); this.closeModal('updateServiceStatusModal'); },
+      next: () => { this.notification.success('¡Éxito!', 'Estado servicio actualizado correctamente'); this.GetSalesServices(); this.closeModal('updateServiceStatusModal'); },
       error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
     });
   }
 
-  // Helpers
   calculateTotal(items: any[]): number { return items ? items.reduce((s, i) => s + ((parseFloat(i.price)||0) * (parseInt(i.quantity)||1)), 0) : 0; }
   formatDate(d: string): string { return new Date(d).toLocaleDateString('es-ES', {year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); }
   getProductsTooltip(p: any[]): string { return p.map(x => `${x.product_name} (x${x.quantity})`).join('\n'); }
@@ -315,18 +287,18 @@ export class SalesComponent implements OnInit {
   private getGenericErrorMessage(status: number): string {
     switch (status) {
       case 0: return 'Error de conexión.';
-      case 400: return 'Datos de venta incorrectos. Verifique stock o campos.';
+      case 400: return 'Datos incorrectos.';
       case 401: return 'Sesión expirada.';
       case 403: return 'No tiene permisos.';
-      case 404: return 'Venta/Producto/Servicio no encontrado.';
-      case 409: return 'Conflicto en la operación.';
-      case 500: return 'Error interno del servidor.';
-      default: return 'Ocurrió un error inesperado.';
+      case 404: return 'No encontrado.';
+      case 409: return 'Conflicto.';
+      case 500: return 'Error servidor.';
+      default: return 'Error inesperado.';
     }
   }
 
   handleError(e: any): void { this.clearFormErrors(); this.errorMessage = this.getGenericErrorMessage(e.status); }
-  handleModalError(e: any): void { this.clearFormErrors(); this.modalError = this.getGenericErrorMessage(e.status); this.showToast(this.modalError, 'error'); }
+  handleModalError(e: any): void { this.clearFormErrors(); this.modalError = this.getGenericErrorMessage(e.status); }
 
   clearError(): void { this.errorMessage = ''; }
   clearModalError(): void { this.modalError = ''; }

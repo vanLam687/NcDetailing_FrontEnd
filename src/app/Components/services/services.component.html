@@ -13,7 +13,8 @@
                   class="btn btn-sm" 
                   [class.btn-primary]="activeView === 'list'"
                   [class.btn-outline-primary]="activeView !== 'list'"
-                  (click)="showListView()">
+                  (click)="showListView()"
+                  [disabled]="activeView === 'create' || activeView === 'edit'">
                   <i nz-icon nzType="unordered-list"></i>
                   Lista Servicios
                 </button>
@@ -22,7 +23,8 @@
                   class="btn btn-sm" 
                   [class.btn-primary]="activeView === 'categories'"
                   [class.btn-outline-primary]="activeView !== 'categories'"
-                  (click)="showCategoriesView()">
+                  (click)="showCategoriesView()"
+                  [disabled]="activeView === 'create' || activeView === 'edit'">
                   <i nz-icon nzType="folder-open"></i>
                   Lista Categorías
                 </button>
@@ -31,7 +33,8 @@
                   class="btn btn-sm" 
                   [class.btn-primary]="activeView === 'create'"
                   [class.btn-outline-primary]="activeView !== 'create'"
-                  (click)="showCreateForm()">
+                  (click)="showCreateForm()"
+                  [disabled]="activeView === 'create' || activeView === 'edit'">
                   <i nz-icon nzType="plus"></i>
                   Nuevo servicio
                 </button>
@@ -41,7 +44,7 @@
                   [class.btn-primary]="activeView === 'edit'"
                   [class.btn-outline-primary]="activeView !== 'edit'"
                   (click)="showEditBack()"
-                  [disabled]="!canShowEdit()">
+                  [disabled]="!canShowEdit() || activeView === 'create' || activeView === 'edit'">
                   <i nz-icon nzType="edit"></i>
                   Editar
                 </button>
@@ -70,78 +73,34 @@
       </div>
 
       <div *ngIf="activeView === 'list'">
-        
         <div class="card shadow-sm mb-2">
           <div class="card-body py-1 px-3">
             <div class="row g-1 align-items-center">
+              <div class="col-md-3"><input type="text" class="form-control form-control-sm" [(ngModel)]="SearchName" placeholder="Buscar..."></div>
               <div class="col-md-3">
-                <input type="text" class="form-control form-control-sm" [(ngModel)]="SearchName" placeholder="Buscar...">
+                <select class="form-select form-select-sm" [(ngModel)]="SelectedCategory"><option value="">Todas las categorías</option><option *ngFor="let category of DataSourceCategories" [value]="category.name">{{ category.name }}</option></select>
               </div>
-              <div class="col-md-3">
-                <select class="form-select form-select-sm" [(ngModel)]="SelectedCategory">
-                  <option value="">Todas las categorías</option>
-                  <option *ngFor="let category of DataSourceCategories" [value]="category.name">{{ category.name }}</option>
-                </select>
-              </div>
-              <div class="col-md-2">
-                <select class="form-select form-select-sm" [(ngModel)]="ServiceStatus" (change)="onServiceStatusChange(ServiceStatus)">
-                  <option value="active">Activos</option>
-                  <option value="inactive">Inactivos</option>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <button class="btn btn-primary btn-sm me-1" (click)="ApplyFilters()"><i nz-icon nzType="search"></i></button>
-                <button class="btn btn-secondary btn-sm" (click)="ClearFilters()"><i nz-icon nzType="clear"></i></button>
-              </div>
+              <div class="col-md-2"><select class="form-select form-select-sm" [(ngModel)]="ServiceStatus" (change)="onServiceStatusChange(ServiceStatus)"><option value="active">Activos</option><option value="inactive">Inactivos</option></select></div>
+              <div class="col-md-4"><button class="btn btn-primary btn-sm me-1" (click)="ApplyFilters()"><i nz-icon nzType="search"></i></button><button class="btn btn-secondary btn-sm" (click)="ClearFilters()"><i nz-icon nzType="clear"></i></button></div>
             </div>
           </div>
         </div>
 
         <div class="card shadow-sm">
-          <div class="card-header py-2 px-3">
-            <h6 class="mb-0">Servicios</h6>
-          </div>
+          <div class="card-header py-2 px-3"><h6 class="mb-0">Servicios</h6></div>
           <div class="card-body p-0">
             <nz-table #servicesTable [nzData]="DataSourceServices" class="w-100 compact-table" nzSize="small">
-              <thead>
-                <tr>
-                  <th class="ps-2" style="color: #333;">ID</th> <th style="color: #333;">Nombre</th>
-                  <th style="color: #333;">Categoría</th>
-                  <th style="color: #333;">Precio</th>
-                  <th class="text-center pe-2" style="color: #333;" *ngIf="isAdmin">Acciones</th>
-                </tr>
-              </thead>
+              <thead><tr><th class="ps-2" style="color: #333;">ID</th> <th style="color: #333;">Nombre</th><th style="color: #333;">Categoría</th><th style="color: #333;">Precio</th><th class="text-center pe-2" style="color: #333;" *ngIf="isAdmin">Acciones</th></tr></thead>
               <tbody>
                 <tr *ngFor="let service of servicesTable.data" class="table-row">
-                  <td class="ps-2" style="color: #333;"><strong>#{{ service.id }}</strong></td> <td style="color: #333;"><strong>{{ service.name }}</strong></td>
-                  <td style="color: #333;">{{ service.category || '-' }}</td>
-                  <td style="color: #333;"><strong>${{ service.price }}</strong></td>
-                  
+                  <td class="ps-2"><strong>#{{ service.id }}</strong></td> <td><strong>{{ service.name }}</strong></td><td>{{ service.category || '-' }}</td><td><strong>${{ service.price }}</strong></td>
                   <td class="text-center pe-2" *ngIf="isAdmin">
                     <ng-container *ngIf="ServiceStatus === 'inactive'; else activeActions">
-                      <button 
-                        class="btn btn-outline-success btn-sm me-1"
-                        data-bs-toggle="modal" 
-                        data-bs-target="#restoreServiceModal"
-                        (click)="DatosRestoreService(service)">
-                        <i nz-icon nzType="reload"></i>
-                        Restaurar
-                      </button>
+                      <button class="btn btn-outline-success btn-sm me-1" data-bs-toggle="modal" data-bs-target="#restoreServiceModal" (click)="DatosRestoreService(service)" nz-tooltip nzTooltipTitle="Restaurar"><i nz-icon nzType="reload"></i></button>
                     </ng-container>
-
                     <ng-template #activeActions>
-                      <button 
-                        class="btn btn-outline-primary btn-sm me-1"
-                        (click)="showEditForm(service)">
-                        <i nz-icon nzType="edit"></i>
-                      </button>
-                      <button 
-                        class="btn btn-outline-danger btn-sm"
-                        data-bs-toggle="modal" 
-                        data-bs-target="#deleteServiceModal"
-                        (click)="DatosDelete(service)">
-                        <i nz-icon nzType="delete"></i>
-                      </button>
+                      <button class="btn btn-outline-primary btn-sm me-1" (click)="showEditForm(service)" nz-tooltip nzTooltipTitle="Editar"><i nz-icon nzType="edit"></i></button>
+                      <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteServiceModal" (click)="DatosDelete(service)" nz-tooltip nzTooltipTitle="Eliminar"><i nz-icon nzType="delete"></i></button>
                     </ng-template>
                   </td>
                 </tr>
@@ -155,26 +114,21 @@
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center">
             <div><h6 class="mb-0"><i nz-icon nzType="folder-open"></i> Categorías de Servicios</h6></div>
-            <div class="d-flex gap-2 align-items-center">
-              <select class="form-select form-select-sm" [(ngModel)]="CategoryStatus" (change)="onCategoryStatusChange(CategoryStatus)" style="width:160px;">
-                <option value="active">Activas</option><option value="inactive">Inactivas</option>
-              </select>
-            </div>
+            <div class="d-flex gap-2 align-items-center"><select class="form-select form-select-sm" [(ngModel)]="CategoryStatus" (change)="onCategoryStatusChange(CategoryStatus)" style="width:160px;"><option value="active">Activas</option><option value="inactive">Inactivas</option></select></div>
           </div>
           <div class="card-body p-0">
             <nz-table #categoriesTable [nzData]="DataSourceCategories" class="w-100 compact-table" nzSize="small">
-              <thead><tr><th class="ps-2" style="color: #333;">ID</th><th style="color: #333;">Nombre</th><th class="text-center pe-2" style="color: #333;">Acciones</th></tr></thead>
+              <thead><tr><th class="ps-2">ID</th><th>Nombre</th><th class="text-center pe-2">Acciones</th></tr></thead>
               <tbody>
                 <tr *ngFor="let category of categoriesTable.data" class="table-row">
-                  <td class="ps-2" style="color: #333;"><strong>#{{ category.id }}</strong></td>
-                  <td style="color: #333;"><strong>{{ category.name }}</strong></td>
+                  <td class="ps-2"><strong>#{{ category.id }}</strong></td><td><strong>{{ category.name }}</strong></td>
                   <td class="text-center pe-2">
                     <ng-container *ngIf="CategoryStatus === 'inactive'; else catActive">
-                      <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#restoreCategoryModal" (click)="DatosRestoreCategory(category)"><i nz-icon nzType="reload"></i> Restaurar</button>
+                      <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#restoreCategoryModal" (click)="DatosRestoreCategory(category)" nz-tooltip nzTooltipTitle="Restaurar"><i nz-icon nzType="reload"></i></button>
                     </ng-container>
                     <ng-template #catActive>
-                      <button class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#editCategoryModal" (click)="DatosEditCategory(category)"><i nz-icon nzType="edit"></i></button>
-                      <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" (click)="DatosDeleteCategory(category)"><i nz-icon nzType="delete"></i></button>
+                      <button class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#editCategoryModal" (click)="DatosEditCategory(category)" nz-tooltip nzTooltipTitle="Editar"><i nz-icon nzType="edit"></i></button>
+                      <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" (click)="DatosDeleteCategory(category)" nz-tooltip nzTooltipTitle="Eliminar"><i nz-icon nzType="delete"></i></button>
                     </ng-template>
                   </td>
                 </tr>
@@ -188,43 +142,21 @@
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3"><h6 class="mb-0"><i nz-icon nzType="plus"></i> Nuevo Servicio</h6></div>
           <div class="card-body">
+             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">{{ modalError }}</div>
              <form (ngSubmit)="CreateService()">
                 <div class="row g-2">
-                  <div class="col-12">
-                    <label class="form-label fw-bold mb-1">Nombre *</label>
-                    <input type="text" class="form-control form-control-sm" [class.is-invalid]="formErrors.serviceName" [(ngModel)]="ServiceName" name="serviceName" placeholder="Ej: Tratamiento Cerámico Premium" required>
-                    <div *ngIf="formErrors.serviceName" class="invalid-feedback d-block">{{ formErrors.serviceName }}</div>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold mb-1">Precio *</label>
-                    <div class="input-group input-group-sm">
-                      <span class="input-group-text">$</span>
-                      <input type="number" class="form-control" [class.is-invalid]="formErrors.servicePrice" [(ngModel)]="ServicePrice" name="servicePrice" placeholder="0.00" step="0.01" min="0.01" required>
-                    </div>
-                    <div *ngIf="formErrors.servicePrice" class="invalid-feedback d-block">{{ formErrors.servicePrice }}</div>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold mb-1">Categoría *</label>
+                  <div class="col-12"><label class="form-label fw-bold mb-1">Nombre *</label><input type="text" class="form-control form-control-sm" [(ngModel)]="ServiceName" name="serviceName" required></div>
+                  <div class="col-md-6"><label class="form-label fw-bold mb-1">Precio *</label><input type="number" class="form-control" [(ngModel)]="ServicePrice" name="servicePrice" required></div>
+                  <div class="col-md-6"><label class="form-label fw-bold mb-1">Categoría *</label>
                     <div class="dropdown">
-                      <input type="text" class="form-control form-control-sm" [class.is-invalid]="formErrors.serviceCategory" [(ngModel)]="ServiceCategoryName" (input)="filterCategories($event)" name="serviceCategory" placeholder="Buscar categoría..." data-bs-toggle="dropdown" aria-expanded="false" required>
-                      <ul class="dropdown-menu w-100" style="max-height: 140px; overflow-y: auto;">
-                        <li *ngFor="let category of filteredCategories">
-                          <a class="dropdown-item" href="javascript:void(0)" (click)="selectCategory(category)">{{ category.name }}</a>
-                        </li>
-                      </ul>
+                      <input type="text" class="form-control form-control-sm" [(ngModel)]="ServiceCategoryName" (input)="filterCategories($event)" placeholder="Buscar categoría..." data-bs-toggle="dropdown">
+                      <ul class="dropdown-menu w-100"><li *ngFor="let category of filteredCategories"><a class="dropdown-item" (click)="selectCategory(category)">{{ category.name }}</a></li></ul>
                     </div>
-                    <div *ngIf="formErrors.serviceCategory" class="invalid-feedback d-block">{{ formErrors.serviceCategory }}</div>
                   </div>
                   <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                       <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goBack()"><i nz-icon nzType="arrow-left"></i> Volver</button>
-                      <div class="d-flex gap-1">
-                        <button type="button" class="btn btn-outline-danger btn-sm" (click)="clearForm()">Limpiar</button>
-                        <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting">
-                          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                          Crear
-                        </button>
-                      </div>
+                      <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting"><span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span> Crear</button>
                     </div>
                   </div>
                 </div>
@@ -235,44 +167,23 @@
 
       <div *ngIf="activeView === 'edit' && isAdmin">
         <div class="card shadow-sm">
-          <div class="card-header py-2 px-3"><h6 class="mb-0"><i nz-icon nzType="edit"></i> Editar Servicio - {{ SelectedService?.name }}</h6></div>
+          <div class="card-header py-2 px-3"><h6 class="mb-0"><i nz-icon nzType="edit"></i> Editar Servicio</h6></div>
           <div class="card-body">
+             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">{{ modalError }}</div>
              <form (ngSubmit)="EditService()">
                 <div class="row g-2">
-                  <div class="col-12">
-                    <label class="form-label fw-bold mb-1">Nombre *</label>
-                    <input type="text" class="form-control form-control-sm" [class.is-invalid]="formErrors.serviceName" [(ngModel)]="ServiceName" name="serviceName" placeholder="Ej: Tratamiento Cerámico Premium" required>
-                    <div *ngIf="formErrors.serviceName" class="invalid-feedback d-block">{{ formErrors.serviceName }}</div>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold mb-1">Precio *</label>
-                    <div class="input-group input-group-sm">
-                      <span class="input-group-text">$</span>
-                      <input type="number" class="form-control" [class.is-invalid]="formErrors.servicePrice" [(ngModel)]="ServicePrice" name="servicePrice" placeholder="0.00" step="0.01" min="0.01" required>
-                    </div>
-                    <div *ngIf="formErrors.servicePrice" class="invalid-feedback d-block">{{ formErrors.servicePrice }}</div>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold mb-1">Categoría *</label>
+                  <div class="col-12"><label class="form-label fw-bold mb-1">Nombre *</label><input type="text" class="form-control form-control-sm" [(ngModel)]="ServiceName" name="serviceName" required></div>
+                  <div class="col-md-6"><label class="form-label fw-bold mb-1">Precio *</label><input type="number" class="form-control" [(ngModel)]="ServicePrice" name="servicePrice" required></div>
+                  <div class="col-md-6"><label class="form-label fw-bold mb-1">Categoría *</label>
                     <div class="dropdown">
-                      <input type="text" class="form-control form-control-sm" [class.is-invalid]="formErrors.serviceCategory" [(ngModel)]="ServiceCategoryName" (input)="filterCategories($event)" name="serviceCategory" placeholder="Buscar categoría..." data-bs-toggle="dropdown" aria-expanded="false" required>
-                      <ul class="dropdown-menu w-100" style="max-height: 140px; overflow-y: auto;">
-                        <li *ngFor="let category of filteredCategories">
-                          <a class="dropdown-item" href="javascript:void(0)" (click)="selectCategory(category)">{{ category.name }}</a>
-                        </li>
-                      </ul>
+                      <input type="text" class="form-control form-control-sm" [(ngModel)]="ServiceCategoryName" (input)="filterCategories($event)" placeholder="Buscar categoría..." data-bs-toggle="dropdown">
+                      <ul class="dropdown-menu w-100"><li *ngFor="let category of filteredCategories"><a class="dropdown-item" (click)="selectCategory(category)">{{ category.name }}</a></li></ul>
                     </div>
-                    <div *ngIf="formErrors.serviceCategory" class="invalid-feedback d-block">{{ formErrors.serviceCategory }}</div>
                   </div>
                   <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                       <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goBack()"><i nz-icon nzType="arrow-left"></i> Volver</button>
-                      <div class="d-flex gap-1">
-                        <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting">
-                          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                          Guardar
-                        </button>
-                      </div>
+                      <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting"><span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span> Guardar</button>
                     </div>
                   </div>
                 </div>
@@ -281,93 +192,30 @@
         </div>
       </div>
 
-      <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
+      <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="createCategoryModalLabel">Crear Nueva Categoría</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
-            </div>
+            <div class="modal-header"><h5 class="modal-title">Crear Nueva Categoría</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
-              <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert"><div class="d-flex align-items-center"><i nz-icon nzType="exclamation-circle" class="me-2"></i><span>{{ modalError }}</span></div><button type="button" class="btn-close" (click)="clearModalError()"></button></div>
-              <div *ngIf="formErrors.categoryName" class="alert alert-warning alert-dismissible fade show mb-3" role="alert"><div class="d-flex align-items-center"><i nz-icon nzType="warning" class="me-2"></i><span>{{ formErrors.categoryName }}</span></div><button type="button" class="btn-close" (click)="clearFormErrors()"></button></div>
-              <div class="mb-3"><label class="form-label fw-bold">Nombre de la categoría *</label><input type="text" class="form-control" [class.is-invalid]="formErrors.categoryName" [(ngModel)]="CategoryName" placeholder="Ingrese el nombre de la categoría"></div>
+              <div *ngIf="modalError" class="alert alert-danger mb-3">{{ modalError }}</div>
+              <div class="mb-3"><label class="form-label fw-bold">Nombre</label><input type="text" class="form-control" [(ngModel)]="CategoryName"></div>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">Cancelar</button><button type="button" class="btn btn-primary" (click)="CreateCategory()" [disabled]="isSubmitting"><span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>Crear Categoría</button></div>
+            <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" (click)="CreateCategory()">Crear</button></div>
           </div>
         </div>
       </div>
-      <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+      <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="editCategoryModalLabel">Editar Categoría</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
-            </div>
+            <div class="modal-header"><h5 class="modal-title">Editar Categoría</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
-              <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert"><div class="d-flex align-items-center"><i nz-icon nzType="exclamation-circle" class="me-2"></i><span>{{ modalError }}</span></div><button type="button" class="btn-close" (click)="clearModalError()"></button></div>
-              <div *ngIf="formErrors.categoryName" class="alert alert-warning alert-dismissible fade show mb-3" role="alert"><div class="d-flex align-items-center"><i nz-icon nzType="warning" class="me-2"></i><span>{{ formErrors.categoryName }}</span></div><button type="button" class="btn-close" (click)="clearFormErrors()"></button></div>
-              <div class="mb-3"><label class="form-label fw-bold">Nombre de la categoría *</label><input type="text" class="form-control" [class.is-invalid]="formErrors.categoryName" [(ngModel)]="CategoryName" placeholder="Ingrese el nombre de la categoría"></div>
+              <div *ngIf="modalError" class="alert alert-danger mb-3">{{ modalError }}</div>
+              <div class="mb-3"><label class="form-label fw-bold">Nombre</label><input type="text" class="form-control" [(ngModel)]="CategoryName"></div>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">Cancelar</button><button type="button" class="btn btn-primary" (click)="EditCategory()" [disabled]="isSubmitting"><span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>Guardar Cambios</button></div>
+            <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" (click)="EditCategory()">Guardar</button></div>
           </div>
         </div>
       </div>
-      <div class="modal fade" id="deleteServiceModal" tabindex="-1" aria-labelledby="deleteServiceModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header border-0"><h5 class="modal-title w-100 text-center" id="deleteServiceModalLabel" style="font-weight: 600;">Eliminar Servicio</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-            <div class="modal-body text-center">
-              <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3 text-start" role="alert"><div class="d-flex align-items-center"><i nz-icon nzType="exclamation-circle" class="me-2"></i><span>{{ modalError }}</span></div></div>
-              <div class="mb-4"><i nz-icon nzType="exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i></div>
-              <p class="mb-3" style="color: #666; line-height: 1.5;">¿Estás seguro de que deseas eliminar el servicio <strong>"{{ ServiceToDeleteName }}"</strong>?</p>
-              <p class="text-muted small">Esta acción no se puede deshacer.</p>
-            </div>
-            <div class="modal-footer border-0 justify-content-center"><button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-danger" (click)="DeleteService()">Eliminar Servicio</button></div>
-          </div>
-        </div>
       </div>
-      <div class="modal fade" id="restoreServiceModal" tabindex="-1" aria-labelledby="restoreServiceModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header border-0"><h5 class="modal-title w-100 text-center" id="restoreServiceModalLabel" style="font-weight: 600;">Restaurar Servicio</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-            <div class="modal-body text-center">
-              <div class="mb-4"><i nz-icon nzType="check-circle" style="font-size: 48px; color: #27ae60;"></i></div>
-              <p class="mb-3" style="color: #666; line-height: 1.5;">¿Estás seguro de que deseas restaurar el servicio <strong>"{{ ServiceToRestoreName }}"</strong>?</p>
-              <p class="text-muted small">El servicio volverá a estar disponible para su uso.</p>
-            </div>
-            <div class="modal-footer border-0 justify-content-center"><button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-success" (click)="RestoreServiceConfirm()" data-bs-dismiss="modal">Restaurar Servicio</button></div>
-          </div>
-        </div>
-      </div>
-      <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header border-0"><h5 class="modal-title w-100 text-center" id="deleteCategoryModalLabel" style="font-weight: 600;">Eliminar Categoría</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-            <div class="modal-body text-center">
-              <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3 text-start" role="alert"><div class="d-flex align-items-center"><i nz-icon nzType="exclamation-circle" class="me-2"></i><span>{{ modalError }}</span></div></div>
-              <div class="mb-4"><i nz-icon nzType="exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i></div>
-              <p class="mb-3" style="color: #666; line-height: 1.5;">¿Estás seguro de que deseas eliminar la categoría <strong>"{{ CategoryToDelete?.name }}"</strong>?</p>
-              <p class="text-muted small">Esta acción no se puede deshacer. No podrás eliminar categorías que estén siendo utilizadas por servicios.</p>
-            </div>
-            <div class="modal-footer border-0 justify-content-center"><button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-danger" (click)="DeleteCategory()">Eliminar Categoría</button></div>
-          </div>
-        </div>
-      </div>
-      <div class="modal fade" id="restoreCategoryModal" tabindex="-1" aria-labelledby="restoreCategoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header border-0"><h5 class="modal-title w-100 text-center" id="restoreCategoryModalLabel" style="font-weight: 600;">Restaurar Categoría</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
-            <div class="modal-body text-center">
-              <div class="mb-4"><i nz-icon nzType="check-circle" style="font-size: 48px; color: #27ae60;"></i></div>
-              <p class="mb-3" style="color: #666; line-height: 1.5;">¿Estás seguro de que deseas restaurar la categoría <strong>"{{ CategoryToRestore?.name }}"</strong>?</p>
-              <p class="text-muted small">La categoría volverá a estar disponible para su uso.</p>
-            </div>
-            <div class="modal-footer border-0 justify-content-center"><button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Cancelar</button><button type="button" class="btn btn-success" (click)="RestoreCategoryConfirm()" data-bs-dismiss="modal">Restaurar Categoría</button></div>
-          </div>
-        </div>
-      </div>
-
-    </div>
   </div>
 </div>

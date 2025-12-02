@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { EmployeesService } from '../../Services/employees-service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../Services/auth-service';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-employees',
@@ -11,13 +12,17 @@ import { AuthService } from '../../Services/auth-service';
 })
 export class EmployeesComponent implements OnInit {
 
-  constructor(private service: EmployeesService, private router: Router, private authService: AuthService) {}
+  constructor(
+    private service: EmployeesService, 
+    private router: Router, 
+    private authService: AuthService,
+    private notification: NzNotificationService
+  ) {}
 
   // Datos
   DataSourceEmployees: any[] = [];
   activeView: 'list' | 'form' = 'list';
   isEditMode: boolean = false;
-  // Req 2: Filtro solo Activos/Inactivos
   EmployeeStatus: 'active' | 'inactive' = 'active';
 
   // Req 1: Bloqueo botón
@@ -89,7 +94,6 @@ export class EmployeesComponent implements OnInit {
   validateEmployeeForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
-    // Validaciones front
     if (!this.currentName || this.currentName.trim() === '') {
       this.formErrors.name = 'El nombre es requerido';
       isValid = false;
@@ -133,7 +137,7 @@ export class EmployeesComponent implements OnInit {
   }
 
   CreateEmployee(): void {
-    if (this.isSubmitting) return; // Req 1
+    if (this.isSubmitting) return;
     if (!this.validateEmployeeForm()) return;
     
     this.isSubmitting = true;
@@ -146,7 +150,7 @@ export class EmployeesComponent implements OnInit {
     
     this.service.PostEmployee(employee).subscribe({
       next: () => {
-        this.showSuccessNotification('Empleado creado correctamente');
+        this.notification.success('¡Éxito!', 'Empleado creado correctamente');
         this.showListView();
         this.isSubmitting = false;
       },
@@ -159,7 +163,7 @@ export class EmployeesComponent implements OnInit {
   }
 
   EditEmployee(): void {
-    if (this.isSubmitting) return; // Req 1
+    if (this.isSubmitting) return;
     if (!this.validateEmployeeForm()) return;
     
     this.isSubmitting = true;
@@ -174,7 +178,7 @@ export class EmployeesComponent implements OnInit {
     
     this.service.PutEmployee(this.IdEdit.toString(), employee).subscribe({
       next: () => {
-        this.showSuccessNotification('Empleado actualizado correctamente');
+        this.notification.success('¡Éxito!', 'Empleado actualizado correctamente');
         this.showListView();
         this.isSubmitting = false;
       },
@@ -196,7 +200,7 @@ export class EmployeesComponent implements OnInit {
   DeleteEmployee(): void {
     this.service.DeleteEmployee(this.IdDelete.toString()).subscribe({
       next: () => {
-        this.showSuccessNotification('Empleado eliminado correctamente');
+        this.notification.success('Operación completada', 'Empleado eliminado correctamente');
         this.GetEmployees();
         this.closeModal('deleteEmployeeModal');
       },
@@ -217,7 +221,7 @@ export class EmployeesComponent implements OnInit {
   RestoreEmployeeConfirm(): void {
     this.service.RestoreEmployee(this.IdRestore.toString()).subscribe({
       next: () => {
-        this.showSuccessNotification('Empleado restaurado correctamente');
+        this.notification.success('Operación completada', 'Empleado restaurado correctamente');
         this.GetEmployees();
         this.closeModal('restoreEmployeeModal');
       },
@@ -240,40 +244,6 @@ export class EmployeesComponent implements OnInit {
       const modalInstance = (window as any).bootstrap.Modal.getInstance(modal);
       if (modalInstance) modalInstance.hide();
     }
-  }
-
-  private showSuccessNotification(message: string): void {
-    const notification = document.createElement('div');
-    notification.className = 'alert alert-success alert-dismissible fade show custom-toast';
-    notification.style.cssText = `
-      position: fixed; top: 20px; right: 20px; z-index: 9999;
-      min-width: 350px; max-width: 450px; border: none; border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15); background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-      color: white; padding: 16px 20px; animation: slideInRight 0.3s ease-out;
-    `;
-    notification.innerHTML = `
-      <div class="d-flex align-items-center">
-        <span style="font-size: 22px; font-weight: bold; color: white; margin-right: 12px; line-height: 1;">✔</span>
-        <div class="flex-grow-1">
-          <strong class="me-auto" style="font-size: 16px; display: block; margin-bottom: 4px;">¡Éxito!</strong>
-          <div style="font-size: 14px; opacity: 0.95;">${message}</div>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" style="filter: brightness(0) invert(1); opacity: 0.8; margin-left: 16px;"></button>
-      </div>`;
-    
-    if (!document.querySelector('#toast-styles')) {
-      const style = document.createElement('style');
-      style.id = 'toast-styles';
-      style.textContent = `@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } .custom-toast { backdrop-filter: blur(10px); border-left: 4px solid #1e8449 !important; }`;
-      document.head.appendChild(style);
-    }
-    document.body.appendChild(notification);
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.style.animation = 'slideInRight 0.3s ease-out reverse';
-        setTimeout(() => { if (notification.parentNode) notification.parentNode.removeChild(notification); }, 300);
-      }
-    }, 4000);
   }
 
   // Getters/Setters helpers
@@ -308,6 +278,7 @@ export class EmployeesComponent implements OnInit {
   handleModalError(error: any): void {
     this.clearFormErrors();
     this.modalError = this.getGenericErrorMessage(error.status);
+    // No notificamos
   }
 
   clearError(): void { this.errorMessage = ''; }

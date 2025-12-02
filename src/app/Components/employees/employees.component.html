@@ -13,7 +13,8 @@
                   class="btn btn-sm" 
                   [class.btn-primary]="activeView === 'list'"
                   [class.btn-outline-primary]="activeView !== 'list'"
-                  (click)="showListView()">
+                  (click)="showListView()"
+                  [disabled]="activeView === 'form'">
                   <i nz-icon nzType="unordered-list"></i>
                   Lista
                 </button>
@@ -22,7 +23,8 @@
                   class="btn btn-sm" 
                   [class.btn-primary]="activeView === 'form'"
                   [class.btn-outline-primary]="activeView !== 'form'"
-                  (click)="showCreateForm()">
+                  (click)="showCreateForm()"
+                  [disabled]="activeView === 'form'">
                   <i nz-icon nzType="plus"></i>
                   Nuevo Empleado
                 </button>
@@ -41,7 +43,6 @@
       </div>
 
       <div *ngIf="activeView === 'list'">
-        
         <div class="card shadow-sm mb-2">
           <div class="card-body py-1 px-3">
             <div class="row g-1 align-items-center">
@@ -72,33 +73,35 @@
               </thead>
               <tbody>
                 <tr *ngFor="let employee of employeesTable.data" class="table-row">
-                  <td class="ps-2" style="color: #333;"><strong>#{{ employee.id }}</strong></td>
-                  <td style="color: #333;"><strong>{{ employee.name }}</strong></td>
-                  <td style="color: #333;">{{ employee.username }}</td>
-                  <td style="color: #333;">{{ employee.email }}</td>
+                  <td class="ps-2"><strong>#{{ employee.id }}</strong></td>
+                  <td><strong>{{ employee.name }}</strong></td>
+                  <td>{{ employee.username }}</td>
+                  <td>{{ employee.email }}</td>
                   <td class="text-center pe-2">
                     <ng-container *ngIf="EmployeeStatus === 'inactive'; else activeActions">
                       <button 
                         class="btn btn-outline-success btn-sm me-1"
                         data-bs-toggle="modal" 
                         data-bs-target="#restoreEmployeeModal"
-                        (click)="DatosRestoreEmployee(employee)">
+                        (click)="DatosRestoreEmployee(employee)"
+                        nz-tooltip nzTooltipTitle="Restaurar">
                         <i nz-icon nzType="reload"></i>
-                        Restaurar
                       </button>
                     </ng-container>
 
                     <ng-template #activeActions>
                       <button 
                         class="btn btn-outline-primary btn-sm me-1"
-                        (click)="showEditForm(employee)">
+                        (click)="showEditForm(employee)"
+                        nz-tooltip nzTooltipTitle="Editar">
                         <i nz-icon nzType="edit"></i>
                       </button>
                       <button 
                         class="btn btn-outline-danger btn-sm"
                         data-bs-toggle="modal" 
                         data-bs-target="#deleteEmployeeModal"
-                        (click)="DatosDelete(employee)">
+                        (click)="DatosDelete(employee)"
+                        nz-tooltip nzTooltipTitle="Eliminar">
                         <i nz-icon nzType="delete"></i>
                       </button>
                     </ng-template>
@@ -124,112 +127,20 @@
                 <i nz-icon nzType="exclamation-circle" class="me-2"></i>
                 <span>{{ modalError }}</span>
               </div>
-              <button type="button" class="btn-close" (click)="clearModalError()"></button>
-            </div>
-
-            <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
-              <div class="d-flex align-items-center">
-                <i nz-icon nzType="warning" class="me-2"></i>
-                <span>Por favor, corrige los siguientes errores:</span>
-              </div>
-              <ul class="mb-0 mt-1">
-                <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
-              </ul>
-              <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
             </div>
 
             <form (ngSubmit)="isEditMode ? EditEmployee() : CreateEmployee()">
               <div class="row g-2">
-                <div class="col-md-6">
-                  <label class="form-label fw-bold mb-1">Nombre *</label>
-                  <input 
-                    type="text" 
-                    class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.name"
-                    [(ngModel)]="currentName" 
-                    name="name"
-                    placeholder="Ej: Juan Pérez"
-                    required>
-                  <div *ngIf="formErrors.name" class="invalid-feedback d-block">
-                    {{ formErrors.name }}
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label fw-bold mb-1">Usuario *</label>
-                  <input 
-                    type="text" 
-                    class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.username"
-                    [(ngModel)]="currentUsername" 
-                    name="username"
-                    placeholder="Ej: juan.perez"
-                    required>
-                  <div *ngIf="formErrors.username" class="invalid-feedback d-block">
-                    {{ formErrors.username }}
-                  </div>
-                </div>
-
-                <div class="col-12">
-                  <label class="form-label fw-bold mb-1">Email *</label>
-                  <input 
-                    type="email" 
-                    class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.email"
-                    [(ngModel)]="currentEmail" 
-                    name="email"
-                    placeholder="Ej: juan@ejemplo.com"
-                    required>
-                  <div *ngIf="formErrors.email" class="invalid-feedback d-block">
-                    {{ formErrors.email }}
-                  </div>
-                </div>
-
-                <div class="col-12">
-                  <label class="form-label fw-bold mb-1">
-                    {{ isEditMode ? 'Nueva Contraseña' : 'Contraseña *' }}
-                  </label>
-                  <input 
-                    type="password" 
-                    class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.password"
-                    [(ngModel)]="currentPassword" 
-                    name="password"
-                    [placeholder]="isEditMode ? 'Dejar vacío para no cambiar' : 'Ingrese la contraseña'"
-                    [required]="!isEditMode">
-                  <div *ngIf="formErrors.password" class="invalid-feedback d-block">
-                    {{ formErrors.password }}
-                  </div>
-                  <small *ngIf="isEditMode" class="text-muted">
-                    Solo complete este campo si desea cambiar la contraseña
-                  </small>
-                </div>
-
+                <div class="col-md-6"><label class="form-label fw-bold mb-1">Nombre *</label><input type="text" class="form-control form-control-sm" [(ngModel)]="currentName" name="name" required></div>
+                <div class="col-md-6"><label class="form-label fw-bold mb-1">Usuario *</label><input type="text" class="form-control form-control-sm" [(ngModel)]="currentUsername" name="username" required></div>
+                <div class="col-12"><label class="form-label fw-bold mb-1">Email *</label><input type="email" class="form-control form-control-sm" [(ngModel)]="currentEmail" name="email" required></div>
+                <div class="col-12"><label class="form-label fw-bold mb-1">{{ isEditMode ? 'Nueva Contraseña' : 'Contraseña *' }}</label><input type="password" class="form-control form-control-sm" [(ngModel)]="currentPassword" name="password" [required]="!isEditMode"></div>
                 <div class="col-12">
                   <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                    <button 
-                      type="button" 
-                      class="btn btn-outline-secondary btn-sm"
-                      (click)="showListView()">
-                      <i nz-icon nzType="arrow-left"></i>
-                      Volver
-                    </button>
-                    
+                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="showListView()"><i nz-icon nzType="arrow-left"></i> Volver</button>
                     <div class="d-flex gap-1">
-                      <button 
-                        type="button" 
-                        class="btn btn-outline-danger btn-sm"
-                        (click)="clearForm()"
-                        *ngIf="!isEditMode">
-                        Limpiar
-                      </button>
-                      <button 
-                        type="submit" 
-                        class="btn btn-primary btn-sm"
-                        [disabled]="isSubmitting">
-                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        {{ isEditMode ? 'Guardar' : 'Crear' }}
-                      </button>
+                      <button type="button" class="btn btn-outline-danger btn-sm" (click)="clearForm()" *ngIf="!isEditMode">Limpiar</button>
+                      <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting"><span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span> {{ isEditMode ? 'Guardar' : 'Crear' }}</button>
                     </div>
                   </div>
                 </div>
@@ -241,82 +152,30 @@
     </div>
   </div>
 
-  <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel" aria-hidden="true">
+  <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header border-0">
-          <h5 class="modal-title w-100 text-center" id="deleteEmployeeModalLabel" style="font-weight: 600;">
-            Eliminar Empleado
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
-        </div>
+        <div class="modal-header border-0"><h5 class="modal-title text-center w-100">Eliminar Empleado</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body text-center">
-          <div class="mb-4">
-            <i nz-icon nzType="exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i>
-          </div>
-          <p class="mb-3" style="color: #666; line-height: 1.5;">
-            ¿Estás seguro de que deseas eliminar al empleado <strong>"{{ EmployeeToDeleteName }}"</strong>?
-          </p>
-          <p class="text-muted small">
-            Esta acción no se puede deshacer.
-          </p>
-
-          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-            <div class="d-flex align-items-center">
-              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
-              <span>{{ modalError }}</span>
-            </div>
-            <button type="button" class="btn-close" (click)="clearModalError()"></button>
-          </div>
+          <div class="mb-4"><i nz-icon nzType="exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i></div>
+          <p class="mb-3">¿Estás seguro de que deseas eliminar al empleado <strong>"{{ EmployeeToDeleteName }}"</strong>?</p>
+          <div *ngIf="modalError" class="alert alert-danger">{{ modalError }}</div>
         </div>
-        <div class="modal-footer border-0 justify-content-center">
-          <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
-            Cancelar
-          </button>
-          <button type="button" class="btn btn-danger" (click)="DeleteEmployee()" data-bs-dismiss="modal">
-            Eliminar Empleado
-          </button>
-        </div>
+        <div class="modal-footer justify-content-center"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-danger" (click)="DeleteEmployee()">Eliminar</button></div>
       </div>
     </div>
   </div>
 
-  <div class="modal fade" id="restoreEmployeeModal" tabindex="-1" aria-labelledby="restoreEmployeeModalLabel" aria-hidden="true">
+  <div class="modal fade" id="restoreEmployeeModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
-        <div class="modal-header border-0">
-          <h5 class="modal-title w-100 text-center" id="restoreEmployeeModalLabel" style="font-weight: 600;">
-            Restaurar Empleado
-          </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
-        </div>
+        <div class="modal-header border-0"><h5 class="modal-title text-center w-100">Restaurar Empleado</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body text-center">
-          <div class="mb-4">
-            <i nz-icon nzType="check-circle" style="font-size: 48px; color: #27ae60;"></i>
-          </div>
-          <p class="mb-3" style="color: #666; line-height: 1.5;">
-            ¿Estás seguro de que deseas restaurar al empleado <strong>"{{ EmployeeToRestoreName }}"</strong>?
-          </p>
-          <p class="text-muted small">
-            El empleado volverá a estar disponible para su uso.
-          </p>
-
-          <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-            <div class="d-flex align-items-center">
-              <i nz-icon nzType="exclamation-circle" class="me-2"></i>
-              <span>{{ modalError }}</span>
-            </div>
-            <button type="button" class="btn-close" (click)="clearModalError()"></button>
-          </div>
+          <div class="mb-4"><i nz-icon nzType="check-circle" style="font-size: 48px; color: #27ae60;"></i></div>
+          <p class="mb-3">¿Estás seguro de que deseas restaurar al empleado <strong>"{{ EmployeeToRestoreName }}"</strong>?</p>
+          <div *ngIf="modalError" class="alert alert-danger">{{ modalError }}</div>
         </div>
-        <div class="modal-footer border-0 justify-content-center">
-          <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
-            Cancelar
-          </button>
-          <button type="button" class="btn btn-success" (click)="RestoreEmployeeConfirm()" data-bs-dismiss="modal">
-            Restaurar Empleado
-          </button>
-        </div>
+        <div class="modal-footer justify-content-center"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-success" (click)="RestoreEmployeeConfirm()">Restaurar</button></div>
       </div>
     </div>
   </div>

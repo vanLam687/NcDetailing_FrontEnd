@@ -32,6 +32,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzNotificationComponent } from 'ng-zorro-antd/notification';
 
 // NZ-Zorro locales
 import { NZ_I18N, es_ES } from 'ng-zorro-antd/i18n';
@@ -59,7 +60,6 @@ import { MetricsComponent } from './Components/metrics/metrics.component';
 import { DashboardComponent } from './Components/dashboard/dashboard.component';
 import { AuditComponent } from './Components/audit/audit.component';
 
-// Importar TODOS los íconos de Ant Design
 const antDesignIcons = AllIcons as {
   [key: string]: IconDefinition;
 };
@@ -113,6 +113,7 @@ const icons: IconDefinition[] = Object.keys(antDesignIcons)
     NzSelectModule,
     NzInputNumberModule,
     NzListModule,
+    NzNotificationComponent,
 
     // ApexCharts + Material
     NgApexchartsModule,

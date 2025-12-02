@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ClientsService } from '../../Services/clients-service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../Services/auth-service';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-clients',
@@ -11,7 +12,12 @@ import { AuthService } from '../../Services/auth-service';
 })
 export class ClientsComponent implements OnInit {
 
-  constructor(private service: ClientsService, private router: Router, private authService: AuthService) {}
+  constructor(
+    private service: ClientsService, 
+    private router: Router, 
+    private authService: AuthService,
+    private notification: NzNotificationService
+  ) {}
 
   // Datos
   DataSourceClients: any[] = [];
@@ -145,7 +151,7 @@ export class ClientsComponent implements OnInit {
     this.service.postClient(client).subscribe({
       next: () => {
         this.clearError();
-        this.showSuccessNotification('Cliente creado correctamente');
+        this.notification.success('¡Éxito!', 'Cliente creado correctamente');
         this.showListView();
         this.GetClients();
         this.isSubmitting = false;
@@ -158,7 +164,7 @@ export class ClientsComponent implements OnInit {
   }
 
   EditClient(): void {
-    if (this.isSubmitting) return; // Req 1
+    if (this.isSubmitting) return; 
 
     this.isSubmitting = true;
     const client: any = {
@@ -180,7 +186,7 @@ export class ClientsComponent implements OnInit {
     this.service.putClient(this.IdEdit.toString(), client).subscribe({
       next: () => {
         this.clearError();
-        this.showSuccessNotification('Cliente actualizado correctamente');
+        this.notification.success('¡Éxito!', 'Cliente actualizado correctamente');
         this.showListView();
         this.GetClients();
         this.isSubmitting = false;
@@ -281,16 +287,6 @@ export class ClientsComponent implements OnInit {
     return `${client.first_name} ${client.last_name}`;
   }
 
-  // --- HELPER PARA NOTIFICACIONES ---
-  private showSuccessNotification(message: string): void {
-    const n = document.createElement('div');
-    n.className = 'alert alert-success alert-dismissible fade show custom-toast';
-    n.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;min-width:350px;background:linear-gradient(135deg,#27ae60 0%,#229954 100%);color:white;padding:16px 20px;`;
-    n.innerHTML = `<div class="d-flex align-items-center"><span style="font-size:22px;margin-right:12px;">✔</span><div><strong>¡Éxito!</strong><div>${message}</div></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button></div>`;
-    document.body.appendChild(n);
-    setTimeout(() => { if(n.parentNode) n.parentNode.removeChild(n); }, 4000);
-  }
-
   // --- MANEJO DE ERRORES GENÉRICO ---
 
   private getGenericErrorMessage(status: number): string {
@@ -312,6 +308,7 @@ export class ClientsComponent implements OnInit {
 
   handleModalError(error: any): void {
     this.modalError = this.getGenericErrorMessage(error.status);
+    // No disparamos notificación, solo mostramos el error en el modal
   }
 
   clearError(): void {

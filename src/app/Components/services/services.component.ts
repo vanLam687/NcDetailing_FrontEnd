@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ServicesService } from '../../Services/services-service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../Services/auth-service';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-services',
@@ -11,7 +12,12 @@ import { AuthService } from '../../Services/auth-service';
 })
 export class ServicesComponent implements OnInit {
 
-  constructor(private service: ServicesService, private router: Router, private authService: AuthService) {}
+  constructor(
+    private service: ServicesService, 
+    private router: Router, 
+    private authService: AuthService,
+    private notification: NzNotificationService
+  ) {}
 
   DataSourceServices: any[] = [];
   DataSourceCategories: any[] = [];
@@ -20,13 +26,12 @@ export class ServicesComponent implements OnInit {
   // Filtros
   SearchName: string = '';
   SelectedCategory: string = '';
-  // Req 2: Filtro simplificado
   ServiceStatus: 'active' | 'inactive' = 'active';
   CategoryStatus: 'active' | 'inactive' = 'active';
 
   // Navegación
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
-  private historyStack: string[] = ['list'];
+  // SE ELIMINÓ: historyStack
   
   // Req 1: Bloqueo botones
   isSubmitting: boolean = false;
@@ -57,7 +62,6 @@ export class ServicesComponent implements OnInit {
   modalError: string = '';
   formErrors: any = {};
 
-  // Getter de Admin
   get isAdmin(): boolean {
     return this.authService.isAdmin();
   }
@@ -106,14 +110,12 @@ export class ServicesComponent implements OnInit {
     this.activeView = 'list'; 
     this.clearError(); this.clearModalError(); this.clearFormErrors(); 
     this.GetServices(); 
-    this.addToHistory('list'); 
   }
 
   showCreateForm(): void { 
     if (!this.isAdmin) return;
     this.activeView = 'create'; 
     this.clearForm(); this.clearError(); this.clearModalError(); this.clearFormErrors();
-    this.addToHistory('create'); 
   }
 
   showEditForm(service: any): void {
@@ -130,7 +132,6 @@ export class ServicesComponent implements OnInit {
     this.ServiceCategoryName = cat ? cat.name : '';
     
     this.clearError(); this.clearModalError(); this.clearFormErrors();
-    this.addToHistory('edit');
   }
 
   showCategoriesView(): void { 
@@ -138,32 +139,18 @@ export class ServicesComponent implements OnInit {
     this.activeView = 'categories'; 
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetCategories(); 
-    this.addToHistory('categories'); 
   }
 
   showEditBack(): void { 
     if (this.SelectedService && this.isAdmin) { 
       this.activeView = 'edit'; 
-      this.addToHistory('edit'); 
     } 
   }
 
   canShowEdit(): boolean { return this.SelectedService !== null; }
 
-  private addToHistory(view: string): void { 
-    this.historyStack.push(view); 
-    if(this.historyStack.length > 10) this.historyStack.shift(); 
-  }
-
   goBack(): void {
-    if (this.historyStack.length > 1) {
-      this.historyStack.pop();
-      const prev = this.historyStack[this.historyStack.length - 1];
-      this.activeView = prev as any;
-      if(this.activeView === 'list') this.SelectedService = null;
-    } else {
-      this.showListView();
-    }
+    this.showListView();
   }
 
   // --- FORMULARIOS ---
@@ -204,13 +191,13 @@ export class ServicesComponent implements OnInit {
   // --- CRUD SERVICIOS ---
 
   CreateService(): void {
-    if (!this.isAdmin || this.isSubmitting) return; // Req 1
+    if (!this.isAdmin || this.isSubmitting) return;
     if(!this.validateServiceForm()) return;
     
     this.isSubmitting = true;
     this.service.postService({name: this.ServiceName.trim(), price: this.ServicePrice, category_id: this.ServiceCategoryId}).subscribe({
       next: () => { 
-        this.showSuccessNotification('Servicio creado'); 
+        this.notification.success('¡Éxito!', 'Servicio creado correctamente');
         this.showListView(); 
         this.isSubmitting = false;
       },
@@ -223,13 +210,13 @@ export class ServicesComponent implements OnInit {
   }
 
   EditService(): void {
-    if (!this.isAdmin || this.isSubmitting) return; // Req 1
+    if (!this.isAdmin || this.isSubmitting) return;
     if(!this.validateServiceForm()) return;
     
     this.isSubmitting = true;
     this.service.putService(this.IdEdit.toString(), {name: this.ServiceName.trim(), price: this.ServicePrice, category_id: this.ServiceCategoryId}).subscribe({
       next: () => { 
-        this.showSuccessNotification('Servicio actualizado'); 
+        this.notification.success('¡Éxito!', 'Servicio actualizado correctamente');
         this.showListView(); 
         this.isSubmitting = false;
       },
@@ -251,7 +238,7 @@ export class ServicesComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.deleteService(this.IdDelete.toString()).subscribe({
       next: () => { 
-        this.showSuccessNotification('Servicio eliminado'); 
+        this.notification.success('Operación completada', 'Servicio eliminado correctamente');
         this.GetServices(); 
         this.closeModal('deleteServiceModal'); 
       },
@@ -269,7 +256,7 @@ export class ServicesComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.restoreService(this.IdRestore.toString()).subscribe({
       next: () => { 
-        this.showSuccessNotification('Servicio restaurado'); 
+        this.notification.success('Operación completada', 'Servicio restaurado correctamente');
         this.GetServices(); 
         this.closeModal('restoreServiceModal'); 
       },
@@ -280,13 +267,13 @@ export class ServicesComponent implements OnInit {
   // --- CRUD CATEGORÍAS ---
 
   CreateCategory(): void {
-    if (!this.isAdmin || this.isSubmitting) return; // Req 1
+    if (!this.isAdmin || this.isSubmitting) return;
     if(!this.validateCategoryForm()) return;
     
     this.isSubmitting = true;
     this.service.postCategory({name: this.CategoryName.trim()}).subscribe({
       next: () => { 
-        this.showSuccessNotification('Categoría creada'); 
+        this.notification.success('¡Éxito!', 'Categoría creada correctamente');
         this.CategoryName=''; this.GetCategories(); 
         this.closeModal('createCategoryModal'); 
         this.isSubmitting = false;
@@ -300,13 +287,13 @@ export class ServicesComponent implements OnInit {
   }
 
   EditCategory(): void {
-    if (!this.isAdmin || this.isSubmitting) return; // Req 1
+    if (!this.isAdmin || this.isSubmitting) return;
     if(!this.validateCategoryForm()) return;
     
     this.isSubmitting = true;
     this.service.putCategory(this.CategoryToEdit.id.toString(), {name: this.CategoryName.trim()}).subscribe({
       next: () => { 
-        this.showSuccessNotification('Categoría actualizada'); 
+        this.notification.success('¡Éxito!', 'Categoría actualizada correctamente');
         this.CategoryName=''; this.CategoryToEdit=null; this.GetCategories(); 
         this.closeModal('editCategoryModal'); 
         this.isSubmitting = false;
@@ -328,7 +315,7 @@ export class ServicesComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.deleteCategory(this.CategoryToDelete.id.toString()).subscribe({
       next: () => { 
-        this.showSuccessNotification('Categoría eliminada'); 
+        this.notification.success('Operación completada', 'Categoría eliminada correctamente');
         this.CategoryToDelete=null; 
         this.GetCategories(); 
         this.closeModal('deleteCategoryModal'); 
@@ -337,6 +324,7 @@ export class ServicesComponent implements OnInit {
         if(e.status===401){this.authService.logout();return;} 
         if (e.status === 409) {
           this.modalError = 'No se puede eliminar la categoría porque tiene servicios asociados.';
+          this.notification.warning('Atención', 'No se puede eliminar: tiene servicios asociados.');
           return;
         }
         this.handleModalError(e); 
@@ -353,7 +341,7 @@ export class ServicesComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.restoreCategory(this.CategoryToRestore.id.toString()).subscribe({
       next: () => { 
-        this.showSuccessNotification('Categoría restaurada'); 
+        this.notification.success('Operación completada', 'Categoría restaurada correctamente');
         this.CategoryToRestore=null; 
         this.GetCategories(); 
         this.closeModal('restoreCategoryModal'); 
@@ -384,15 +372,6 @@ export class ServicesComponent implements OnInit {
     if(m){const i=(window as any).bootstrap.Modal.getInstance(m);if(i)i.hide();} 
   }
 
-  private showSuccessNotification(message: string): void {
-    const n = document.createElement('div');
-    n.className = 'alert alert-success alert-dismissible fade show custom-toast';
-    n.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;min-width:350px;background:linear-gradient(135deg,#27ae60 0%,#229954 100%);color:white;padding:16px 20px;`;
-    n.innerHTML = `<div class="d-flex align-items-center"><span style="font-size:22px;margin-right:12px;">✔</span><div><strong>¡Éxito!</strong><div>${message}</div></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button></div>`;
-    document.body.appendChild(n);
-    setTimeout(() => { if(n.parentNode) n.parentNode.removeChild(n); }, 4000);
-  }
-
   // --- MANEJO DE ERRORES GENÉRICO ---
 
   private getGenericErrorMessage(status: number): string {
@@ -416,6 +395,7 @@ export class ServicesComponent implements OnInit {
   handleModalError(e: any): void { 
     this.clearFormErrors(); 
     this.modalError = this.getGenericErrorMessage(e.status); 
+    // Sin notificación extra
   }
   
   clearError(): void { this.errorMessage = ''; }

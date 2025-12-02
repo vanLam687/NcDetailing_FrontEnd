@@ -103,6 +103,26 @@
   color: white;
 }
 
+.btn-success {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #219653 0%, #1e8449 100%);
+}
+
+.btn-outline-success {
+  background: transparent;
+  border: 2px solid #27ae60;
+  color: #27ae60;
+}
+
+.btn-outline-success:hover {
+  background: #27ae60;
+  color: white;
+}
+
 .btn-sm {
   padding: 3px 6px;
   font-size: 11px;
@@ -234,6 +254,12 @@
   border-left: 4px solid #e67e22;
 }
 
+.alert-success {
+  background: linear-gradient(135deg, #e8f6ef 0%, #d1f2eb 100%);
+  color: #27ae60;
+  border-left: 4px solid #27ae60;
+}
+
 .alert ul {
   padding-left: 16px;
   margin-bottom: 0;
@@ -259,6 +285,38 @@
 .text-muted {
   color: #7586a5 !important;
   font-size: 10px;
+}
+
+.text-danger {
+  color: #e74c3c !important;
+  font-weight: 600;
+}
+
+.text-warning {
+  color: #e67e22 !important;
+  font-weight: 600;
+}
+
+/* Badges */
+.badge {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bg-danger {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+}
+
+.bg-warning {
+  background: linear-gradient(135deg, #e67e22 0%, #d35400 100%) !important;
+}
+
+.bg-success {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%) !important;
 }
 
 /* Iconos */
@@ -336,4 +394,26 @@ i[nz-icon] {
     font-size: 11px;
     padding: 6px 10px;
   }
+}
+
+/* Mejoras adicionales para el formulario */
+.form-control:focus, .form-select:focus {
+  border-color: #6c63b8;
+  box-shadow: 0 0 0 2px rgba(108, 99, 184, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* Mejoras para las alertas de error */
+.alert-danger {
+  background: linear-gradient(135deg, #ffeaea 0%, #ffdbdb 100%);
+  color: #e74c3c;
+  border-left: 4px solid #e74c3c;
+  border-radius: 8px;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff4e6 0%, #ffeedb 100%);
+  color: #e67e22;
+  border-left: 4px solid #e67e22;
+  border-radius: 8px;
 }

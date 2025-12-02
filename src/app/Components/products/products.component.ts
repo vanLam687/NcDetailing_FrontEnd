@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../Services/auth-service';
 import { ProductsService } from '../../Services/products-service';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-products',
@@ -11,7 +12,12 @@ import { ProductsService } from '../../Services/products-service';
 })
 export class ProductsComponent implements OnInit {
 
-  constructor(private service: ProductsService, private router: Router, private authService: AuthService) {}
+  constructor(
+    private service: ProductsService, 
+    private router: Router, 
+    private authService: AuthService,
+    private notification: NzNotificationService 
+  ) {}
 
   DataSourceProducts: any[] = [];
   DataSourceCategories: any[] = [];
@@ -20,13 +26,12 @@ export class ProductsComponent implements OnInit {
   // Filtros
   SearchName: string = '';
   SelectedCategory: string = '';
-  // Req 2: Filtro solo Activos/Inactivos en la lógica (aunque el HTML es quien manda la vista)
   ProductStatus: 'active' | 'inactive' = 'active'; 
   CategoryStatus: 'active' | 'inactive' = 'active';
 
   // Navegación
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
-  private historyStack: string[] = ['list'];
+  // SE ELIMINÓ: historyStack (ya no guardamos historial de navegación)
   
   // Req 1: Flag para bloquear botones
   isSubmitting: boolean = false;
@@ -103,20 +108,18 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  // --- NAVEGACIÓN ---
+  // --- NAVEGACIÓN SIMPLIFICADA (SIN HISTORIAL) ---
 
   showListView(): void {
     this.activeView = 'list';
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetProducts();
-    this.addToHistory('list');
   }
 
   showCreateForm(): void {
     if (!this.isAdmin) return;
     this.activeView = 'create';
     this.clearForm(); this.clearError(); this.clearModalError(); this.clearFormErrors();
-    this.addToHistory('create');
   }
 
   showEditForm(product: any): void {
@@ -134,7 +137,6 @@ export class ProductsComponent implements OnInit {
     this.ProductCategoryName = category ? category.name : '';
     
     this.clearError(); this.clearModalError(); this.clearFormErrors();
-    this.addToHistory('edit');
   }
 
   showCategoriesView(): void {
@@ -142,32 +144,21 @@ export class ProductsComponent implements OnInit {
     this.activeView = 'categories';
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetCategories();
-    this.addToHistory('categories');
   }
 
   showEditBack(): void {
     if (this.SelectedProduct && this.isAdmin) {
       this.activeView = 'edit';
-      this.addToHistory('edit');
     }
   }
 
   canShowEdit(): boolean { return this.SelectedProduct !== null; }
 
-  private addToHistory(view: string): void {
-    this.historyStack.push(view);
-    if (this.historyStack.length > 10) this.historyStack.shift();
-  }
+  // SE ELIMINÓ: private addToHistory(view: string)
 
   goBack(): void {
-    if (this.historyStack.length > 1) {
-      this.historyStack.pop();
-      const previousView = this.historyStack[this.historyStack.length - 1];
-      this.activeView = previousView as 'list' | 'create' | 'edit' | 'categories';
-      if (this.activeView === 'list') this.SelectedProduct = null;
-    } else {
-      this.showListView();
-    }
+    // Simplemente volvemos a la lista de productos
+    this.showListView();
   }
 
   // --- FORMULARIOS Y VALIDACIÓN ---
@@ -224,7 +215,7 @@ export class ProductsComponent implements OnInit {
   // --- CRUD PRODUCTOS ---
 
   CreateProduct(): void {
-    if (!this.isAdmin || this.isSubmitting) return; // Req 1: Bloqueo
+    if (!this.isAdmin || this.isSubmitting) return;
     if (!this.validateProductForm()) return;
     
     this.isSubmitting = true;
@@ -236,7 +227,7 @@ export class ProductsComponent implements OnInit {
     
     this.service.postProduct(product).subscribe({
       next: () => {
-        this.showSuccessNotification('Producto creado');
+        this.notification.success('¡Éxito!', 'Producto creado correctamente');
         this.showListView();
         this.isSubmitting = false;
       },
@@ -249,7 +240,7 @@ export class ProductsComponent implements OnInit {
   }
 
   EditProduct(): void {
-    if (!this.isAdmin || this.isSubmitting) return; // Req 1: Bloqueo
+    if (!this.isAdmin || this.isSubmitting) return;
     if (!this.validateProductForm()) return;
     
     this.isSubmitting = true;
@@ -261,7 +252,7 @@ export class ProductsComponent implements OnInit {
     
     this.service.putProduct(this.IdEdit.toString(), product).subscribe({
       next: () => {
-        this.showSuccessNotification('Producto actualizado');
+        this.notification.success('¡Éxito!', 'Producto actualizado correctamente');
         this.showListView();
         this.isSubmitting = false;
       },
@@ -283,7 +274,7 @@ export class ProductsComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.deleteProduct(this.IdDelete.toString()).subscribe({
       next: () => {
-        this.showSuccessNotification('Producto eliminado');
+        this.notification.success('Operación completada', 'Producto eliminado correctamente');
         this.GetProducts();
         this.closeModal('deleteProductModal');
       },
@@ -304,7 +295,7 @@ export class ProductsComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.restoreProduct(this.IdRestore.toString()).subscribe({
       next: () => {
-        this.showSuccessNotification('Producto restaurado');
+        this.notification.success('Operación completada', 'Producto restaurado correctamente');
         this.GetProducts();
         this.closeModal('restoreProductModal');
       },
@@ -318,13 +309,13 @@ export class ProductsComponent implements OnInit {
   // --- CRUD CATEGORÍAS ---
 
   CreateCategory(): void {
-    if (!this.isAdmin || this.isSubmitting) return; // Req 1: Bloqueo
+    if (!this.isAdmin || this.isSubmitting) return;
     if (!this.validateCategoryForm()) return;
     
     this.isSubmitting = true;
     this.service.postCategory({ name: this.CategoryName.trim() }).subscribe({
       next: () => {
-        this.showSuccessNotification('Categoría creada');
+        this.notification.success('¡Éxito!', 'Categoría creada correctamente');
         this.CategoryName = ''; this.GetCategories(); this.closeModal('createCategoryModal');
         this.isSubmitting = false;
       },
@@ -343,7 +334,7 @@ export class ProductsComponent implements OnInit {
     this.isSubmitting = true;
     this.service.putCategory(this.CategoryToEdit.id.toString(), { name: this.CategoryName.trim() }).subscribe({
       next: () => {
-        this.showSuccessNotification('Categoría actualizada');
+        this.notification.success('¡Éxito!', 'Categoría actualizada correctamente');
         this.CategoryName = ''; this.CategoryToEdit = null; this.GetCategories(); this.closeModal('editCategoryModal');
         this.isSubmitting = false;
       },
@@ -364,7 +355,7 @@ export class ProductsComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.deleteCategory(this.CategoryToDelete.id.toString()).subscribe({
       next: () => { 
-        this.showSuccessNotification('Categoría eliminada'); 
+        this.notification.success('Operación completada', 'Categoría eliminada correctamente');
         this.CategoryToDelete = null; 
         this.GetCategories(); 
         this.closeModal('deleteCategoryModal'); 
@@ -373,6 +364,7 @@ export class ProductsComponent implements OnInit {
         if (error.status === 401) { this.authService.logout(); return; } 
         if (error.status === 409) {
           this.modalError = 'No se puede eliminar la categoría porque tiene productos asociados.';
+          this.notification.warning('Atención', 'No se puede eliminar: tiene productos asociados.');
           return;
         }
         this.handleModalError(error); 
@@ -389,7 +381,7 @@ export class ProductsComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.restoreCategory(this.CategoryToRestore.id.toString()).subscribe({
       next: () => { 
-        this.showSuccessNotification('Categoría restaurada'); 
+        this.notification.success('Operación completada', 'Categoría restaurada correctamente');
         this.CategoryToRestore = null; 
         this.GetCategories(); 
         this.closeModal('restoreCategoryModal'); 
@@ -421,15 +413,6 @@ export class ProductsComponent implements OnInit {
   private closeModal(modalId: string): void {
     const modal = document.getElementById(modalId);
     if (modal) { const i = (window as any).bootstrap.Modal.getInstance(modal); if (i) i.hide(); }
-  }
-
-  private showSuccessNotification(message: string): void {
-    const n = document.createElement('div');
-    n.className = 'alert alert-success alert-dismissible fade show custom-toast';
-    n.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;min-width:350px;background:linear-gradient(135deg,#27ae60 0%,#229954 100%);color:white;padding:16px 20px;`;
-    n.innerHTML = `<div class="d-flex align-items-center"><span style="font-size:22px;margin-right:12px;">✔</span><div><strong>¡Éxito!</strong><div>${message}</div></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button></div>`;
-    document.body.appendChild(n);
-    setTimeout(() => { if(n.parentNode) n.parentNode.removeChild(n); }, 4000);
   }
 
   // --- MANEJO DE ERRORES GENÉRICO ---
