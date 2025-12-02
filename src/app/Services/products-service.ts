@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 })
 export class ProductsService {
   url = 'http://localhost:3000/api/products';
+  //url = 'https://ncdetailing.up.railway.app/api/products';
 
   constructor(
     private http: HttpClient, 

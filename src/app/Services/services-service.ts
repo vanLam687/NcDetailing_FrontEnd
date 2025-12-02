@@ -9,6 +9,8 @@ import { Router } from '@angular/router';
 export class ServicesService {
   url = 'http://localhost:3000/api/services/';
 
+  //url = 'https://ncdetailing.up.railway.app/api/services/';
+
   constructor(
     private http: HttpClient, 
     private authService: AuthService,

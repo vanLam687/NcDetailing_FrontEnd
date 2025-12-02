@@ -29,7 +29,6 @@ export class ProductsComponent implements OnInit {
   
   // Formulario Producto
   ProductName: string = '';
-  ProductDescription: string = '';
   ProductPrice: number = 0;
   ProductStock: number = 0;
   ProductMinStock: number = 0;
@@ -123,7 +122,6 @@ export class ProductsComponent implements OnInit {
     this.SelectedProduct = product;
     this.IdEdit = product.id;
     this.ProductName = product.name;
-    this.ProductDescription = product.description || '';
     this.ProductPrice = product.price;
     this.ProductStock = product.stock;
     this.ProductMinStock = product.min_stock;
@@ -172,7 +170,7 @@ export class ProductsComponent implements OnInit {
   // --- FORMULARIOS Y VALIDACIÓN ---
 
   clearForm(): void {
-    this.ProductName = ''; this.ProductDescription = ''; this.ProductPrice = 0;
+    this.ProductName = ''; this.ProductPrice = 0;
     this.ProductStock = 0; this.ProductMinStock = 0; this.ProductCategoryId = 0;
     this.ProductCategoryName = '';
     this.clearFormErrors();
@@ -225,9 +223,8 @@ export class ProductsComponent implements OnInit {
   CreateProduct(): void {
     if (!this.isAdmin) return;
     if (!this.validateProductForm()) return;
-    const descriptionValue = this.ProductDescription?.trim() || null;
     const product = {
-      name: this.ProductName.trim(), description: descriptionValue,
+      name: this.ProductName.trim(),
       price: this.ProductPrice, stock: this.ProductStock, min_stock: this.ProductMinStock,
       category_id: this.ProductCategoryId
     };
@@ -246,9 +243,8 @@ export class ProductsComponent implements OnInit {
   EditProduct(): void {
     if (!this.isAdmin) return;
     if (!this.validateProductForm()) return;
-    const descriptionValue = this.ProductDescription?.trim() || null;
     const product: any = {
-      name: this.ProductName.trim(), description: descriptionValue,
+      name: this.ProductName.trim(),
       price: this.ProductPrice, stock: this.ProductStock, min_stock: this.ProductMinStock,
       category_id: this.ProductCategoryId
     };

@@ -193,15 +193,18 @@
                       <i nz-icon nzType="dollar"></i>
                     </button>
                   </span>
-                  <button 
-                    *ngIf="activeView === 'services'"
-                    class="btn btn-outline-primary btn-sm"
-                    data-bs-toggle="modal" 
-                    data-bs-target="#updateServiceStatusModal"
-                    (click)="DatosUpdateServiceStatus(sale)"
-                    title="Actualizar estado de servicio">
-                    <i nz-icon nzType="tool"></i>
-                  </button>
+                  <span *ngIf="activeView === 'services'"
+                        class="d-inline-block"
+                        [title]="(sale.service_status === 'Completado' || sale.service_status === 'Cancelado') ? 'No se puede modificar un servicio finalizado' : 'Actualizar estado de servicio'">
+                    <button
+                      class="btn btn-outline-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#updateServiceStatusModal"
+                      (click)="DatosUpdateServiceStatus(sale)"
+                      [disabled]="sale.service_status === 'Completado' || sale.service_status === 'Cancelado'">
+                      <i nz-icon nzType="tool"></i>
+                    </button>
+                  </span>
                 </td>
               </tr>
             </tbody>
@@ -805,7 +808,6 @@
               <option [ngValue]="1">Pendiente</option>
               <option [ngValue]="2">En Progreso</option>
               <option [ngValue]="3">Completado</option>
-              <option [ngValue]="4">Cancelado</option>
             </select>
           </div>
 
