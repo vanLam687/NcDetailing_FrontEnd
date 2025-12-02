@@ -101,6 +101,29 @@
   font-size: 11px;
 }
 
+/* Estilos agregados para Info (Ver detalles) y Warning (Pagos) */
+.btn-outline-info {
+  background: transparent;
+  border: 2px solid #17a2b8;
+  color: #17a2b8;
+}
+
+.btn-outline-info:hover {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-outline-warning {
+  background: transparent;
+  border: 2px solid #f39c12;
+  color: #f39c12;
+}
+
+.btn-outline-warning:hover {
+  background: #f39c12;
+  color: white;
+}
+
 /* Inputs y selects */
 .form-control,
 .form-select {
@@ -329,4 +352,3 @@ i[nz-icon] {
     padding: 8px !important;
   }
 }
-

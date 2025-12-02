@@ -103,6 +103,29 @@
   color: white;
 }
 
+/* Estilos agregados para Info (Ver detalles) y Success (Historial) */
+.btn-outline-info {
+  background: transparent;
+  border: 2px solid #17a2b8;
+  color: #17a2b8;
+}
+
+.btn-outline-info:hover {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-outline-success {
+  background: transparent;
+  border: 2px solid #27ae60;
+  color: #27ae60;
+}
+
+.btn-outline-success:hover {
+  background: #27ae60;
+  color: white;
+}
+
 .btn-sm {
   padding: 3px 6px;
   font-size: 11px;
@@ -290,114 +313,4 @@ i[nz-icon] {
   .card-body {
     padding: 8px !important;
   }
-}
-/* Estilos para el modal mejorado */
-.hover-card {
-  transition: all 0.3s ease;
-  border: 1px solid #e9ecef !important;
-}
-
-.hover-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(108, 99, 184, 0.15) !important;
-  border-color: #6c63b8 !important;
-}
-
-.vehicle-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.vehicle-details {
-  background: #f8f9fa;
-  border-radius: 6px;
-  padding: 12px;
-}
-
-.modal-content {
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.btn-close-white {
-  filter: invert(1) grayscale(100%) brightness(200%);
-}
-
-/* Mejoras para las cards del modal */
-.card-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.text-primary {
-  color: #6c63b8 !important;
-}
-
-.bg-primary {
-  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
-}
-/* Estilos para el modal mejorado */
-.hover-card {
-  transition: all 0.3s ease;
-  border: 1px solid #e9ecef !important;
-}
-
-.hover-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(108, 99, 184, 0.15) !important;
-  border-color: #6c63b8 !important;
-}
-
-.vehicle-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.vehicle-details {
-  background: #f8f9fa;
-  border-radius: 6px;
-  padding: 12px;
-}
-
-.modal-content {
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.btn-close-white {
-  filter: invert(1) grayscale(100%) brightness(200%);
-}
-
-/* Mejoras para las cards del modal */
-.card-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.text-primary {
-  color: #6c63b8 !important;
-}
-
-.bg-primary {
-  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
-}
-.btn-light-outline {
-  background: transparent;
-  border: 2px solid #ffffff;
-  color: #ffffff;
-}
-
-.btn-light-outline:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
 }

@@ -402,7 +402,7 @@ export class ServicesComponent implements OnInit {
       case 401: return 'Sesión expirada. Inicie sesión nuevamente.';
       case 403: return 'No tiene permisos para esta acción.';
       case 404: return 'Servicio o categoría no encontrada.';
-      case 409: return 'Ya existe un registro con ese nombre.'; // Por defecto
+      case 409: return 'Ya existe un registro con ese nombre.';
       case 500: return 'Error interno del servidor.';
       default: return 'Ocurrió un error inesperado.';
     }

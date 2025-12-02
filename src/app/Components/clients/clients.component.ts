@@ -131,7 +131,7 @@ export class ClientsComponent implements OnInit {
   }
 
   CreateClient(): void {
-    if (this.isSubmitting) return; // Req 1
+    if (this.isSubmitting) return;
     
     this.isSubmitting = true;
     const client = {
@@ -145,7 +145,6 @@ export class ClientsComponent implements OnInit {
     this.service.postClient(client).subscribe({
       next: () => {
         this.clearError();
-        // Req 4: Alerta
         this.showSuccessNotification('Cliente creado correctamente');
         this.showListView();
         this.GetClients();

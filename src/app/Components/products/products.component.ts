@@ -337,7 +337,7 @@ export class ProductsComponent implements OnInit {
   }
 
   EditCategory(): void {
-    if (!this.isAdmin || this.isSubmitting) return; // Req 1: Bloqueo
+    if (!this.isAdmin || this.isSubmitting) return;
     if (!this.validateCategoryForm()) return;
     
     this.isSubmitting = true;

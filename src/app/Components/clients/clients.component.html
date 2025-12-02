@@ -107,17 +107,20 @@
                       class="btn btn-outline-info btn-sm me-1"
                       data-bs-toggle="modal" 
                       data-bs-target="#viewClientModal"
-                      (click)="ViewClientDetails(client)">
+                      (click)="ViewClientDetails(client)"
+                      nz-tooltip nzTooltipTitle="Ver detalles">
                       <i nz-icon nzType="eye"></i>
                     </button>
                     <button 
                       class="btn btn-outline-primary btn-sm me-1"
-                      (click)="showEditForm(client)">
+                      (click)="showEditForm(client)"
+                      >
                       <i nz-icon nzType="edit"></i>
                     </button>
                     <button 
                       class="btn btn-outline-success btn-sm"
-                      (click)="showHistoryView(client)">
+                      (click)="showHistoryView(client)"
+                      nz-tooltip nzTooltipTitle="Ver historial">
                       <i nz-icon nzType="history"></i>
                     </button>
                   </td>

@@ -177,12 +177,14 @@
                 <td class="text-center pe-2">
                   <button 
                     class="btn btn-outline-info btn-sm me-1"
-                    (click)="ViewSaleDetails(sale)">
+                    (click)="ViewSaleDetails(sale)"
+                    nz-tooltip nzTooltipTitle="Ver detalles">
                     <i nz-icon nzType="eye"></i>
                   </button>
 
                   <span class="d-inline-block" 
-                        [title]="(sale.payment_status === 'Pagado' || sale.payment_status === 'Cancelado') ? 'No se puede modificar el estado de pago' : 'Actualizar estado de pago'">
+                        nz-tooltip 
+                        [nzTooltipTitle]="(sale.payment_status === 'Pagado' || sale.payment_status === 'Cancelado') ? 'No se puede modificar el estado de pago' : 'Actualizar estado de pago'">
                     <button 
                       class="btn btn-outline-warning btn-sm me-1"
                       data-bs-toggle="modal" 
@@ -193,9 +195,11 @@
                       <i nz-icon nzType="dollar"></i>
                     </button>
                   </span>
+                  
                   <span *ngIf="activeView === 'services'"
                         class="d-inline-block"
-                        [title]="(sale.service_status === 'Completado' || sale.service_status === 'Cancelado') ? 'No se puede modificar un servicio finalizado' : 'Actualizar estado de servicio'">
+                        nz-tooltip 
+                        [nzTooltipTitle]="(sale.service_status === 'Completado' || sale.service_status === 'Cancelado') ? 'No se puede modificar un servicio finalizado' : 'Actualizar estado de servicio'">
                     <button
                       class="btn btn-outline-primary btn-sm"
                       data-bs-toggle="modal"
