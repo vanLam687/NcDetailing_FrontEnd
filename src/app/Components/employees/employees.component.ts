@@ -17,7 +17,11 @@ export class EmployeesComponent implements OnInit {
   DataSourceEmployees: any[] = [];
   activeView: 'list' | 'form' = 'list';
   isEditMode: boolean = false;
+  // Req 2: Filtro solo Activos/Inactivos
   EmployeeStatus: 'active' | 'inactive' = 'active';
+
+  // Req 1: Bloqueo botón
+  isSubmitting: boolean = false;
 
   // Formulario
   Name: string = '';
@@ -129,19 +133,25 @@ export class EmployeesComponent implements OnInit {
   }
 
   CreateEmployee(): void {
+    if (this.isSubmitting) return; // Req 1
     if (!this.validateEmployeeForm()) return;
+    
+    this.isSubmitting = true;
     const employee = {
       name: this.Name.trim(),
       username: this.Username.trim(),
       email: this.Email.trim(),
       password: this.Password
     };
+    
     this.service.PostEmployee(employee).subscribe({
       next: () => {
         this.showSuccessNotification('Empleado creado correctamente');
         this.showListView();
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
@@ -149,7 +159,10 @@ export class EmployeesComponent implements OnInit {
   }
 
   EditEmployee(): void {
+    if (this.isSubmitting) return; // Req 1
     if (!this.validateEmployeeForm()) return;
+    
+    this.isSubmitting = true;
     const employee: any = {
       name: this.NameEdit.trim(),
       username: this.UsernameEdit.trim(),
@@ -158,12 +171,15 @@ export class EmployeesComponent implements OnInit {
     if (this.PasswordEdit && this.PasswordEdit.trim() !== '') {
       employee.password = this.PasswordEdit;
     }
+    
     this.service.PutEmployee(this.IdEdit.toString(), employee).subscribe({
       next: () => {
         this.showSuccessNotification('Empleado actualizado correctamente');
         this.showListView();
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
@@ -212,6 +228,7 @@ export class EmployeesComponent implements OnInit {
     });
   }
 
+  // @ts-ignore
   onEmployeeStatusChange(newStatus: 'active' | 'inactive'): void {
     this.EmployeeStatus = newStatus;
     this.GetEmployees();

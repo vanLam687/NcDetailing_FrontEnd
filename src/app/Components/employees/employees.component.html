@@ -1,7 +1,6 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-12">
-      <!-- Header super compacto -->
       <div class="card shadow-sm mb-2">
         <div class="card-body py-1 px-3">
           <div class="d-flex justify-content-between align-items-center">
@@ -33,7 +32,6 @@
         </div>
       </div>
 
-      <!-- Mensaje de error general -->
       <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
         <div class="d-flex align-items-center">
           <i nz-icon nzType="exclamation-circle" class="me-2"></i>
@@ -42,10 +40,8 @@
         <button type="button" class="btn-close" (click)="clearError()"></button>
       </div>
 
-      <!-- VISTA: Lista de Empleados -->
       <div *ngIf="activeView === 'list'">
         
-        <!-- Filtros -->
         <div class="card shadow-sm mb-2">
           <div class="card-body py-1 px-3">
             <div class="row g-1 align-items-center">
@@ -59,7 +55,6 @@
           </div>
         </div>
 
-        <!-- Tabla de empleados -->
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3">
             <h6 class="mb-0">Empleados</h6>
@@ -82,7 +77,6 @@
                   <td style="color: #333;">{{ employee.username }}</td>
                   <td style="color: #333;">{{ employee.email }}</td>
                   <td class="text-center pe-2">
-                    <!-- Si estamos viendo inactivos --> 
                     <ng-container *ngIf="EmployeeStatus === 'inactive'; else activeActions">
                       <button 
                         class="btn btn-outline-success btn-sm me-1"
@@ -94,7 +88,6 @@
                       </button>
                     </ng-container>
 
-                    <!-- Acciones para empleados activos -->
                     <ng-template #activeActions>
                       <button 
                         class="btn btn-outline-primary btn-sm me-1"
@@ -117,7 +110,6 @@
         </div>
       </div>
 
-      <!-- VISTA: Formulario de Empleado -->
       <div *ngIf="activeView === 'form'">
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3">
@@ -127,7 +119,6 @@
             </h6>
           </div>
           <div class="card-body">
-            <!-- Mensaje de error del formulario -->
             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
               <div class="d-flex align-items-center">
                 <i nz-icon nzType="exclamation-circle" class="me-2"></i>
@@ -136,7 +127,6 @@
               <button type="button" class="btn-close" (click)="clearModalError()"></button>
             </div>
 
-            <!-- Errores de validación del formulario -->
             <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
               <div class="d-flex align-items-center">
                 <i nz-icon nzType="warning" class="me-2"></i>
@@ -150,7 +140,6 @@
 
             <form (ngSubmit)="isEditMode ? EditEmployee() : CreateEmployee()">
               <div class="row g-2">
-                <!-- Nombre -->
                 <div class="col-md-6">
                   <label class="form-label fw-bold mb-1">Nombre *</label>
                   <input 
@@ -166,7 +155,6 @@
                   </div>
                 </div>
 
-                <!-- Usuario -->
                 <div class="col-md-6">
                   <label class="form-label fw-bold mb-1">Usuario *</label>
                   <input 
@@ -182,7 +170,6 @@
                   </div>
                 </div>
 
-                <!-- Email -->
                 <div class="col-12">
                   <label class="form-label fw-bold mb-1">Email *</label>
                   <input 
@@ -198,7 +185,6 @@
                   </div>
                 </div>
 
-                <!-- Contraseña -->
                 <div class="col-12">
                   <label class="form-label fw-bold mb-1">
                     {{ isEditMode ? 'Nueva Contraseña' : 'Contraseña *' }}
@@ -219,7 +205,6 @@
                   </small>
                 </div>
 
-                <!-- Botones del formulario -->
                 <div class="col-12">
                   <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                     <button 
@@ -240,7 +225,9 @@
                       </button>
                       <button 
                         type="submit" 
-                        class="btn btn-primary btn-sm">
+                        class="btn btn-primary btn-sm"
+                        [disabled]="isSubmitting">
+                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                         {{ isEditMode ? 'Guardar' : 'Crear' }}
                       </button>
                     </div>
@@ -254,7 +241,6 @@
     </div>
   </div>
 
-  <!-- Modal Eliminar Empleado -->
   <div class="modal fade" id="deleteEmployeeModal" tabindex="-1" aria-labelledby="deleteEmployeeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -275,7 +261,6 @@
             Esta acción no se puede deshacer.
           </p>
 
-          <!-- Mensaje de error del modal -->
           <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
             <div class="d-flex align-items-center">
               <i nz-icon nzType="exclamation-circle" class="me-2"></i>
@@ -296,7 +281,6 @@
     </div>
   </div>
 
-  <!-- Modal Restaurar Empleado -->
   <div class="modal fade" id="restoreEmployeeModal" tabindex="-1" aria-labelledby="restoreEmployeeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -317,7 +301,6 @@
             El empleado volverá a estar disponible para su uso.
           </p>
 
-          <!-- Mensaje de error del modal -->
           <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
             <div class="d-flex align-items-center">
               <i nz-icon nzType="exclamation-circle" class="me-2"></i>

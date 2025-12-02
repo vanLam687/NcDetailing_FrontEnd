@@ -18,6 +18,9 @@ export class ClientsComponent implements OnInit {
   activeView: 'list' | 'create' | 'edit' | 'history' = 'list';
   SearchTerm: string = '';
 
+  // Req 1: Bloqueo botones
+  isSubmitting: boolean = false;
+
   // Formulario de cliente
   FirstName: string = '';
   LastName: string = '';
@@ -128,6 +131,9 @@ export class ClientsComponent implements OnInit {
   }
 
   CreateClient(): void {
+    if (this.isSubmitting) return; // Req 1
+    
+    this.isSubmitting = true;
     const client = {
       first_name: this.FirstName,
       last_name: this.LastName,
@@ -139,16 +145,23 @@ export class ClientsComponent implements OnInit {
     this.service.postClient(client).subscribe({
       next: () => {
         this.clearError();
+        // Req 4: Alerta
+        this.showSuccessNotification('Cliente creado correctamente');
         this.showListView();
         this.GetClients();
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         this.handleModalError(error);
       }
     });
   }
 
   EditClient(): void {
+    if (this.isSubmitting) return; // Req 1
+
+    this.isSubmitting = true;
     const client: any = {
       first_name: this.FirstNameEdit,
       last_name: this.LastNameEdit,
@@ -168,10 +181,13 @@ export class ClientsComponent implements OnInit {
     this.service.putClient(this.IdEdit.toString(), client).subscribe({
       next: () => {
         this.clearError();
+        this.showSuccessNotification('Cliente actualizado correctamente');
         this.showListView();
         this.GetClients();
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         this.handleModalError(error);
       }
     });
@@ -264,6 +280,16 @@ export class ClientsComponent implements OnInit {
 
   getFullName(client: any): string {
     return `${client.first_name} ${client.last_name}`;
+  }
+
+  // --- HELPER PARA NOTIFICACIONES ---
+  private showSuccessNotification(message: string): void {
+    const n = document.createElement('div');
+    n.className = 'alert alert-success alert-dismissible fade show custom-toast';
+    n.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;min-width:350px;background:linear-gradient(135deg,#27ae60 0%,#229954 100%);color:white;padding:16px 20px;`;
+    n.innerHTML = `<div class="d-flex align-items-center"><span style="font-size:22px;margin-right:12px;">✔</span><div><strong>¡Éxito!</strong><div>${message}</div></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button></div>`;
+    document.body.appendChild(n);
+    setTimeout(() => { if(n.parentNode) n.parentNode.removeChild(n); }, 4000);
   }
 
   // --- MANEJO DE ERRORES GENÉRICO ---

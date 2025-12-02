@@ -79,7 +79,7 @@
               </div>
               <div class="col-md-3">
                 <select class="form-select form-select-sm" [(ngModel)]="SelectedCategory">
-                  <option value="">Todas</option>
+                  <option value="">Todas las categorías</option>
                   <option *ngFor="let category of DataSourceCategories" [value]="category.name">{{ category.name }}</option>
                 </select>
               </div>
@@ -157,7 +157,7 @@
             <div><h6 class="mb-0"><i nz-icon nzType="folder-open"></i> Categorías de Servicios</h6></div>
             <div class="d-flex gap-2 align-items-center">
               <select class="form-select form-select-sm" [(ngModel)]="CategoryStatus" (change)="onCategoryStatusChange(CategoryStatus)" style="width:160px;">
-                <option value="active">Activas</option><option value="inactive">Inactivas</option><option value="all">Todas</option>
+                <option value="active">Activas</option><option value="inactive">Inactivas</option>
               </select>
             </div>
           </div>
@@ -220,7 +220,10 @@
                       <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goBack()"><i nz-icon nzType="arrow-left"></i> Volver</button>
                       <div class="d-flex gap-1">
                         <button type="button" class="btn btn-outline-danger btn-sm" (click)="clearForm()">Limpiar</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Crear</button>
+                        <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting">
+                          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                          Crear
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -265,7 +268,10 @@
                     <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                       <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goBack()"><i nz-icon nzType="arrow-left"></i> Volver</button>
                       <div class="d-flex gap-1">
-                        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+                        <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting">
+                          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                          Guardar
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -287,7 +293,7 @@
               <div *ngIf="formErrors.categoryName" class="alert alert-warning alert-dismissible fade show mb-3" role="alert"><div class="d-flex align-items-center"><i nz-icon nzType="warning" class="me-2"></i><span>{{ formErrors.categoryName }}</span></div><button type="button" class="btn-close" (click)="clearFormErrors()"></button></div>
               <div class="mb-3"><label class="form-label fw-bold">Nombre de la categoría *</label><input type="text" class="form-control" [class.is-invalid]="formErrors.categoryName" [(ngModel)]="CategoryName" placeholder="Ingrese el nombre de la categoría"></div>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">Cancelar</button><button type="button" class="btn btn-primary" (click)="CreateCategory()">Crear Categoría</button></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">Cancelar</button><button type="button" class="btn btn-primary" (click)="CreateCategory()" [disabled]="isSubmitting"><span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>Crear Categoría</button></div>
           </div>
         </div>
       </div>
@@ -303,7 +309,7 @@
               <div *ngIf="formErrors.categoryName" class="alert alert-warning alert-dismissible fade show mb-3" role="alert"><div class="d-flex align-items-center"><i nz-icon nzType="warning" class="me-2"></i><span>{{ formErrors.categoryName }}</span></div><button type="button" class="btn-close" (click)="clearFormErrors()"></button></div>
               <div class="mb-3"><label class="form-label fw-bold">Nombre de la categoría *</label><input type="text" class="form-control" [class.is-invalid]="formErrors.categoryName" [(ngModel)]="CategoryName" placeholder="Ingrese el nombre de la categoría"></div>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">Cancelar</button><button type="button" class="btn btn-primary" (click)="EditCategory()">Guardar Cambios</button></div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">Cancelar</button><button type="button" class="btn btn-primary" (click)="EditCategory()" [disabled]="isSubmitting"><span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>Guardar Cambios</button></div>
           </div>
         </div>
       </div>

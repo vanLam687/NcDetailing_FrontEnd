@@ -20,13 +20,17 @@ export class ProductsComponent implements OnInit {
   // Filtros
   SearchName: string = '';
   SelectedCategory: string = '';
-  ProductStatus: 'active' | 'inactive' | 'all' = 'active';
-  CategoryStatus: 'active' | 'inactive' | 'all' = 'active';
+  // Req 2: Filtro solo Activos/Inactivos en la lógica (aunque el HTML es quien manda la vista)
+  ProductStatus: 'active' | 'inactive' = 'active'; 
+  CategoryStatus: 'active' | 'inactive' = 'active';
 
   // Navegación
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
   private historyStack: string[] = ['list'];
   
+  // Req 1: Flag para bloquear botones
+  isSubmitting: boolean = false;
+
   // Formulario Producto
   ProductName: string = '';
   ProductPrice: number = 0;
@@ -54,7 +58,6 @@ export class ProductsComponent implements OnInit {
   modalError: string = '';
   formErrors: any = {};
 
-  // Getter para verificar si es admin desde la vista
   get isAdmin(): boolean {
     return this.authService.isAdmin();
   }
@@ -110,14 +113,14 @@ export class ProductsComponent implements OnInit {
   }
 
   showCreateForm(): void {
-    if (!this.isAdmin) return; // Protección extra
+    if (!this.isAdmin) return;
     this.activeView = 'create';
     this.clearForm(); this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.addToHistory('create');
   }
 
   showEditForm(product: any): void {
-    if (!this.isAdmin) return; // Protección extra
+    if (!this.isAdmin) return;
     this.activeView = 'edit';
     this.SelectedProduct = product;
     this.IdEdit = product.id;
@@ -135,7 +138,7 @@ export class ProductsComponent implements OnInit {
   }
 
   showCategoriesView(): void {
-    if (!this.isAdmin) return; // Protección extra
+    if (!this.isAdmin) return;
     this.activeView = 'categories';
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetCategories();
@@ -221,19 +224,24 @@ export class ProductsComponent implements OnInit {
   // --- CRUD PRODUCTOS ---
 
   CreateProduct(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return; // Req 1: Bloqueo
     if (!this.validateProductForm()) return;
+    
+    this.isSubmitting = true;
     const product = {
       name: this.ProductName.trim(),
       price: this.ProductPrice, stock: this.ProductStock, min_stock: this.ProductMinStock,
       category_id: this.ProductCategoryId
     };
+    
     this.service.postProduct(product).subscribe({
       next: () => {
         this.showSuccessNotification('Producto creado');
         this.showListView();
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
@@ -241,19 +249,24 @@ export class ProductsComponent implements OnInit {
   }
 
   EditProduct(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return; // Req 1: Bloqueo
     if (!this.validateProductForm()) return;
+    
+    this.isSubmitting = true;
     const product: any = {
       name: this.ProductName.trim(),
       price: this.ProductPrice, stock: this.ProductStock, min_stock: this.ProductMinStock,
       category_id: this.ProductCategoryId
     };
+    
     this.service.putProduct(this.IdEdit.toString(), product).subscribe({
       next: () => {
         this.showSuccessNotification('Producto actualizado');
         this.showListView();
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
@@ -305,14 +318,18 @@ export class ProductsComponent implements OnInit {
   // --- CRUD CATEGORÍAS ---
 
   CreateCategory(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return; // Req 1: Bloqueo
     if (!this.validateCategoryForm()) return;
+    
+    this.isSubmitting = true;
     this.service.postCategory({ name: this.CategoryName.trim() }).subscribe({
       next: () => {
         this.showSuccessNotification('Categoría creada');
         this.CategoryName = ''; this.GetCategories(); this.closeModal('createCategoryModal');
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
@@ -320,14 +337,18 @@ export class ProductsComponent implements OnInit {
   }
 
   EditCategory(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return; // Req 1: Bloqueo
     if (!this.validateCategoryForm()) return;
+    
+    this.isSubmitting = true;
     this.service.putCategory(this.CategoryToEdit.id.toString(), { name: this.CategoryName.trim() }).subscribe({
       next: () => {
         this.showSuccessNotification('Categoría actualizada');
         this.CategoryName = ''; this.CategoryToEdit = null; this.GetCategories(); this.closeModal('editCategoryModal');
+        this.isSubmitting = false;
       },
       error: (error) => { 
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; } 
         this.handleModalError(error); 
       }
@@ -390,8 +411,10 @@ export class ProductsComponent implements OnInit {
 
   ApplyFilters(): void { this.GetProducts(); }
   ClearFilters(): void { this.SearchName = ''; this.SelectedCategory = ''; this.ProductStatus = 'active'; this.GetProducts(); }
-  onProductStatusChange(newStatus: 'active' | 'inactive' | 'all'): void { this.ProductStatus = newStatus; this.GetProducts(); }
-  onCategoryStatusChange(newStatus: 'active' | 'inactive' | 'all'): void { this.CategoryStatus = newStatus; this.GetCategories(); }
+  // @ts-ignore
+  onProductStatusChange(newStatus: 'active' | 'inactive'): void { this.ProductStatus = newStatus; this.GetProducts(); }
+  // @ts-ignore
+  onCategoryStatusChange(newStatus: 'active' | 'inactive'): void { this.CategoryStatus = newStatus; this.GetCategories(); }
 
   // --- HELPERS ---
 

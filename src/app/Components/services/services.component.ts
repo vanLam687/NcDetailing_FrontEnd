@@ -20,13 +20,17 @@ export class ServicesComponent implements OnInit {
   // Filtros
   SearchName: string = '';
   SelectedCategory: string = '';
-  ServiceStatus: 'active' | 'inactive' | 'all' = 'active';
-  CategoryStatus: 'active' | 'inactive' | 'all' = 'active';
+  // Req 2: Filtro simplificado
+  ServiceStatus: 'active' | 'inactive' = 'active';
+  CategoryStatus: 'active' | 'inactive' = 'active';
 
   // Navegación
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
   private historyStack: string[] = ['list'];
   
+  // Req 1: Bloqueo botones
+  isSubmitting: boolean = false;
+
   // Formulario Servicio
   ServiceName: string = '';
   ServiceDescription: string = '';
@@ -200,20 +204,40 @@ export class ServicesComponent implements OnInit {
   // --- CRUD SERVICIOS ---
 
   CreateService(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return; // Req 1
     if(!this.validateServiceForm()) return;
+    
+    this.isSubmitting = true;
     this.service.postService({name: this.ServiceName.trim(), price: this.ServicePrice, category_id: this.ServiceCategoryId}).subscribe({
-      next: () => { this.showSuccessNotification('Servicio creado'); this.showListView(); },
-      error: (e) => { if(e.status===401){this.authService.logout();return;} this.handleModalError(e); }
+      next: () => { 
+        this.showSuccessNotification('Servicio creado'); 
+        this.showListView(); 
+        this.isSubmitting = false;
+      },
+      error: (e) => { 
+        this.isSubmitting = false;
+        if(e.status===401){this.authService.logout();return;} 
+        this.handleModalError(e); 
+      }
     });
   }
 
   EditService(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return; // Req 1
     if(!this.validateServiceForm()) return;
+    
+    this.isSubmitting = true;
     this.service.putService(this.IdEdit.toString(), {name: this.ServiceName.trim(), price: this.ServicePrice, category_id: this.ServiceCategoryId}).subscribe({
-      next: () => { this.showSuccessNotification('Servicio actualizado'); this.showListView(); },
-      error: (e) => { if(e.status===401){this.authService.logout();return;} this.handleModalError(e); }
+      next: () => { 
+        this.showSuccessNotification('Servicio actualizado'); 
+        this.showListView(); 
+        this.isSubmitting = false;
+      },
+      error: (e) => { 
+        this.isSubmitting = false;
+        if(e.status===401){this.authService.logout();return;} 
+        this.handleModalError(e); 
+      }
     });
   }
 
@@ -256,28 +280,42 @@ export class ServicesComponent implements OnInit {
   // --- CRUD CATEGORÍAS ---
 
   CreateCategory(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return; // Req 1
     if(!this.validateCategoryForm()) return;
+    
+    this.isSubmitting = true;
     this.service.postCategory({name: this.CategoryName.trim()}).subscribe({
       next: () => { 
         this.showSuccessNotification('Categoría creada'); 
         this.CategoryName=''; this.GetCategories(); 
         this.closeModal('createCategoryModal'); 
+        this.isSubmitting = false;
       },
-      error: (e) => { if(e.status===401){this.authService.logout();return;} this.handleModalError(e); }
+      error: (e) => { 
+        this.isSubmitting = false;
+        if(e.status===401){this.authService.logout();return;} 
+        this.handleModalError(e); 
+      }
     });
   }
 
   EditCategory(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return; // Req 1
     if(!this.validateCategoryForm()) return;
+    
+    this.isSubmitting = true;
     this.service.putCategory(this.CategoryToEdit.id.toString(), {name: this.CategoryName.trim()}).subscribe({
       next: () => { 
         this.showSuccessNotification('Categoría actualizada'); 
         this.CategoryName=''; this.CategoryToEdit=null; this.GetCategories(); 
         this.closeModal('editCategoryModal'); 
+        this.isSubmitting = false;
       },
-      error: (e) => { if(e.status===401){this.authService.logout();return;} this.handleModalError(e); }
+      error: (e) => { 
+        this.isSubmitting = false;
+        if(e.status===401){this.authService.logout();return;} 
+        this.handleModalError(e); 
+      }
     });
   }
 
@@ -334,8 +372,10 @@ export class ServicesComponent implements OnInit {
 
   ApplyFilters(): void { this.GetServices(); }
   ClearFilters(): void { this.SearchName = ''; this.SelectedCategory = ''; this.ServiceStatus = 'active'; this.GetServices(); }
-  onServiceStatusChange(n: 'active'|'inactive'|'all'): void { this.ServiceStatus = n; this.GetServices(); }
-  onCategoryStatusChange(n: 'active'|'inactive'|'all'): void { this.CategoryStatus = n; this.GetCategories(); }
+  // @ts-ignore
+  onServiceStatusChange(n: 'active'|'inactive'): void { this.ServiceStatus = n; this.GetServices(); }
+  // @ts-ignore
+  onCategoryStatusChange(n: 'active'|'inactive'): void { this.CategoryStatus = n; this.GetCategories(); }
 
   // --- HELPERS ---
 
