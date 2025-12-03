@@ -31,8 +31,9 @@ export class ProductsComponent implements OnInit {
 
   // Navegación
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
+  private historyStack: string[] = ['list'];
   
-  // Req 1: Flag para bloquear botones
+  // Bloqueo de botones
   isSubmitting: boolean = false;
 
   // Formulario Producto
@@ -111,15 +112,19 @@ export class ProductsComponent implements OnInit {
 
   showListView(): void {
     this.activeView = 'list';
+    this.SelectedProduct = null; // CORRECCIÓN: Limpiar selección al ir a lista
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetProducts();
+    this.addToHistory('list');
   }
 
   showCreateForm(): void {
     if (!this.isAdmin) return;
     this.activeView = 'create';
+    this.SelectedProduct = null; // CORRECCIÓN: Limpiar selección al crear
     this.clearForm(); 
     this.clearError(); this.clearModalError(); this.clearFormErrors();
+    this.addToHistory('create');
   }
 
   showEditForm(product: any): void {
@@ -133,38 +138,55 @@ export class ProductsComponent implements OnInit {
     this.ProductMinStock = product.min_stock;
     this.ProductCategoryId = product.category_id;
     
-    // CORRECCIÓN: Usar el nombre de categoría que ya viene en el producto para que aparezca fijo
+    // Asignar nombre y buscar ID si falta
     if (product.category) {
        this.ProductCategoryName = product.category;
+       if (!this.ProductCategoryId) {
+         const match = this.DataSourceCategories.find(c => c.name === product.category);
+         if (match) this.ProductCategoryId = match.id;
+       }
     } else {
-       // Fallback: buscar en la lista si no viene el nombre (usando == para evitar errores de tipo)
-       const category = this.DataSourceCategories.find(cat => cat.id == product.category_id);
-       this.ProductCategoryName = category ? category.name : '';
+       const cat = this.DataSourceCategories.find(c => c.id == this.ProductCategoryId);
+       this.ProductCategoryName = cat ? cat.name : '';
     }
     
-    // Reiniciar la lista filtrada para que el dropdown muestre todo si se quiere cambiar
     this.filteredCategories = [...this.DataSourceCategories];
-    
     this.clearError(); this.clearModalError(); this.clearFormErrors();
+    this.addToHistory('edit');
   }
 
   showCategoriesView(): void {
     if (!this.isAdmin) return;
     this.activeView = 'categories';
+    this.SelectedProduct = null; // CORRECCIÓN: Limpiar selección al ir a categorías
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetCategories();
+    this.addToHistory('categories');
   }
 
   showEditBack(): void {
     if (this.SelectedProduct && this.isAdmin) {
       this.activeView = 'edit';
+      this.addToHistory('edit');
     }
   }
 
   canShowEdit(): boolean { return this.SelectedProduct !== null; }
 
+  private addToHistory(view: string): void {
+    this.historyStack.push(view);
+    if (this.historyStack.length > 10) this.historyStack.shift();
+  }
+
   goBack(): void {
-    this.showListView();
+    if (this.historyStack.length > 1) {
+      this.historyStack.pop();
+      const previousView = this.historyStack[this.historyStack.length - 1];
+      this.activeView = previousView as 'list' | 'create' | 'edit' | 'categories';
+      if (this.activeView === 'list') this.SelectedProduct = null;
+    } else {
+      this.showListView();
+    }
   }
 
   // --- FORMULARIOS Y VALIDACIÓN ---
@@ -173,7 +195,6 @@ export class ProductsComponent implements OnInit {
     this.ProductName = ''; this.ProductPrice = 0;
     this.ProductStock = 0; this.ProductMinStock = 0; this.ProductCategoryId = 0;
     this.ProductCategoryName = '';
-    // Reiniciar el filtro de categorías también al limpiar
     this.filteredCategories = [...this.DataSourceCategories];
     this.clearFormErrors();
   }
@@ -189,6 +210,7 @@ export class ProductsComponent implements OnInit {
     this.ProductCategoryId = category.id;
     this.ProductCategoryName = category.name;
     this.filteredCategories = this.DataSourceCategories;
+    if (this.formErrors.productCategory) delete this.formErrors.productCategory;
   }
 
   validateProductForm(): boolean {
@@ -207,7 +229,7 @@ export class ProductsComponent implements OnInit {
       this.formErrors.productMinStock = 'Stock mínimo inválido'; isValid = false;
     }
     if (!this.ProductCategoryId) {
-      this.formErrors.productCategory = 'Categoría requerida'; isValid = false;
+      this.formErrors.productCategory = 'La categoría es requerida'; isValid = false;
     }
     return isValid;
   }

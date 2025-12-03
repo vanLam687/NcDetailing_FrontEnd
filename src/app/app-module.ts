@@ -34,6 +34,7 @@ import { NzListModule } from 'ng-zorro-antd/list';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzNotificationComponent } from 'ng-zorro-antd/notification';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
+import {NzPopoverModule} from 'ng-zorro-antd/popover';
 
 // NZ-Zorro locales
 import { NZ_I18N, es_ES } from 'ng-zorro-antd/i18n';
@@ -116,7 +117,7 @@ const icons: IconDefinition[] = Object.keys(antDesignIcons)
     NzListModule,
     NzNotificationComponent,
     NzBadgeModule,
-
+    NzPopoverModule,
     // ApexCharts + Material
     NgApexchartsModule,
     MatProgressSpinnerModule,

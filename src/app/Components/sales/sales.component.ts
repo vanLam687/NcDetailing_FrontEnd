@@ -78,7 +78,7 @@ export class SalesComponent implements OnInit {
   SelectedSale: any = null;
   errorMessage: string = '';
   modalError: string = '';
-  formErrors: any = {};
+  formErrors: any = {}; // Objeto para errores de validación
 
   constructor(
     private salesService: SalesService,
@@ -98,19 +98,22 @@ export class SalesComponent implements OnInit {
     }
   }
 
-  closeModal(id: string): void { const m = document.getElementById(id); if(m){const i=(window as any).bootstrap.Modal.getInstance(m);if(i)i.hide();} }
+  closeModal(id: string): void { 
+    const m = document.getElementById(id); 
+    if(m){const i=(window as any).bootstrap.Modal.getInstance(m);if(i)i.hide();} 
+  }
 
   showProductsView(): void { this.activeView = 'products'; this.clearError(); }
   showServicesView(): void { this.activeView = 'services'; this.clearError(); }
 
   showCreateProductSale(): void {
-    this.clearForm(); this.clearError(); this.clearModalError(); this.clearFormErrors();
+    this.clearForm(); this.clearError(); this.clearModalError();
     this.filteredClients = [...this.DataSourceClients];
     this.filteredProducts = [...this.DataSourceMasterProducts];
   }
 
   showCreateServiceSale(): void {
-    this.clearForm(); this.clearError(); this.clearModalError(); this.clearFormErrors();
+    this.clearForm(); this.clearError(); this.clearModalError();
     this.filteredClients = [...this.DataSourceClients];
     this.filteredServices = [...this.DataSourceMasterServices];
   }
@@ -137,13 +140,24 @@ export class SalesComponent implements OnInit {
   filterProducts(event: any): void { const t = event.target.value.toLowerCase(); this.filteredProducts = this.DataSourceMasterProducts.filter(p => p.name.toLowerCase().includes(t)); }
   filterServices(event: any): void { const t = event.target.value.toLowerCase(); this.filteredServices = this.DataSourceMasterServices.filter(s => s.name.toLowerCase().includes(t)); }
 
-  selectClient(c: any): void { this.NewProdSale_ClientId = c.id; this.NewSvcSale_ClientId = c.id; this.clientSearchTerm = `${c.first_name} ${c.last_name}`; this.OnClientChangeForServices(c.id); this.clearFormErrors(); }
-  selectProduct(p: any): void { this.Temp_ProductId = p.id; this.productSearchTerm = p.name; this.clearFormErrors(); }
-  selectService(s: any): void { this.Temp_ServiceId = s.id; this.serviceSearchTerm = s.name; this.clearFormErrors(); }
+  selectClient(c: any): void { 
+    this.NewProdSale_ClientId = c.id; 
+    this.NewSvcSale_ClientId = c.id; 
+    this.clientSearchTerm = `${c.first_name} ${c.last_name}`; 
+    this.OnClientChangeForServices(c.id); 
+    // Limpiar error si se selecciona
+    if(this.formErrors.client) delete this.formErrors.client;
+  }
+
+  selectProduct(p: any): void { this.Temp_ProductId = p.id; this.productSearchTerm = p.name; }
+  selectService(s: any): void { this.Temp_ServiceId = s.id; this.serviceSearchTerm = s.name; }
 
   GetSalesProducts(): void {
-    if (this.FilterStartDate && !this.FilterEndDate) { this.notification.warning('Atención', 'Seleccione fecha fin'); return; }
-    if (!this.FilterStartDate && this.FilterEndDate) { this.notification.warning('Atención', 'Seleccione fecha inicio'); return; }
+    // Validación de fechas para filtro
+    if ((this.FilterStartDate && !this.FilterEndDate) || (!this.FilterStartDate && this.FilterEndDate)) {
+       this.notification.warning('Atención', 'Seleccione ambas fechas para filtrar por rango.');
+       return;
+    }
     this.salesService.getSalesProducts({clientName: this.FilterClientName, startDate: this.FilterStartDate, endDate: this.FilterEndDate, paymentStatusId: this.FilterPaymentStatus ? parseInt(this.FilterPaymentStatus) : null}).subscribe({
       next: (d: any) => { this.DataSourceSalesProducts = d.data; this.clearError(); },
       error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleError(e); }
@@ -151,8 +165,10 @@ export class SalesComponent implements OnInit {
   }
 
   GetSalesServices(): void {
-    if (this.FilterStartDate && !this.FilterEndDate) { this.notification.warning('Atención', 'Seleccione fecha fin'); return; }
-    if (!this.FilterStartDate && this.FilterEndDate) { this.notification.warning('Atención', 'Seleccione fecha inicio'); return; }
+    if ((this.FilterStartDate && !this.FilterEndDate) || (!this.FilterStartDate && this.FilterEndDate)) {
+       this.notification.warning('Atención', 'Seleccione ambas fechas para filtrar por rango.');
+       return;
+    }
     this.salesService.getSalesServices({clientName: this.FilterClientName, startDate: this.FilterStartDate, endDate: this.FilterEndDate, paymentStatusId: this.FilterPaymentStatus ? parseInt(this.FilterPaymentStatus) : null, serviceStatusId: this.FilterServiceStatus ? parseInt(this.FilterServiceStatus) : null}).subscribe({
       next: (d: any) => { this.DataSourceSalesServices = d.data; this.clearError(); },
       error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleError(e); }
@@ -162,93 +178,164 @@ export class SalesComponent implements OnInit {
   ApplyFilters(): void { this.GetSalesProducts(); this.GetSalesServices(); }
   ClearFilters(): void { this.FilterClientName = ''; this.FilterStartDate = ''; this.FilterEndDate = ''; this.FilterPaymentStatus = ''; this.FilterServiceStatus = ''; this.ApplyFilters(); }
 
+  // VALIDACIONES
   validateProductSaleForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
-    if (!this.NewProdSale_ClientId) { this.formErrors.client = 'Seleccione cliente'; isValid = false; }
-    if (!this.NewProdSale_PaymentMethodId) { this.formErrors.paymentMethod = 'Seleccione método pago'; isValid = false; }
-    if (this.NewProdSale_ProductsList.length === 0) { this.formErrors.products = 'Agregue productos'; isValid = false; }
+    if (!this.NewProdSale_ClientId) { this.formErrors.client = 'El cliente es requerido.'; isValid = false; }
+    if (!this.NewProdSale_PaymentMethodId) { this.formErrors.paymentMethod = 'El método de pago es requerido.'; isValid = false; }
+    if (this.NewProdSale_ProductsList.length === 0) { this.formErrors.products = 'Debe agregar al menos un producto.'; isValid = false; }
     return isValid;
   }
 
   validateServiceSaleForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
-    if (!this.NewSvcSale_ClientId) { this.formErrors.client = 'Seleccione cliente'; isValid = false; }
-    if (!this.NewSvcSale_VehicleId) { this.formErrors.vehicle = 'Seleccione vehículo'; isValid = false; }
-    if (!this.NewSvcSale_PaymentMethodId) { this.formErrors.paymentMethod = 'Seleccione método pago'; isValid = false; }
-    if (this.NewSvcSale_ServicesList.length === 0) { this.formErrors.services = 'Agregue servicios'; isValid = false; }
+    if (!this.NewSvcSale_ClientId) { this.formErrors.client = 'El cliente es requerido.'; isValid = false; }
+    // El vehículo es opcional en el backend, pero si lo quieres obligatorio descomenta:
+    // if (!this.NewSvcSale_VehicleId) { this.formErrors.vehicle = 'El vehículo es requerido.'; isValid = false; }
+    if (!this.NewSvcSale_PaymentMethodId) { this.formErrors.paymentMethod = 'El método de pago es requerido.'; isValid = false; }
+    if (this.NewSvcSale_ServicesList.length === 0) { this.formErrors.services = 'Debe agregar al menos un servicio.'; isValid = false; }
     return isValid;
   }
 
   AddProductToSale(): void {
     this.clearModalError();
-    if (!this.Temp_ProductId || this.Temp_ProductQty <= 0) { this.modalError = 'Datos inválidos'; return; }
+    if (!this.Temp_ProductId || this.Temp_ProductQty <= 0) { 
+      this.modalError = 'Seleccione un producto y cantidad válida.'; 
+      return; 
+    }
     const p = this.DataSourceMasterProducts.find(x => x.id === this.Temp_ProductId);
     if (p) {
-      if (p.stock < this.Temp_ProductQty) { this.modalError = 'Stock insuficiente'; return; }
+      if (p.stock < this.Temp_ProductQty) { 
+        this.modalError = 'Stock insuficiente.'; 
+        return; 
+      }
       const exists = this.NewProdSale_ProductsList.findIndex(x => x.product_id === p.id);
       if (exists > -1) this.NewProdSale_ProductsList[exists].quantity += this.Temp_ProductQty;
       else this.NewProdSale_ProductsList.push({ product_id: p.id, name: p.name, price: p.price, quantity: this.Temp_ProductQty });
-      this.Temp_ProductId = 0; this.Temp_ProductQty = 1; this.productSearchTerm = ''; this.filteredProducts = [...this.DataSourceMasterProducts];
+      
+      this.Temp_ProductId = 0; 
+      this.Temp_ProductQty = 1; 
+      this.productSearchTerm = ''; 
+      this.filteredProducts = [...this.DataSourceMasterProducts];
+      // Limpiar error de lista vacía
+      if(this.formErrors.products) delete this.formErrors.products;
     }
   }
+  
   RemoveProductFromSale(i: number): void { this.NewProdSale_ProductsList.splice(i, 1); }
 
   AddServiceToSale(): void {
     this.clearModalError();
-    if (!this.Temp_ServiceId) { this.modalError = 'Seleccione servicio'; return; }
+    if (!this.Temp_ServiceId) { 
+      this.modalError = 'Seleccione un servicio.'; 
+      return; 
+    }
     const s = this.DataSourceMasterServices.find(x => x.id === this.Temp_ServiceId);
     if (s) {
-      if (this.NewSvcSale_ServicesList.some(x => x.service_id === s.id)) { this.modalError = 'Ya agregado'; return; }
+      if (this.NewSvcSale_ServicesList.some(x => x.service_id === s.id)) { 
+        this.modalError = 'Este servicio ya fue agregado.'; 
+        return; 
+      }
       this.NewSvcSale_ServicesList.push({ service_id: s.id, name: s.name, price: s.price });
-      this.Temp_ServiceId = 0; this.serviceSearchTerm = ''; this.filteredServices = [...this.DataSourceMasterServices];
+      
+      this.Temp_ServiceId = 0; 
+      this.serviceSearchTerm = ''; 
+      this.filteredServices = [...this.DataSourceMasterServices];
+      // Limpiar error de lista vacía
+      if(this.formErrors.services) delete this.formErrors.services;
     }
   }
+  
   RemoveServiceFromSale(i: number): void { this.NewSvcSale_ServicesList.splice(i, 1); }
 
   CreateProductSale(): void {
     if (!this.validateProductSaleForm()) return;
+
     const sale = {
-      client_id: this.NewProdSale_ClientId, payment_method_id: this.NewProdSale_PaymentMethodId,
-      payment_status_id: this.NewProdSale_PaymentStatusId, observations: this.NewProdSale_Observations,
+      client_id: this.NewProdSale_ClientId, 
+      payment_method_id: this.NewProdSale_PaymentMethodId,
+      payment_status_id: this.NewProdSale_PaymentStatusId, 
+      observations: this.NewProdSale_Observations,
       products: this.NewProdSale_ProductsList.map(p => ({ product_id: p.product_id, quantity: p.quantity }))
     };
+    
     this.salesService.postSaleProducts(sale).subscribe({
-      next: () => { this.notification.success('¡Éxito!', 'Venta creada correctamente'); this.GetSalesProducts(); this.closeModal('createProductSaleModal'); },
-      error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
+      next: () => { 
+        this.notification.success('¡Éxito!', 'Venta registrada correctamente');
+        this.GetSalesProducts(); 
+        this.closeModal('createProductSaleModal'); 
+      },
+      error: (e) => { 
+        if (e.status === 401) { this.authService.logout(); return; } 
+        this.handleModalError(e); 
+      }
     });
   }
 
   CreateServiceSale(): void {
     if (!this.validateServiceSaleForm()) return;
+
     const sale = {
-      client_id: this.NewSvcSale_ClientId, vehicle_id: this.NewSvcSale_VehicleId,
-      payment_method_id: this.NewSvcSale_PaymentMethodId, payment_status_id: this.NewSvcSale_PaymentStatusId,
-      observations: this.NewSvcSale_Observations, services: this.NewSvcSale_ServicesList.map(s => ({ service_id: s.service_id }))
+      client_id: this.NewSvcSale_ClientId, 
+      vehicle_id: this.NewSvcSale_VehicleId,
+      payment_method_id: this.NewSvcSale_PaymentMethodId, 
+      payment_status_id: this.NewSvcSale_PaymentStatusId,
+      observations: this.NewSvcSale_Observations, 
+      services: this.NewSvcSale_ServicesList.map(s => ({ service_id: s.service_id }))
     };
+
     this.salesService.postSalesServices(sale).subscribe({
-      next: () => { this.notification.success('¡Éxito!', 'Venta creada correctamente'); this.GetSalesServices(); this.closeModal('createServiceSaleModal'); },
-      error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
+      next: () => { 
+        this.notification.success('¡Éxito!', 'Venta registrada correctamente');
+        this.GetSalesServices(); 
+        this.closeModal('createServiceSaleModal'); 
+      },
+      error: (e) => { 
+        if (e.status === 401) { this.authService.logout(); return; } 
+        this.handleModalError(e); 
+      }
     });
   }
 
   OnClientChangeForServices(id: number): void {
-    this.NewSvcSale_VehicleId = 0; if(!id) { this.ClientVehiclesList=[]; return; }
-    this.clientsService.getClientVehicles(id.toString()).subscribe({ next: (d: any) => { this.ClientVehiclesList = d.data; if(this.ClientVehiclesList.length===1) this.NewSvcSale_VehicleId=this.ClientVehiclesList[0].id; }, error: (e) => this.handleModalError(e) });
+    this.NewSvcSale_VehicleId = 0; 
+    if(!id) { this.ClientVehiclesList=[]; return; }
+    this.clientsService.getClientVehicles(id.toString()).subscribe({ 
+      next: (d: any) => { 
+        this.ClientVehiclesList = d.data; 
+        if(this.ClientVehiclesList.length === 1) this.NewSvcSale_VehicleId = this.ClientVehiclesList[0].id; 
+      }, 
+      error: (e) => this.handleModalError(e) 
+    });
   }
 
   ViewSaleDetails(sale: any): void {
-    this.SelectedSale = sale; this.clearError();
-    if (sale.products && sale.products.length > 0) { setTimeout(() => { this.closeModal('viewServiceSaleModal'); new (window as any).bootstrap.Modal(document.getElementById('viewProductSaleModal')).show(); }, 50); }
-    else if (sale.services && sale.services.length > 0) { setTimeout(() => { this.closeModal('viewProductSaleModal'); new (window as any).bootstrap.Modal(document.getElementById('viewServiceSaleModal')).show(); }, 50); }
+    this.SelectedSale = sale; 
+    this.clearError();
+    if (sale.products && sale.products.length > 0) { 
+      setTimeout(() => { 
+        this.closeModal('viewServiceSaleModal'); 
+        new (window as any).bootstrap.Modal(document.getElementById('viewProductSaleModal')).show(); 
+      }, 50); 
+    }
+    else if (sale.services && sale.services.length > 0) { 
+      setTimeout(() => { 
+        this.closeModal('viewProductSaleModal'); 
+        new (window as any).bootstrap.Modal(document.getElementById('viewServiceSaleModal')).show(); 
+      }, 50); 
+    }
   }
 
   DatosUpdatePayment(sale: any): void {
-    this.IdUpdatePayment = sale.sale_id; this.ClientNameUpdatePayment = sale.client_name; this.currentPaymentStatus = sale.payment_status;
+    this.IdUpdatePayment = sale.sale_id; 
+    this.ClientNameUpdatePayment = sale.client_name; 
+    this.currentPaymentStatus = sale.payment_status;
     this.isSaleFinalized = sale.payment_status === 'Pagado' || sale.payment_status === 'Cancelado';
     this.NewPaymentStatusId = sale.payment_status.toLowerCase() === 'pagado' ? 2 : (sale.payment_status.toLowerCase() === 'cancelado' ? 3 : 1);
-    this.originalPaymentStatusId = this.NewPaymentStatusId; this.clearError(); this.clearModalError();
+    this.originalPaymentStatusId = this.NewPaymentStatusId; 
+    this.clearError(); this.clearModalError();
   }
 
   get hasPaymentStatusChanged(): boolean { return this.NewPaymentStatusId !== this.originalPaymentStatusId; }
@@ -256,15 +343,23 @@ export class SalesComponent implements OnInit {
   UpdatePaymentStatus(): void {
     if (this.isSaleFinalized || !this.hasPaymentStatusChanged) { this.modalError = 'No se puede modificar o sin cambios'; return; }
     this.salesService.updatePaymentStatus(this.IdUpdatePayment.toString(), this.NewPaymentStatusId).subscribe({
-      next: () => { this.notification.success('¡Éxito!', 'Pago actualizado correctamente'); this.GetSalesProducts(); this.GetSalesServices(); this.closeModal('updatePaymentModal'); },
+      next: () => { 
+        this.notification.success('¡Éxito!', 'Estado de pago actualizado');
+        this.GetSalesProducts(); 
+        this.GetSalesServices(); 
+        this.closeModal('updatePaymentModal'); 
+      },
       error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
     });
   }
 
   DatosUpdateServiceStatus(sale: any): void {
-    this.IdUpdateServiceStatus = sale.sale_id; this.ClientNameUpdateService = sale.client_name; this.currentServiceStatus = sale.service_status;
+    this.IdUpdateServiceStatus = sale.sale_id; 
+    this.ClientNameUpdateService = sale.client_name; 
+    this.currentServiceStatus = sale.service_status;
     const map: any = { 'pendiente': 1, 'en progreso': 2, 'completado': 3, 'cancelado': 4 };
-    this.NewServiceStatusId = map[sale.service_status.toLowerCase()] || 1; this.originalServiceStatusId = this.NewServiceStatusId;
+    this.NewServiceStatusId = map[sale.service_status.toLowerCase()] || 1; 
+    this.originalServiceStatusId = this.NewServiceStatusId;
     this.clearError(); this.clearModalError();
   }
 
@@ -273,7 +368,11 @@ export class SalesComponent implements OnInit {
   UpdateServiceStatus(): void {
     if (!this.hasServiceStatusChanged) { this.modalError = 'Sin cambios'; return; }
     this.salesService.updateServiceStatus(this.IdUpdateServiceStatus.toString(), this.NewServiceStatusId).subscribe({
-      next: () => { this.notification.success('¡Éxito!', 'Estado servicio actualizado correctamente'); this.GetSalesServices(); this.closeModal('updateServiceStatusModal'); },
+      next: () => { 
+        this.notification.success('¡Éxito!', 'Estado del servicio actualizado');
+        this.GetSalesServices(); 
+        this.closeModal('updateServiceStatusModal'); 
+      },
       error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
     });
   }
@@ -297,13 +396,22 @@ export class SalesComponent implements OnInit {
     }
   }
 
-  handleError(e: any): void { this.clearFormErrors(); this.errorMessage = this.getGenericErrorMessage(e.status); }
-  handleModalError(e: any): void { this.clearFormErrors(); this.modalError = this.getGenericErrorMessage(e.status); }
+  handleError(e: any): void { 
+    this.clearFormErrors(); 
+    this.errorMessage = this.getGenericErrorMessage(e.status); 
+  }
+
+  handleModalError(e: any): void { 
+    this.clearFormErrors(); 
+    this.modalError = this.getGenericErrorMessage(e.status); 
+  }
 
   clearError(): void { this.errorMessage = ''; }
   clearModalError(): void { this.modalError = ''; }
+  
   clearFormErrors(): void { this.formErrors = {}; }
   hasFormErrors(): boolean { return Object.keys(this.formErrors).length > 0; }
+
   clearForm(): void {
     this.NewProdSale_ClientId = 0; this.NewProdSale_PaymentMethodId = 0; this.NewProdSale_PaymentStatusId = 1;
     this.NewProdSale_Observations = ''; this.NewProdSale_ProductsList = [];

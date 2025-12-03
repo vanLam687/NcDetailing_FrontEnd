@@ -32,7 +32,7 @@ export class ServicesComponent implements OnInit {
   // Navegación
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
   
-  // Req 1: Bloqueo botones
+  // Bloqueo de botones
   isSubmitting: boolean = false;
 
   // Formulario Servicio
@@ -107,6 +107,7 @@ export class ServicesComponent implements OnInit {
 
   showListView(): void { 
     this.activeView = 'list'; 
+    this.SelectedService = null;
     this.clearError(); this.clearModalError(); this.clearFormErrors(); 
     this.GetServices(); 
   }
@@ -114,6 +115,7 @@ export class ServicesComponent implements OnInit {
   showCreateForm(): void { 
     if (!this.isAdmin) return;
     this.activeView = 'create'; 
+    this.SelectedService = null;
     this.clearForm(); 
     this.clearError(); this.clearModalError(); this.clearFormErrors();
   }
@@ -128,16 +130,21 @@ export class ServicesComponent implements OnInit {
     this.ServicePrice = service.price; 
     this.ServiceCategoryId = service.category_id;
     
-    // CORRECCIÓN: Fijar el nombre de la categoría si ya existe
+    // CORRECCIÓN: Buscar nombre de categoría correctamente
     if (service.category) {
         this.ServiceCategoryName = service.category;
+        // Si falta el ID pero tenemos nombre, buscar ID (por seguridad)
+        if (!this.ServiceCategoryId) {
+           const match = this.DataSourceCategories.find(c => c.name === service.category);
+           if (match) this.ServiceCategoryId = match.id;
+        }
     } else {
-        // Fallback por si no viene el nombre en el objeto service
-        const cat = this.DataSourceCategories.find(c => c.id == service.category_id);
+        // Si no hay nombre, buscar por ID
+        const cat = this.DataSourceCategories.find(c => c.id == this.ServiceCategoryId);
         this.ServiceCategoryName = cat ? cat.name : '';
     }
-
-    // IMPORTANTE: Reiniciar la lista filtrada para que el dropdown muestre todas las opciones
+    
+    // Reiniciar lista para el dropdown
     this.filteredCategories = [...this.DataSourceCategories];
     
     this.clearError(); this.clearModalError(); this.clearFormErrors();
@@ -146,6 +153,7 @@ export class ServicesComponent implements OnInit {
   showCategoriesView(): void { 
     if (!this.isAdmin) return;
     this.activeView = 'categories'; 
+    this.SelectedService = null;
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetCategories(); 
   }
@@ -167,10 +175,7 @@ export class ServicesComponent implements OnInit {
   clearForm(): void {
     this.ServiceName = ''; this.ServiceDescription = ''; this.ServicePrice = 0;
     this.ServiceCategoryId = 0; this.ServiceCategoryName = ''; 
-    
-    // Reiniciar también al limpiar
     this.filteredCategories = [...this.DataSourceCategories];
-    
     this.clearFormErrors();
   }
 
@@ -183,6 +188,7 @@ export class ServicesComponent implements OnInit {
     this.ServiceCategoryId = c.id; 
     this.ServiceCategoryName = c.name; 
     this.filteredCategories = this.DataSourceCategories; 
+    if (this.formErrors.serviceCategory) delete this.formErrors.serviceCategory;
   }
 
   // --- VALIDACIÓN ---
@@ -190,15 +196,23 @@ export class ServicesComponent implements OnInit {
   validateServiceForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
-    if(!this.ServiceName || this.ServiceName.trim() === '') { this.formErrors.serviceName = 'Nombre requerido'; isValid = false; }
-    if(!this.ServicePrice || this.ServicePrice <= 0) { this.formErrors.servicePrice = 'Precio debe ser mayor a 0'; isValid = false; }
-    if(!this.ServiceCategoryId) { this.formErrors.serviceCategory = 'Categoría requerida'; isValid = false; }
+    if(!this.ServiceName || this.ServiceName.trim() === '') { 
+      this.formErrors.serviceName = 'El nombre es requerido'; isValid = false; 
+    }
+    if(!this.ServicePrice || this.ServicePrice <= 0) { 
+      this.formErrors.servicePrice = 'El precio debe ser mayor a 0'; isValid = false; 
+    }
+    if(!this.ServiceCategoryId) { 
+      this.formErrors.serviceCategory = 'La categoría es requerida'; isValid = false; 
+    }
     return isValid;
   }
 
   validateCategoryForm(): boolean {
     this.clearFormErrors();
-    if(!this.CategoryName || this.CategoryName.trim() === '') { this.formErrors.categoryName = 'Nombre requerido'; return false; }
+    if(!this.CategoryName || this.CategoryName.trim() === '') { 
+      this.formErrors.categoryName = 'El nombre es requerido'; return false; 
+    }
     return true;
   }
 

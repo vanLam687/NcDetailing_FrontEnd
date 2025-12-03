@@ -24,9 +24,6 @@ export class ClientsComponent implements OnInit {
   activeView: 'list' | 'create' | 'edit' | 'history' = 'list';
   SearchTerm: string = '';
 
-  // Req 1: Bloqueo botones
-  isSubmitting: boolean = false;
-
   // Formulario de cliente
   FirstName: string = '';
   LastName: string = '';
@@ -57,6 +54,10 @@ export class ClientsComponent implements OnInit {
   // Errores
   errorMessage: string = '';
   modalError: string = '';
+  formErrors: any = {}; // Objeto para errores de validación
+  
+  // Control de envío
+  isSubmitting: boolean = false;
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
@@ -136,9 +137,65 @@ export class ClientsComponent implements OnInit {
     });
   }
 
+  // --- VALIDACIONES ---
+
+  validateClientForm(isEdit: boolean): boolean {
+    this.clearFormErrors();
+    let isValid = true;
+
+    const fname = isEdit ? this.FirstNameEdit : this.FirstName;
+    const lname = isEdit ? this.LastNameEdit : this.LastName;
+    const email = isEdit ? this.EmailEdit : this.Email;
+    const phone = isEdit ? this.PhoneEdit : this.Phone;
+
+    if (!fname || fname.trim() === '') {
+      this.formErrors.firstName = 'El nombre es requerido';
+      isValid = false;
+    }
+    if (!lname || lname.trim() === '') {
+      this.formErrors.lastName = 'El apellido es requerido';
+      isValid = false;
+    }
+    if (!email || email.trim() === '') {
+      this.formErrors.email = 'El email es requerido';
+      isValid = false;
+    }
+    if (!phone || phone.trim() === '') {
+      this.formErrors.phone = 'El teléfono es requerido';
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  validateVehicleForm(): boolean {
+    // No limpiamos todos los errores aquí para no borrar los del cliente si existen,
+    // pero limpiamos los específicos de vehículo
+    if (this.formErrors.vehicleBrand) delete this.formErrors.vehicleBrand;
+    if (this.formErrors.vehicleModel) delete this.formErrors.vehicleModel;
+    if (this.formErrors.vehicleYear) delete this.formErrors.vehicleYear;
+    if (this.formErrors.vehicleColor) delete this.formErrors.vehicleColor;
+    if (this.formErrors.vehicleLicensePlate) delete this.formErrors.vehicleLicensePlate;
+
+    let isValid = true;
+    if (!this.NewVehicleBrand) { this.formErrors.vehicleBrand = 'Marca requerida'; isValid = false; }
+    if (!this.NewVehicleModel) { this.formErrors.vehicleModel = 'Modelo requerido'; isValid = false; }
+    if (!this.NewVehicleYear) { this.formErrors.vehicleYear = 'Año requerido'; isValid = false; }
+    if (!this.NewVehicleColor) { this.formErrors.vehicleColor = 'Color requerido'; isValid = false; }
+    if (!this.NewVehicleLicensePlate) { this.formErrors.vehicleLicensePlate = 'Patente requerida'; isValid = false; }
+    
+    return isValid;
+  }
+
+  // --- CRUD ---
+
   CreateClient(): void {
     if (this.isSubmitting) return;
     
+    if (!this.validateClientForm(false)) {
+      return;
+    }
+
     this.isSubmitting = true;
     const client = {
       first_name: this.FirstName,
@@ -164,7 +221,11 @@ export class ClientsComponent implements OnInit {
   }
 
   EditClient(): void {
-    if (this.isSubmitting) return; 
+    if (this.isSubmitting) return;
+
+    if (!this.validateClientForm(true)) {
+      return;
+    }
 
     this.isSubmitting = true;
     const client: any = {
@@ -204,32 +265,37 @@ export class ClientsComponent implements OnInit {
   }
 
   AddVehicle(): void {
-    if (this.NewVehicleBrand && this.NewVehicleModel && this.NewVehicleYear && 
-        this.NewVehicleColor && this.NewVehicleLicensePlate) {
-      
-      const vehicle = {
-        brand: this.NewVehicleBrand,
-        model: this.NewVehicleModel,
-        year: this.NewVehicleYear,
-        color: this.NewVehicleColor,
-        license_plate: this.NewVehicleLicensePlate
-      };
-
-      if (this.activeView === 'edit') {
-        this.VehiclesEdit.push(vehicle);
-      } else {
-        this.Vehicles.push(vehicle);
-      }
-      this.clearModalError();
-      
-      this.NewVehicleBrand = '';
-      this.NewVehicleModel = '';
-      this.NewVehicleYear = new Date().getFullYear();
-      this.NewVehicleColor = '';
-      this.NewVehicleLicensePlate = '';
-    } else {
-      this.modalError = 'Por favor, complete todos los campos del vehículo';
+    if (!this.validateVehicleForm()) {
+      return;
     }
+      
+    const vehicle = {
+      brand: this.NewVehicleBrand,
+      model: this.NewVehicleModel,
+      year: this.NewVehicleYear,
+      color: this.NewVehicleColor,
+      license_plate: this.NewVehicleLicensePlate
+    };
+
+    if (this.activeView === 'edit') {
+      this.VehiclesEdit.push(vehicle);
+    } else {
+      this.Vehicles.push(vehicle);
+    }
+    
+    // Limpiar campos
+    this.NewVehicleBrand = '';
+    this.NewVehicleModel = '';
+    this.NewVehicleYear = new Date().getFullYear();
+    this.NewVehicleColor = '';
+    this.NewVehicleLicensePlate = '';
+    
+    // Limpiar errores de vehículo
+    if (this.formErrors.vehicleBrand) delete this.formErrors.vehicleBrand;
+    if (this.formErrors.vehicleModel) delete this.formErrors.vehicleModel;
+    if (this.formErrors.vehicleYear) delete this.formErrors.vehicleYear;
+    if (this.formErrors.vehicleColor) delete this.formErrors.vehicleColor;
+    if (this.formErrors.vehicleLicensePlate) delete this.formErrors.vehicleLicensePlate;
   }
 
   RemoveVehicle(index: number): void {
@@ -303,12 +369,13 @@ export class ClientsComponent implements OnInit {
   }
 
   handleError(error: any): void {
+    this.clearFormErrors();
     this.errorMessage = this.getGenericErrorMessage(error.status);
   }
 
   handleModalError(error: any): void {
+    this.clearFormErrors();
     this.modalError = this.getGenericErrorMessage(error.status);
-    // No disparamos notificación, solo mostramos el error en el modal
   }
 
   clearError(): void {
@@ -317,6 +384,14 @@ export class ClientsComponent implements OnInit {
 
   clearModalError(): void {
     this.modalError = '';
+  }
+
+  clearFormErrors(): void {
+    this.formErrors = {};
+  }
+
+  hasFormErrors(): boolean {
+    return Object.keys(this.formErrors).length > 0;
   }
 
   clearForm(): void {
@@ -336,5 +411,6 @@ export class ClientsComponent implements OnInit {
     this.NewVehicleColor = '';
     this.NewVehicleLicensePlate = '';
     this.modalError = '';
+    this.clearFormErrors();
   }
 }

@@ -103,16 +103,26 @@
   gap: 20px;
 }
 
-/* ESTILOS DE LA CAMPANA DE ALERTAS */
+/* === ESTILOS DE LA CAMPANA DE ALERTAS === */
 .alerts-section {
+  position: relative;
   display: flex;
   align-items: center;
 }
 
-.alerts-section i:hover {
-  opacity: 0.8;
-  transform: scale(1.1);
-  transition: all 0.2s ease;
+.notification-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.notification-trigger:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Estilo del menú desplegable de alertas */
@@ -120,6 +130,17 @@
   width: 320px;
   max-height: 400px;
   overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 8px;
+}
+
+/* Ajuste de posición para el dropdown */
+::ng-deep .custom-dropdown-overlay {
+  top: 60px !important;
+}
+
+::ng-deep .custom-dropdown-overlay .ant-dropdown-menu {
+  border-radius: 8px;
 }
 
 .alert-item {
@@ -132,14 +153,12 @@
   background-color: #f8f9fa;
 }
 
-/* Ajustes para el texto del producto */
 .alert-item .product-info strong {
   font-size: 13px;
   margin-bottom: 2px;
   line-height: 1.2;
 }
 
-/* Badge de stock limpio */
 .alert-item .badge {
   font-size: 11px;
   padding: 5px 10px;
@@ -148,10 +167,10 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   min-width: 70px;
   text-align: center;
-  border: none !important; /* Asegura que no haya bordes */
+  border: none !important;
 }
 
-/* FIN ALERTAS */
+/* === FIN ALERTAS === */
 
 .user-info {
   display: flex;
@@ -196,10 +215,10 @@
   overflow: hidden;
 }
 
-/* Sidebar */
+/* Sidebar - FONDO BLANCO SOLIDO */
 .app-sidebar {
   width: 280px;
-  background: linear-gradient(180deg, var(--white) 0%, #f9f7ff 100%);
+  background: #ffffff; /* Blanco sólido, sin transparencia */
   box-shadow: 4px 0 20px rgba(88, 81, 160, 0.1);
   display: flex;
   flex-direction: column;
@@ -302,7 +321,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: linear-gradient(180deg, #f9f7ff 0%, var(--white) 100%);
+  background: #ffffff; /* Blanco sólido */
   margin-top: auto;
 }
 
@@ -366,11 +385,15 @@
     left: 0;
     bottom: 0;
     z-index: 100;
+    /* Oculto por defecto desplazándolo a la izquierda */
     transform: translateX(-100%);
     box-shadow: 8px 0 30px rgba(88, 81, 160, 0.3);
+    /* FONDO BLANCO SÓLIDO EN MÓVIL */
+    background: #ffffff;
   }
   
   .app-sidebar:not(.collapsed) {
+    /* Se muestra al quitar la clase collapsed (o al activarla según tu lógica de toggle) */
     transform: translateX(0);
   }
   

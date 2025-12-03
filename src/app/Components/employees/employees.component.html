@@ -131,16 +131,81 @@
 
             <form (ngSubmit)="isEditMode ? EditEmployee() : CreateEmployee()">
               <div class="row g-2">
-                <div class="col-md-6"><label class="form-label fw-bold mb-1">Nombre *</label><input type="text" class="form-control form-control-sm" [(ngModel)]="currentName" name="name" required></div>
-                <div class="col-md-6"><label class="form-label fw-bold mb-1">Usuario *</label><input type="text" class="form-control form-control-sm" [(ngModel)]="currentUsername" name="username" required></div>
-                <div class="col-12"><label class="form-label fw-bold mb-1">Email *</label><input type="email" class="form-control form-control-sm" [(ngModel)]="currentEmail" name="email" required></div>
-                <div class="col-12"><label class="form-label fw-bold mb-1">{{ isEditMode ? 'Nueva Contraseña' : 'Contraseña *' }}</label><input type="password" class="form-control form-control-sm" [(ngModel)]="currentPassword" name="password" [required]="!isEditMode"></div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold mb-1">Nombre *</label>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.name"
+                    [(ngModel)]="currentName" 
+                    name="name" 
+                    placeholder="Ej: Juan Pérez"
+                    required>
+                  <div *ngIf="formErrors.name" class="invalid-feedback">{{ formErrors.name }}</div>
+                </div>
+                
+                <div class="col-md-6">
+                  <label class="form-label fw-bold mb-1">Usuario *</label>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.username"
+                    [(ngModel)]="currentUsername" 
+                    name="username" 
+                    placeholder="Ej: jperez"
+                    required>
+                  <div *ngIf="formErrors.username" class="invalid-feedback">{{ formErrors.username }}</div>
+                </div>
+                
+                <div class="col-12">
+                  <label class="form-label fw-bold mb-1">Email *</label>
+                  <input 
+                    type="email" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.email"
+                    [(ngModel)]="currentEmail" 
+                    name="email" 
+                    placeholder="Ej: juan@example.com"
+                    required>
+                  <div *ngIf="formErrors.email" class="invalid-feedback">{{ formErrors.email }}</div>
+                </div>
+                
+                <div class="col-12">
+                  <label class="form-label fw-bold mb-1">{{ isEditMode ? 'Nueva Contraseña' : 'Contraseña *' }}</label>
+                  <input 
+                    type="password" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.password"
+                    [(ngModel)]="currentPassword" 
+                    name="password" 
+                    placeholder="Ej: ********"
+                    [required]="!isEditMode">
+                  <div *ngIf="formErrors.password" class="invalid-feedback">{{ formErrors.password }}</div>
+                </div>
+                
                 <div class="col-12">
                   <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="showListView()"><i nz-icon nzType="arrow-left"></i> Volver</button>
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-secondary btn-sm" 
+                      (click)="showListView()">
+                      <i nz-icon nzType="arrow-left"></i> Volver
+                    </button>
+                    
                     <div class="d-flex gap-1">
-                      <button type="button" class="btn btn-outline-danger btn-sm" (click)="clearForm()" *ngIf="!isEditMode">Limpiar</button>
-                      <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting"><span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span> {{ isEditMode ? 'Guardar' : 'Crear' }}</button>
+                      <button 
+                        type="button" 
+                        class="btn btn-outline-danger btn-sm" 
+                        (click)="clearForm()" 
+                        *ngIf="!isEditMode">
+                        Limpiar
+                      </button>
+                      <button 
+                        type="submit" 
+                        class="btn btn-primary btn-sm" 
+                        [disabled]="isSubmitting">
+                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span> {{ isEditMode ? 'Guardar' : 'Crear' }}
+                      </button>
                     </div>
                   </div>
                 </div>

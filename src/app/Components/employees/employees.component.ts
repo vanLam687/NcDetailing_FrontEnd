@@ -94,14 +94,20 @@ export class EmployeesComponent implements OnInit {
   validateEmployeeForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
+    
+    // Validar Nombre
     if (!this.currentName || this.currentName.trim() === '') {
       this.formErrors.name = 'El nombre es requerido';
       isValid = false;
     }
+    
+    // Validar Usuario
     if (!this.currentUsername || this.currentUsername.trim() === '') {
       this.formErrors.username = 'El usuario es requerido';
       isValid = false;
     }
+    
+    // Validar Email
     if (!this.currentEmail || this.currentEmail.trim() === '') {
       this.formErrors.email = 'El email es requerido';
       isValid = false;
@@ -109,12 +115,15 @@ export class EmployeesComponent implements OnInit {
       this.formErrors.email = 'Formato de email inválido';
       isValid = false;
     }
+    
+    // Validar Contraseña (solo si es crear, o si es editar y escribió algo)
     if (!this.isEditMode) {
       if (!this.currentPassword || this.currentPassword.trim() === '') {
         this.formErrors.password = 'La contraseña es requerida';
         isValid = false;
       }
     }
+
     return isValid;
   }
 
@@ -278,13 +287,13 @@ export class EmployeesComponent implements OnInit {
   handleModalError(error: any): void {
     this.clearFormErrors();
     this.modalError = this.getGenericErrorMessage(error.status);
-    // No notificamos
   }
 
   clearError(): void { this.errorMessage = ''; }
   clearModalError(): void { this.modalError = ''; }
   clearFormErrors(): void { this.formErrors = {}; }
   hasFormErrors(): boolean { return Object.keys(this.formErrors).length > 0; }
+  
   clearForm(): void {
     this.Name = ''; this.Username = ''; this.Email = ''; this.Password = '';
     this.NameEdit = ''; this.UsernameEdit = ''; this.EmailEdit = ''; this.PasswordEdit = '';

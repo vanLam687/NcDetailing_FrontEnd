@@ -67,16 +67,17 @@
                 type="text" 
                 class="form-control form-control-sm"
                 [(ngModel)]="FilterClientName"
+                name="filterClient"
                 placeholder="Buscar cliente...">
             </div>
             <div class="col-md-2">
-              <input type="date" class="form-control form-control-sm" [(ngModel)]="FilterStartDate">
+              <input type="date" class="form-control form-control-sm" [(ngModel)]="FilterStartDate" name="filterStart">
             </div>
             <div class="col-md-2">
-              <input type="date" class="form-control form-control-sm" [(ngModel)]="FilterEndDate">
+              <input type="date" class="form-control form-control-sm" [(ngModel)]="FilterEndDate" name="filterEnd">
             </div>
             <div class="col-md-2">
-              <select class="form-select form-select-sm" [(ngModel)]="FilterPaymentStatus">
+              <select class="form-select form-select-sm" [(ngModel)]="FilterPaymentStatus" name="filterPayment">
                 <option value="">Todo Estado Pago</option>
                 <option value="1">Pendiente</option>
                 <option value="2">Pagado</option>
@@ -84,7 +85,7 @@
               </select>
             </div>
             <div class="col-md-2" *ngIf="activeView === 'services'">
-              <select class="form-select form-select-sm" [(ngModel)]="FilterServiceStatus">
+              <select class="form-select form-select-sm" [(ngModel)]="FilterServiceStatus" name="filterService">
                 <option value="">Todo Estado Servicio</option>
                 <option value="1">Pendiente</option>
                 <option value="2">En Progreso</option>
@@ -234,12 +235,13 @@
               <i nz-icon nzType="exclamation-circle" class="me-2"></i>
               <span>{{ modalError }}</span>
             </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
           </div>
 
           <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
             <div class="d-flex align-items-center">
               <i nz-icon nzType="warning" class="me-2"></i>
-              <span>Por favor, corrige los siguientes errores:</span>
+              <span>Por favor complete los campos requeridos.</span>
             </div>
             <ul class="mb-0 mt-1">
               <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
@@ -256,6 +258,7 @@
                   class="form-control form-control-sm" 
                   [class.is-invalid]="formErrors.client"
                   [(ngModel)]="clientSearchTerm"
+                  name="clientSearch"
                   (input)="filterClients($event)"
                   placeholder="Buscar cliente..."
                   data-bs-toggle="dropdown"
@@ -278,7 +281,8 @@
               <label class="form-label fw-bold mb-1">Método Pago *</label>
               <select class="form-select form-select-sm" 
                       [class.is-invalid]="formErrors.paymentMethod"
-                      [(ngModel)]="NewProdSale_PaymentMethodId">
+                      [(ngModel)]="NewProdSale_PaymentMethodId"
+                      name="paymentMethod">
                 <option [ngValue]="0">Seleccionar...</option>
                 <option *ngFor="let method of DataSourcePaymentMethods" [ngValue]="method.id">
                   {{ method.name }}
@@ -291,7 +295,7 @@
 
             <div class="col-md-3">
               <label class="form-label fw-bold mb-1">Estado Pago</label>
-              <select class="form-select form-select-sm" [(ngModel)]="NewProdSale_PaymentStatusId">
+              <select class="form-select form-select-sm" [(ngModel)]="NewProdSale_PaymentStatusId" name="paymentStatus">
                 <option [ngValue]="1">Pendiente</option>
                 <option [ngValue]="2">Pagado</option>
               </select>
@@ -302,6 +306,7 @@
               <textarea 
                 class="form-control form-control-sm" 
                 [(ngModel)]="NewProdSale_Observations" 
+                name="observations"
                 rows="2"
                 placeholder="Observaciones adicionales..."></textarea>
             </div>
@@ -321,9 +326,6 @@
                         <small class="text-muted">
                           {{ item.quantity }} x ${{ item.price | number:'1.2-2' }} = <strong>${{ (item.quantity * item.price) | number:'1.2-2' }}</strong>
                         </small>
-                        <div *ngIf="formErrors['productStock_' + i]" class="invalid-feedback d-block">
-                          {{ formErrors['productStock_' + i] }}
-                        </div>
                       </div>
                       <div class="col-auto">
                         <button type="button" class="btn btn-sm btn-outline-danger" (click)="RemoveProductFromSale(i)">
@@ -348,6 +350,7 @@
                           type="text" 
                           class="form-control form-control-sm" 
                           [(ngModel)]="productSearchTerm"
+                          name="productSearch"
                           (input)="filterProducts($event)"
                           placeholder="Buscar producto..."
                           data-bs-toggle="dropdown"
@@ -366,7 +369,7 @@
                     </div>
                     <div class="col-md-2">
                       <label class="form-label small">Cantidad</label>
-                      <input type="number" class="form-control form-control-sm" [(ngModel)]="Temp_ProductQty" min="1" placeholder="Cant.">
+                      <input type="number" class="form-control form-control-sm" [(ngModel)]="Temp_ProductQty" name="prodQty" min="1" placeholder="Cant.">
                     </div>
                     <div class="col-md-3">
                       <button class="btn btn-primary btn-sm w-100" (click)="AddProductToSale()">
@@ -415,12 +418,13 @@
               <i nz-icon nzType="exclamation-circle" class="me-2"></i>
               <span>{{ modalError }}</span>
             </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
           </div>
 
           <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
             <div class="d-flex align-items-center">
               <i nz-icon nzType="warning" class="me-2"></i>
-              <span>Por favor, corrige los siguientes errores:</span>
+              <span>Por favor complete los campos requeridos.</span>
             </div>
             <ul class="mb-0 mt-1">
               <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
@@ -437,6 +441,7 @@
                   class="form-control form-control-sm" 
                   [class.is-invalid]="formErrors.client"
                   [(ngModel)]="clientSearchTerm"
+                  name="clientSvcSearch"
                   (input)="filterClients($event)"
                   placeholder="Buscar cliente..."
                   data-bs-toggle="dropdown"
@@ -460,6 +465,7 @@
               <select class="form-select form-select-sm" 
                       [class.is-invalid]="formErrors.vehicle"
                       [(ngModel)]="NewSvcSale_VehicleId" 
+                      name="vehicleSvc"
                       [disabled]="ClientVehiclesList.length === 0">
                 <option [ngValue]="0">Seleccionar vehículo...</option>
                 <option *ngFor="let v of ClientVehiclesList" [ngValue]="v.id">
@@ -475,7 +481,8 @@
               <label class="form-label fw-bold mb-1">Método Pago *</label>
               <select class="form-select form-select-sm" 
                       [class.is-invalid]="formErrors.paymentMethod"
-                      [(ngModel)]="NewSvcSale_PaymentMethodId">
+                      [(ngModel)]="NewSvcSale_PaymentMethodId"
+                      name="paymentMethodSvc">
                 <option [ngValue]="0">Seleccionar...</option>
                 <option *ngFor="let method of DataSourcePaymentMethods" [ngValue]="method.id">
                   {{ method.name }}
@@ -488,7 +495,7 @@
 
             <div class="col-md-4">
               <label class="form-label fw-bold mb-1">Estado Pago</label>
-              <select class="form-select form-select-sm" [(ngModel)]="NewSvcSale_PaymentStatusId">
+              <select class="form-select form-select-sm" [(ngModel)]="NewSvcSale_PaymentStatusId" name="paymentStatusSvc">
                 <option [ngValue]="1">Pendiente</option>
                 <option [ngValue]="2">Pagado</option>
               </select>
@@ -499,6 +506,7 @@
               <textarea 
                 class="form-control form-control-sm" 
                 [(ngModel)]="NewSvcSale_Observations" 
+                name="obsSvc"
                 rows="2"
                 placeholder="Observaciones adicionales..."></textarea>
             </div>
@@ -539,6 +547,7 @@
                           type="text" 
                           class="form-control form-control-sm" 
                           [(ngModel)]="serviceSearchTerm"
+                          name="svcSearch"
                           (input)="filterServices($event)"
                           placeholder="Buscar servicio..."
                           data-bs-toggle="dropdown"
@@ -665,12 +674,16 @@
           <div class="col-md-6">
             <h6 class="text-primary">Información General</h6>
             <p class="mb-1"><strong>Cliente:</strong> {{ SelectedSale.client_name }}</p>
-            <p class="mb-1"><strong>Vehículo:</strong> {{ SelectedSale.vehicle_info }}</p>
+            
+            <p class="mb-1"><strong>Vehículo:</strong> 
+              {{ SelectedSale.vehicle_info || SelectedSale.vehicle || (SelectedSale.vehicle_brand ? SelectedSale.vehicle_brand + ' ' + SelectedSale.vehicle_model : 'No especificado') }}
+            </p>
+
             <p class="mb-1"><strong>Fecha:</strong> {{ formatDate(SelectedSale.created_at) }}</p>
             <p class="mb-1"><strong>Método Pago:</strong> {{ SelectedSale.payment_method }}</p>
             
             <p class="mb-1"><strong>Estado Pago:</strong> 
-              <span class="fw-bold ms-2" 
+              <span class="fw-bold ms-0" 
                     [class.text-warning]="SelectedSale.payment_status === 'Pendiente'"
                     [class.text-success]="SelectedSale.payment_status === 'Pagado'"
                     [class.text-danger]="SelectedSale.payment_status === 'Cancelado'">
@@ -678,9 +691,9 @@
               </span>
             </p>
 
-            <p class="mb-0">
+            <p class="mb-1">
               <strong>Estado Servicio:</strong> 
-              <span class="fw-bold ms-2"
+              <span class="fw-bold ms-0"
                     [style.color]="SelectedSale.service_status === 'En Progreso' ? 'black' : ''"
                     [class.text-muted]="SelectedSale.service_status === 'Pendiente'"
                     [class.text-success]="SelectedSale.service_status === 'Completado'"
@@ -758,7 +771,7 @@
           
           <div class="mb-3">
             <label class="form-label fw-bold">Nuevo Estado</label>
-            <select class="form-select" [(ngModel)]="NewPaymentStatusId" [disabled]="isSaleFinalized">
+            <select class="form-select" [(ngModel)]="NewPaymentStatusId" [disabled]="isSaleFinalized" name="updPayStatus">
               <option [ngValue]="1">Pendiente</option>
               <option [ngValue]="2">Pagado</option>
               <option [ngValue]="3">Cancelado</option>
@@ -770,6 +783,7 @@
               <i nz-icon nzType="exclamation-circle" class="me-2"></i>
               <span>{{ modalError }}</span>
             </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
           </div>
         </div>
         <div class="modal-footer border-0 justify-content-center">
@@ -805,7 +819,7 @@
           
           <div class="mb-3">
             <label class="form-label fw-bold">Nuevo Estado</label>
-            <select class="form-select" [(ngModel)]="NewServiceStatusId">
+            <select class="form-select" [(ngModel)]="NewServiceStatusId" name="updSvcStatus">
               <option [ngValue]="1">Pendiente</option>
               <option [ngValue]="2">En Progreso</option>
               <option [ngValue]="3">Completado</option>
@@ -817,6 +831,7 @@
               <i nz-icon nzType="exclamation-circle" class="me-2"></i>
               <span>{{ modalError }}</span>
             </div>
+            <button type="button" class="btn-close" (click)="clearModalError()"></button>
           </div>
         </div>
         <div class="modal-footer border-0 justify-content-center">

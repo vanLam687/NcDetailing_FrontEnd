@@ -7,9 +7,7 @@
             <div class="d-flex align-items-center gap-2">
               <h5 class="mb-0" style="color: #333;">Gestión de Productos</h5>
               <div class="vr" style="height: 16px;"></div>
-              
               <div class="btn-group" role="group">
-                
                 <button 
                   type="button" 
                   class="btn btn-sm" 
@@ -20,7 +18,6 @@
                   <i nz-icon nzType="unordered-list"></i>
                   Lista Productos
                 </button>
-
                 <button *ngIf="isAdmin"
                   type="button" 
                   class="btn btn-sm" 
@@ -31,7 +28,6 @@
                   <i nz-icon nzType="folder-open"></i>
                   Lista Categorías
                 </button>
-
                 <button *ngIf="isAdmin"
                   type="button" 
                   class="btn btn-sm" 
@@ -42,14 +38,13 @@
                   <i nz-icon nzType="plus"></i>
                   Nuevo producto
                 </button>
-
                 <button *ngIf="isAdmin"
                   type="button" 
                   class="btn btn-sm" 
                   [class.btn-primary]="activeView === 'edit'"
                   [class.btn-outline-primary]="activeView !== 'edit'"
                   (click)="showEditBack()"
-                  [disabled]="!canShowEdit() || activeView === 'create' || activeView === 'edit'">
+                  [disabled]="!canShowEdit()">
                   <i nz-icon nzType="edit"></i>
                   Editar
                 </button>
@@ -242,6 +237,8 @@
             <h6 class="mb-0"><i nz-icon nzType="plus"></i> Nuevo Producto</h6>
           </div>
           <div class="card-body">
+            <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">{{ modalError }}</div>
+            
             <form (ngSubmit)="CreateProduct()">
                <div class="row g-2">
                 <div class="col-12">
@@ -303,6 +300,8 @@
             <h6 class="mb-0"><i nz-icon nzType="edit"></i> Editar Producto - {{ SelectedProduct?.name }}</h6>
           </div>
           <div class="card-body">
+             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">{{ modalError }}</div>
+             
              <form (ngSubmit)="EditProduct()">
                 <div class="row g-2">
                   <div class="col-12">
@@ -357,21 +356,18 @@
          </div>
       </div>
 
-      <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
+      <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="createCategoryModalLabel">Crear Nueva Categoría</h5>
+              <h5 class="modal-title">Crear Nueva Categoría</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
             </div>
             <div class="modal-body">
               <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-                <div class="d-flex align-items-center">
-                  <i nz-icon nzType="exclamation-circle" class="me-2"></i>
-                  <span>{{ modalError }}</span>
-                </div>
+                <div class="d-flex align-items-center"><i nz-icon nzType="exclamation-circle" class="me-2"></i><span>{{ modalError }}</span></div>
+                <button type="button" class="btn-close" (click)="clearModalError()"></button>
               </div>
-              
               <div *ngIf="formErrors.categoryName" class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
                 <div class="d-flex align-items-center"><i nz-icon nzType="warning" class="me-2"></i><span>{{ formErrors.categoryName }}</span></div>
                 <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
@@ -383,15 +379,11 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">Cancelar</button>
-              <button type="button" class="btn btn-primary" (click)="CreateCategory()" [disabled]="isSubmitting">
-                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                Crear Categoría
-              </button>
+              <button type="button" class="btn btn-primary" (click)="CreateCategory()" [disabled]="isSubmitting">Crear Categoría</button>
             </div>
           </div>
         </div>
       </div>
-
       <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
@@ -401,12 +393,9 @@
             </div>
             <div class="modal-body">
               <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-                <div class="d-flex align-items-center">
-                  <i nz-icon nzType="exclamation-circle" class="me-2"></i>
-                  <span>{{ modalError }}</span>
-                </div>
+                <div class="d-flex align-items-center"><i nz-icon nzType="exclamation-circle" class="me-2"></i><span>{{ modalError }}</span></div>
+                <button type="button" class="btn-close" (click)="clearModalError()"></button>
               </div>
-
               <div *ngIf="formErrors.categoryName" class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
                 <div class="d-flex align-items-center"><i nz-icon nzType="warning" class="me-2"></i><span>{{ formErrors.categoryName }}</span></div>
                 <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
@@ -418,33 +407,23 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">Cancelar</button>
-              <button type="button" class="btn btn-primary" (click)="EditCategory()" [disabled]="isSubmitting">
-                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                Guardar Cambios
-              </button>
+              <button type="button" class="btn btn-primary" (click)="EditCategory()">Guardar Cambios</button>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
+      <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header border-0">
-              <h5 class="modal-title w-100 text-center" id="deleteProductModalLabel" style="font-weight: 600;">Eliminar Producto</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <h5 class="modal-title w-100 text-center">Eliminar Producto</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center">
-              <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3 text-start" role="alert">
-                <div class="d-flex align-items-center">
-                  <i nz-icon nzType="exclamation-circle" class="me-2"></i>
-                  <span>{{ modalError }}</span>
-                </div>
-              </div>
-
+              <div *ngIf="modalError" class="alert alert-danger text-start">{{ modalError }}</div>
               <div class="mb-4"><i nz-icon nzType="exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i></div>
               <p class="mb-3" style="color: #666; line-height: 1.5;">¿Estás seguro de que deseas eliminar el producto <strong>"{{ ProductToDeleteName }}"</strong>?</p>
-              <p class="text-muted small">Esta acción no se puede deshacer.</p>
             </div>
             <div class="modal-footer border-0 justify-content-center">
               <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
@@ -462,13 +441,6 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-              <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3 text-start" role="alert">
-                <div class="d-flex align-items-center">
-                  <i nz-icon nzType="exclamation-circle" class="me-2"></i>
-                  <span>{{ modalError }}</span>
-                </div>
-              </div>
-
               <div class="mb-4"><i nz-icon nzType="check-circle" style="font-size: 48px; color: #27ae60;"></i></div>
               <p class="mb-3" style="color: #666; line-height: 1.5;">¿Estás seguro de que deseas restaurar el producto <strong>"{{ ProductToRestoreName }}"</strong>?</p>
               <p class="text-muted small">El producto volverá a estar disponible para su uso.</p>
@@ -490,15 +462,10 @@
             </div>
             <div class="modal-body text-center">
               <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3 text-start" role="alert">
-                <div class="d-flex align-items-center">
-                  <i nz-icon nzType="exclamation-circle" class="me-2"></i>
-                  <span>{{ modalError }}</span>
-                </div>
+                <div class="d-flex align-items-center"><i nz-icon nzType="exclamation-circle" class="me-2"></i><span>{{ modalError }}</span></div>
               </div>
-
               <div class="mb-4"><i nz-icon nzType="exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i></div>
               <p class="mb-3" style="color: #666; line-height: 1.5;">¿Estás seguro de que deseas eliminar la categoría <strong>"{{ CategoryToDelete?.name }}"</strong>?</p>
-              <p class="text-muted small">Esta acción no se puede deshacer. No podrás eliminar categorías que estén siendo utilizadas por productos.</p>
             </div>
             <div class="modal-footer border-0 justify-content-center">
               <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
@@ -516,13 +483,6 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-              <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3 text-start" role="alert">
-                <div class="d-flex align-items-center">
-                  <i nz-icon nzType="exclamation-circle" class="me-2"></i>
-                  <span>{{ modalError }}</span>
-                </div>
-              </div>
-
               <div class="mb-4"><i nz-icon nzType="check-circle" style="font-size: 48px; color: #27ae60;"></i></div>
               <p class="mb-3" style="color: #666; line-height: 1.5;">¿Estás seguro de que deseas restaurar la categoría <strong>"{{ CategoryToRestore?.name }}"</strong>?</p>
               <p class="text-muted small">La categoría volverá a estar disponible para su uso.</p>

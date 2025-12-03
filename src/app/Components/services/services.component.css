@@ -252,25 +252,13 @@
   background: linear-gradient(135deg, #fff4e6 0%, #ffeedb 100%);
   color: #e67e22;
   border-left: 4px solid #e67e22;
+  border-radius: 8px;
 }
 
 .alert-success {
   background: linear-gradient(135deg, #e8f6ef 0%, #d1f2eb 100%);
   color: #27ae60;
   border-left: 4px solid #27ae60;
-}
-
-.alert ul {
-  padding-left: 16px;
-  margin-bottom: 0;
-}
-
-.alert li {
-  margin-bottom: 2px;
-}
-
-.alert li:last-child {
-  margin-bottom: 0;
 }
 
 .invalid-feedback {

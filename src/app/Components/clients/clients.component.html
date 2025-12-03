@@ -14,7 +14,7 @@
                   [class.btn-primary]="activeView === 'list'"
                   [class.btn-outline-primary]="activeView !== 'list'"
                   (click)="showListView()"
-                  [disabled]="activeView !== 'list'">
+                  [disabled]="activeView === 'create' || activeView === 'edit'">
                   <i nz-icon nzType="unordered-list"></i>
                   Lista
                 </button>
@@ -24,7 +24,7 @@
                   [class.btn-primary]="activeView === 'create'"
                   [class.btn-outline-primary]="activeView !== 'create'"
                   (click)="showCreateForm()"
-                  [disabled]="activeView !== 'list'">
+                  [disabled]="activeView === 'create' || activeView === 'edit'">
                   <i nz-icon nzType="plus"></i>
                   Nuevo Cliente
                 </button>
@@ -40,6 +40,7 @@
       </div>
 
       <div *ngIf="activeView === 'list'">
+        
         <div class="card shadow-sm mb-2">
           <div class="card-body py-1 px-3">
             <div class="row g-1 align-items-center">
@@ -82,8 +83,12 @@
               </thead>
               <tbody>
                 <tr *ngFor="let client of clientsTable.data" class="table-row">
-                  <td class="ps-2" style="color: #333;"><strong>#{{ client.id }}</strong></td>
-                  <td style="color: #333;"><strong>{{ getFullName(client) }}</strong></td>
+                  <td class="ps-2" style="color: #333;">
+                    <strong>#{{ client.id }}</strong>
+                  </td>
+                  <td style="color: #333;">
+                    <strong>{{ getFullName(client) }}</strong>
+                  </td>
                   <td style="color: #333;">{{ client.email }}</td>
                   <td style="color: #333;">{{ client.phone }}</td>
                   <td style="color: #333;">
@@ -131,40 +136,83 @@
       <div *ngIf="activeView === 'create'">
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3">
-            <h6 class="mb-0"><i nz-icon nzType="plus"></i> Nuevo Cliente</h6>
+            <h6 class="mb-0">
+              <i nz-icon nzType="plus"></i>
+              Nuevo Cliente
+            </h6>
           </div>
           <div class="card-body">
             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
               {{ modalError }}
+              <button type="button" class="btn-close" (click)="clearModalError()"></button>
             </div>
 
             <form (ngSubmit)="CreateClient()">
               <div class="row g-2">
                 <div class="col-md-6">
                   <label class="form-label fw-bold mb-1">Nombre *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="FirstName" name="firstName" required>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.firstName"
+                    [(ngModel)]="FirstName" 
+                    name="firstName"
+                    placeholder="Ej: Juan"
+                    required>
+                  <div *ngIf="formErrors.firstName" class="invalid-feedback">{{ formErrors.firstName }}</div>
                 </div>
+
                 <div class="col-md-6">
                   <label class="form-label fw-bold mb-1">Apellido *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="LastName" name="lastName" required>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.lastName"
+                    [(ngModel)]="LastName" 
+                    name="lastName"
+                    placeholder="Ej: Pérez"
+                    required>
+                  <div *ngIf="formErrors.lastName" class="invalid-feedback">{{ formErrors.lastName }}</div>
                 </div>
+
                 <div class="col-md-6">
                   <label class="form-label fw-bold mb-1">Email *</label>
-                  <input type="email" class="form-control form-control-sm" [(ngModel)]="Email" name="email" required>
+                  <input 
+                    type="email" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.email"
+                    [(ngModel)]="Email" 
+                    name="email"
+                    placeholder="Ej: juan@example.com"
+                    required>
+                  <div *ngIf="formErrors.email" class="invalid-feedback">{{ formErrors.email }}</div>
                 </div>
+
                 <div class="col-md-6">
                   <label class="form-label fw-bold mb-1">Teléfono *</label>
-                  <input type="text" class="form-control form-control-sm" [(ngModel)]="Phone" name="phone" required>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.phone"
+                    [(ngModel)]="Phone" 
+                    name="phone"
+                    placeholder="Ej: 1234567890"
+                    required>
+                  <div *ngIf="formErrors.phone" class="invalid-feedback">{{ formErrors.phone }}</div>
                 </div>
+
                 <div class="col-12">
                   <label class="form-label fw-bold mb-1">Vehículos</label>
+                  
                   <div class="mb-2">
                     <div *ngFor="let vehicle of Vehicles; let i = index" class="card mb-1">
                       <div class="card-body py-1 px-2">
                         <div class="row align-items-center">
                           <div class="col">
                             <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong><br>
-                            <small class="text-muted">Año: {{ vehicle.year }} | Color: {{ vehicle.color }} | Patente: {{ vehicle.license_plate }}</small>
+                            <small class="text-muted">
+                              Año: {{ vehicle.year }} | Color: {{ vehicle.color }} | Patente: {{ vehicle.license_plate }}
+                            </small>
                           </div>
                           <div class="col-auto">
                             <button type="button" class="btn btn-sm btn-outline-danger" (click)="RemoveVehicle(i)">
@@ -175,29 +223,67 @@
                       </div>
                     </div>
                   </div>
+
                   <div class="card">
-                    <div class="card-header bg-light py-1 px-2"><h6 class="mb-0" style="font-size: 12px;">Agregar Vehículo</h6></div>
+                    <div class="card-header bg-light py-1 px-2">
+                      <h6 class="mb-0" style="font-size: 12px;">Agregar Vehículo</h6>
+                    </div>
                     <div class="card-body py-2 px-2">
                       <div class="row g-1">
-                        <div class="col-md"><input type="text" class="form-control form-control-sm" [(ngModel)]="NewVehicleBrand" placeholder="Marca" name="vehicleBrand"></div>
-                        <div class="col-md"><input type="text" class="form-control form-control-sm" [(ngModel)]="NewVehicleModel" placeholder="Modelo" name="vehicleModel"></div>
-                        <div class="col-md"><input type="number" class="form-control form-control-sm" [(ngModel)]="NewVehicleYear" placeholder="Año" min="1900" name="vehicleYear"></div>
-                        <div class="col-md"><input type="text" class="form-control form-control-sm" [(ngModel)]="NewVehicleColor" placeholder="Color" name="vehicleColor"></div>
-                        <div class="col-md"><input type="text" class="form-control form-control-sm" [(ngModel)]="NewVehicleLicensePlate" placeholder="Patente" name="vehicleLicensePlate"></div>
+                        <div class="col-md">
+                          <input type="text" class="form-control form-control-sm" [class.is-invalid]="formErrors.vehicleBrand" [(ngModel)]="NewVehicleBrand" placeholder="Marca" name="vehicleBrand">
+                          <div *ngIf="formErrors.vehicleBrand" class="invalid-feedback">{{ formErrors.vehicleBrand }}</div>
+                        </div>
+                        <div class="col-md">
+                          <input type="text" class="form-control form-control-sm" [class.is-invalid]="formErrors.vehicleModel" [(ngModel)]="NewVehicleModel" placeholder="Modelo" name="vehicleModel">
+                          <div *ngIf="formErrors.vehicleModel" class="invalid-feedback">{{ formErrors.vehicleModel }}</div>
+                        </div>
+                        <div class="col-md">
+                          <input type="number" class="form-control form-control-sm" [class.is-invalid]="formErrors.vehicleYear" [(ngModel)]="NewVehicleYear" placeholder="Año" min="1900" name="vehicleYear">
+                          <div *ngIf="formErrors.vehicleYear" class="invalid-feedback">{{ formErrors.vehicleYear }}</div>
+                        </div>
+                        <div class="col-md">
+                          <input type="text" class="form-control form-control-sm" [class.is-invalid]="formErrors.vehicleColor" [(ngModel)]="NewVehicleColor" placeholder="Color" name="vehicleColor">
+                          <div *ngIf="formErrors.vehicleColor" class="invalid-feedback">{{ formErrors.vehicleColor }}</div>
+                        </div>
+                        <div class="col-md">
+                          <input type="text" class="form-control form-control-sm" [class.is-invalid]="formErrors.vehicleLicensePlate" [(ngModel)]="NewVehicleLicensePlate" placeholder="Patente" name="vehicleLicensePlate">
+                          <div *ngIf="formErrors.vehicleLicensePlate" class="invalid-feedback">{{ formErrors.vehicleLicensePlate }}</div>
+                        </div>
                         <div class="col-md-auto">
-                          <button type="button" class="btn btn-primary btn-sm" (click)="AddVehicle()"><i nz-icon nzType="plus"></i> Agregar</button>
+                          <button type="button" class="btn btn-primary btn-sm" (click)="AddVehicle()">
+                            <i nz-icon nzType="plus"></i>
+                            Agregar
+                          </button>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
+
                 <div class="col-12">
                   <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="showListView()"><i nz-icon nzType="arrow-left"></i> Volver</button>
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-secondary btn-sm"
+                      (click)="showListView()">
+                      <i nz-icon nzType="arrow-left"></i>
+                      Volver
+                    </button>
+                    
                     <div class="d-flex gap-1">
-                      <button type="button" class="btn btn-outline-danger btn-sm" (click)="clearForm()">Limpiar</button>
-                      <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting">
-                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span> Crear
+                      <button 
+                        type="button" 
+                        class="btn btn-outline-danger btn-sm"
+                        (click)="clearForm()">
+                        Limpiar
+                      </button>
+                      <button 
+                        type="submit" 
+                        class="btn btn-primary btn-sm"
+                        [disabled]="isSubmitting">
+                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                        Crear
                       </button>
                     </div>
                   </div>
@@ -211,21 +297,77 @@
       <div *ngIf="activeView === 'edit'">
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3">
-            <h6 class="mb-0"><i nz-icon nzType="edit"></i> Editar Cliente</h6>
+            <h6 class="mb-0">
+              <i nz-icon nzType="edit"></i>
+              Editar Cliente - {{ getFullName(SelectedClient) }}
+            </h6>
           </div>
           <div class="card-body">
             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
               {{ modalError }}
+              <button type="button" class="btn-close" (click)="clearModalError()"></button>
+            </div>
+            <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+              <strong>Por favor corrige los errores marcados.</strong>
             </div>
 
             <form (ngSubmit)="EditClient()">
               <div class="row g-2">
-                <div class="col-md-6"><label class="form-label fw-bold mb-1">Nombre *</label><input type="text" class="form-control form-control-sm" [(ngModel)]="FirstNameEdit" name="firstNameEdit" required></div>
-                <div class="col-md-6"><label class="form-label fw-bold mb-1">Apellido *</label><input type="text" class="form-control form-control-sm" [(ngModel)]="LastNameEdit" name="lastNameEdit" required></div>
-                <div class="col-md-6"><label class="form-label fw-bold mb-1">Email *</label><input type="email" class="form-control form-control-sm" [(ngModel)]="EmailEdit" name="emailEdit" required></div>
-                <div class="col-md-6"><label class="form-label fw-bold mb-1">Teléfono *</label><input type="text" class="form-control form-control-sm" [(ngModel)]="PhoneEdit" name="phoneEdit" required></div>
+                <div class="col-md-6">
+                  <label class="form-label fw-bold mb-1">Nombre *</label>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.firstName"
+                    [(ngModel)]="FirstNameEdit" 
+                    name="firstNameEdit"
+                    placeholder="Ej: Juan"
+                    required>
+                  <div *ngIf="formErrors.firstName" class="invalid-feedback">{{ formErrors.firstName }}</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-bold mb-1">Apellido *</label>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.lastName"
+                    [(ngModel)]="LastNameEdit" 
+                    name="lastNameEdit"
+                    placeholder="Ej: Pérez"
+                    required>
+                  <div *ngIf="formErrors.lastName" class="invalid-feedback">{{ formErrors.lastName }}</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-bold mb-1">Email *</label>
+                  <input 
+                    type="email" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.email"
+                    [(ngModel)]="EmailEdit" 
+                    name="emailEdit"
+                    placeholder="Ej: juan@example.com"
+                    required>
+                  <div *ngIf="formErrors.email" class="invalid-feedback">{{ formErrors.email }}</div>
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-bold mb-1">Teléfono *</label>
+                  <input 
+                    type="text" 
+                    class="form-control form-control-sm" 
+                    [class.is-invalid]="formErrors.phone"
+                    [(ngModel)]="PhoneEdit" 
+                    name="phoneEdit"
+                    placeholder="Ej: 1234567890"
+                    required>
+                  <div *ngIf="formErrors.phone" class="invalid-feedback">{{ formErrors.phone }}</div>
+                </div>
+
                 <div class="col-12">
                   <label class="form-label fw-bold mb-1">Vehículos</label>
+                  
                   <div class="mb-2">
                     <ng-container *ngFor="let vehicle of VehiclesEdit; let i = index">
                       <div class="card mb-1" *ngIf="!vehicle.deleted">
@@ -233,36 +375,75 @@
                           <div class="row align-items-center">
                             <div class="col">
                               <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong><br>
-                              <small class="text-muted">Año: {{ vehicle.year }} | Color: {{ vehicle.color }} | Patente: {{ vehicle.license_plate }}</small>
+                              <small class="text-muted">
+                                Año: {{ vehicle.year }} | Color: {{ vehicle.color }} | Patente: {{ vehicle.license_plate }}
+                              </small>
                             </div>
                             <div class="col-auto">
-                              <button type="button" class="btn btn-sm btn-outline-danger" (click)="RemoveVehicle(i)"><i nz-icon nzType="delete"></i></button>
+                              <button type="button" class="btn btn-sm btn-outline-danger" (click)="RemoveVehicle(i)">
+                                <i nz-icon nzType="delete"></i>
+                              </button>
                             </div>
                           </div>
                         </div>
                       </div>
                     </ng-container>
                   </div>
+
                   <div class="card">
-                    <div class="card-header bg-light py-1 px-2"><h6 class="mb-0" style="font-size: 12px;">Agregar Vehículo</h6></div>
+                    <div class="card-header bg-light py-1 px-2">
+                      <h6 class="mb-0" style="font-size: 12px;">Agregar Vehículo</h6>
+                    </div>
                     <div class="card-body py-2 px-2">
                       <div class="row g-1">
-                        <div class="col-md"><input type="text" class="form-control form-control-sm" [(ngModel)]="NewVehicleBrand" placeholder="Marca" name="vehicleBrand"></div>
-                        <div class="col-md"><input type="text" class="form-control form-control-sm" [(ngModel)]="NewVehicleModel" placeholder="Modelo" name="vehicleModel"></div>
-                        <div class="col-md"><input type="number" class="form-control form-control-sm" [(ngModel)]="NewVehicleYear" placeholder="Año" min="1900" name="vehicleYear"></div>
-                        <div class="col-md"><input type="text" class="form-control form-control-sm" [(ngModel)]="NewVehicleColor" placeholder="Color" name="vehicleColor"></div>
-                        <div class="col-md"><input type="text" class="form-control form-control-sm" [(ngModel)]="NewVehicleLicensePlate" placeholder="Patente" name="vehicleLicensePlate"></div>
-                        <div class="col-md-auto"><button type="button" class="btn btn-primary btn-sm" (click)="AddVehicle()"><i nz-icon nzType="plus"></i> Agregar</button></div>
+                        <div class="col-md">
+                          <input type="text" class="form-control form-control-sm" [class.is-invalid]="formErrors.vehicleBrand" [(ngModel)]="NewVehicleBrand" placeholder="Marca" name="vehicleBrand">
+                          <div *ngIf="formErrors.vehicleBrand" class="invalid-feedback">{{ formErrors.vehicleBrand }}</div>
+                        </div>
+                        <div class="col-md">
+                          <input type="text" class="form-control form-control-sm" [class.is-invalid]="formErrors.vehicleModel" [(ngModel)]="NewVehicleModel" placeholder="Modelo" name="vehicleModel">
+                          <div *ngIf="formErrors.vehicleModel" class="invalid-feedback">{{ formErrors.vehicleModel }}</div>
+                        </div>
+                        <div class="col-md">
+                          <input type="number" class="form-control form-control-sm" [class.is-invalid]="formErrors.vehicleYear" [(ngModel)]="NewVehicleYear" placeholder="Año" min="1900" name="vehicleYear">
+                          <div *ngIf="formErrors.vehicleYear" class="invalid-feedback">{{ formErrors.vehicleYear }}</div>
+                        </div>
+                        <div class="col-md">
+                          <input type="text" class="form-control form-control-sm" [class.is-invalid]="formErrors.vehicleColor" [(ngModel)]="NewVehicleColor" placeholder="Color" name="vehicleColor">
+                          <div *ngIf="formErrors.vehicleColor" class="invalid-feedback">{{ formErrors.vehicleColor }}</div>
+                        </div>
+                        <div class="col-md">
+                          <input type="text" class="form-control form-control-sm" [class.is-invalid]="formErrors.vehicleLicensePlate" [(ngModel)]="NewVehicleLicensePlate" placeholder="Patente" name="vehicleLicensePlate">
+                          <div *ngIf="formErrors.vehicleLicensePlate" class="invalid-feedback">{{ formErrors.vehicleLicensePlate }}</div>
+                        </div>
+                        <div class="col-md-auto">
+                          <button type="button" class="btn btn-primary btn-sm" (click)="AddVehicle()">
+                            <i nz-icon nzType="plus"></i>
+                            Agregar
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+
                 <div class="col-12">
                   <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="showListView()"><i nz-icon nzType="arrow-left"></i> Volver</button>
+                    <button 
+                      type="button" 
+                      class="btn btn-outline-secondary btn-sm"
+                      (click)="showListView()">
+                      <i nz-icon nzType="arrow-left"></i>
+                      Volver
+                    </button>
+                    
                     <div class="d-flex gap-1">
-                      <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting">
-                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span> Guardar
+                      <button 
+                        type="submit" 
+                        class="btn btn-primary btn-sm"
+                        [disabled]="isSubmitting">
+                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                        Guardar
                       </button>
                     </div>
                   </div>
@@ -277,53 +458,275 @@
         <div class="card shadow-sm">
           <div class="card-header py-2 px-3">
             <div class="d-flex justify-content-between align-items-center">
-              <h6 class="mb-0"><i nz-icon nzType="history"></i> Historial de Compras - {{ getFullName(SelectedClient) }}</h6>
-              <button type="button" class="btn btn-light-outline btn-sm" (click)="showListView()"><i nz-icon nzType="arrow-left"></i> Volver</button>
+              <h6 class="mb-0">
+                <i nz-icon nzType="history"></i>
+                Historial de Compras - {{ getFullName(SelectedClient) }}
+              </h6>
+                <button 
+                  type="button" 
+                  class="btn btn-light-outline btn-sm"
+                  (click)="showListView()">
+                  <i nz-icon nzType="arrow-left"></i>
+                  Volver
+                </button>
             </div>
           </div>
           <div class="card-body">
-             <div *ngIf="HistoryLoading" class="text-center py-4"><i nz-icon nzType="loading" nzTheme="outline" style="font-size: 24px;"></i><p class="text-muted mt-2">Cargando historial...</p></div>
-             <div *ngIf="!HistoryLoading && ClientHistory">
-                <div class="mb-4">
-                  <h6 class="text-primary mb-3">Historial de Servicios</h6>
-                  <div *ngIf="!ClientHistory.servicesHistory?.length" class="alert alert-info">No hay servicios registrados.</div>
+            <div *ngIf="HistoryLoading" class="text-center py-4">
+              <i nz-icon nzType="loading" nzTheme="outline" style="font-size: 24px;"></i>
+              <p class="text-muted mt-2">Cargando historial...</p>
+            </div>
+
+            <div *ngIf="!HistoryLoading && ClientHistory">
+              
+              <div class="mb-4">
+                <h6 class="text-primary mb-3">
+                  <i nz-icon nzType="tool" class="me-2"></i>
+                  Historial de Servicios
+                  <span class="badge bg-primary ms-2">{{ ClientHistory.servicesHistory?.length || 0 }}</span>
+                </h6>
+
+                <div *ngIf="!ClientHistory.servicesHistory || ClientHistory.servicesHistory.length === 0" 
+                     class="alert alert-info">
+                  No hay servicios registrados para este cliente.
+                </div>
+
+                <div *ngIf="ClientHistory.servicesHistory && ClientHistory.servicesHistory.length > 0">
                   <div *ngFor="let serviceSale of ClientHistory.servicesHistory" class="card mb-3">
-                     <div class="card-header bg-light py-2 px-3"><strong>Venta #{{ serviceSale.sale_id }}</strong></div>
-                     <div class="card-body"><small>Total:</small> <strong>${{ formatNumber(serviceSale.sale_total) }}</strong></div>
+                    <div class="card-header bg-light py-2 px-3">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <strong>Venta #{{ serviceSale.sale_id }}</strong>
+                        <span class="text-white">{{ formatDate(serviceSale.created_at) }}</span>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="row mb-2">
+                        <div class="col-md-6">
+                          <small class="text-muted">Vehículo:</small>
+                          <p class="mb-0">{{ serviceSale.vehicle_info || 'No especificado' }}</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                          <small class="text-muted">Total:</small>
+                          <h5 class="text-success mb-0">${{ formatNumber(serviceSale.sale_total) }}</h5>
+                        </div>
+                      </div>
+                      
+                      <h6 class="mt-3 mb-2">Servicios:</h6>
+                      <div class="table-responsive">
+                        <table class="table table-sm">
+                          <thead>
+                            <tr>
+                              <th>Servicio</th>
+                              <th class="text-end">Precio</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let service of serviceSale.services">
+                              <td>{{ service.name }}</td>
+                              <td class="text-end">${{ formatNumber(service.price) }}</td>
+                            </tr>
+                          </tbody>
+                          <tfoot>
+                            <tr>
+                              <th>Total</th>
+                              <th class="text-end">${{ formatNumber(getServicesTotal(serviceSale.services)) }}</th>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <h6 class="text-primary mb-3">Historial de Productos</h6>
-                  <div *ngIf="!ClientHistory.productsHistory?.length" class="alert alert-info">No hay productos registrados.</div>
+              </div>
+
+              <div>
+                <h6 class="text-primary mb-3">
+                  <i nz-icon nzType="shopping" class="me-2"></i>
+                  Historial de Productos
+                  <span class="badge bg-primary ms-2">{{ ClientHistory.productsHistory?.length || 0 }}</span>
+                </h6>
+
+                <div *ngIf="!ClientHistory.productsHistory || ClientHistory.productsHistory.length === 0" 
+                     class="alert alert-info">
+                  No hay productos registrados para este cliente.
+                </div>
+
+                <div *ngIf="ClientHistory.productsHistory && ClientHistory.productsHistory.length > 0">
                   <div *ngFor="let productSale of ClientHistory.productsHistory" class="card mb-3">
-                     <div class="card-header bg-light py-2 px-3"><strong>Venta #{{ productSale.sale_id }}</strong></div>
-                     <div class="card-body"><small>Total:</small> <strong>${{ formatNumber(productSale.sale_total) }}</strong></div>
+                    <div class="card-header bg-light py-2 px-3">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <strong>Venta #{{ productSale.sale_id }}</strong>
+                        <span class="text-white">{{ formatDate(productSale.created_at) }}</span>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="row mb-2">
+                        <div class="col-md-6">
+                          <small class="text-muted">Fecha:</small>
+                          <p class="mb-0">{{ formatDate(productSale.created_at) }}</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                          <small class="text-muted">Total:</small>
+                          <h5 class="text-success mb-0">${{ formatNumber(productSale.sale_total) }}</h5>
+                        </div>
+                      </div>
+                      
+                      <h6 class="mt-3 mb-2">Productos:</h6>
+                      <div class="table-responsive">
+                        <table class="table table-sm">
+                          <thead>
+                            <tr>
+                              <th>Producto</th>
+                              <th class="text-center">Cantidad</th>
+                              <th class="text-end">Precio Unit.</th>
+                              <th class="text-end">Subtotal</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let product of productSale.products">
+                              <td>{{ product.name }}</td>
+                              <td class="text-center">{{ product.quantity }}</td>
+                              <td class="text-end">${{ formatNumber(product.unit_price) }}</td>
+                              <td class="text-end">${{ formatNumber(product.subtotal) }}</td>
+                            </tr>
+                          </tbody>
+                          <tfoot>
+                            <tr>
+                              <th colspan="3">Total</th>
+                              <th class="text-end">${{ formatNumber(getProductsTotal(productSale.products)) }}</th>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                 </div>
-             </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="modal fade" id="viewClientModal" tabindex="-1" aria-hidden="true">
+      <div class="modal fade" id="viewClientModal" tabindex="-1" aria-labelledby="viewClientModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header" style="background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%); border: none;">
-              <h5 class="modal-title text-white"><i nz-icon nzType="user" class="me-2"></i> Detalles del Cliente</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              <h5 class="modal-title text-white" id="viewClientModalLabel">
+                <i nz-icon nzType="user" class="me-2"></i>
+                Detalles del Cliente
+              </h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-4">
-               <p><strong>Nombre:</strong> {{ SelectedClient?.first_name }} {{ SelectedClient?.last_name }}</p>
-               <p><strong>Email:</strong> {{ SelectedClient?.email }}</p>
-               <p><strong>Teléfono:</strong> {{ SelectedClient?.phone }}</p>
+            <div class="modal-body modal-scrollable-body p-4">
+              <div class="row mb-4">
+                <div class="col-12">
+                  <div class="card border-0 shadow-sm">
+                    <div class="card-header py-3" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                      <h6 class="mb-0 text-light">
+                        <i nz-icon nzType="idcard" class="me-2 text-primary"></i>
+                        Información Personal
+                      </h6>
+                    </div>
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <div class="d-flex align-items-center">
+                            <i nz-icon nzType="number" class="text-primary me-3" style="font-size: 18px;"></i>
+                            <div>
+                              <small class="text-muted d-block">ID del Cliente</small>
+                              <strong class="text-dark">#{{ SelectedClient?.id }}</strong>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <div class="d-flex align-items-center">
+                            <i nz-icon nzType="user" class="text-primary me-3" style="font-size: 18px;"></i>
+                            <div>
+                              <small class="text-muted d-block">Nombre Completo</small>
+                              <strong class="text-dark">{{ SelectedClient?.first_name }} {{ SelectedClient?.last_name }}</strong>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <div class="d-flex align-items-center">
+                            <i nz-icon nzType="mail" class="text-primary me-3" style="font-size: 18px;"></i>
+                            <div>
+                              <small class="text-muted d-block">Email</small>
+                              <strong class="text-dark">{{ SelectedClient?.email }}</strong>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <div class="d-flex align-items-center">
+                            <i nz-icon nzType="phone" class="text-primary me-3" style="font-size: 18px;"></i>
+                            <div>
+                              <small class="text-muted d-block">Teléfono</small>
+                              <strong class="text-dark">{{ SelectedClient?.phone }}</strong>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-12">
+                  <h6 class="text-primary mb-3">
+                    <i nz-icon nzType="car" class="me-2"></i>
+                    Vehículos Registrados
+                    <span class="badge bg-primary ms-2">{{ SelectedClient?.vehicles?.length || 0 }}</span>
+                  </h6>
+                  
+                  <div *ngIf="SelectedClient?.vehicles && SelectedClient.vehicles.length > 0" class="row g-3">
+                    <div *ngFor="let vehicle of SelectedClient.vehicles" class="col-md-6">
+                      <div class="card h-100 border-0 shadow-sm hover-card">
+                        <div class="card-body p-4">
+                          <div class="d-flex align-items-start mb-3">
+                            <div class="vehicle-icon me-3">
+                              <i nz-icon nzType="car" style="font-size: 24px; color: #6c63b8;"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                              <h6 class="card-title mb-2 text-dark">{{ vehicle.brand }} {{ vehicle.model }}</h6>
+                              <div class="vehicle-details">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                  <small class="text-muted">Año</small>
+                                  <strong class="text-dark">{{ vehicle.year }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                  <small class="text-muted">Color</small>
+                                  <strong class="text-dark">{{ vehicle.color }}</strong>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                  <small class="text-muted">Patente</small>
+                                  <strong class="text-primary">{{ vehicle.license_plate }}</strong>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div *ngIf="!SelectedClient?.vehicles || SelectedClient.vehicles.length === 0" class="text-center py-5">
+                    <i nz-icon nzType="car" style="font-size: 48px; color: #6c757d;" class="mb-3"></i>
+                    <p class="text-muted mb-2">No hay vehículos registrados</p>
+                    <small class="text-muted">Este cliente no tiene vehículos asociados</small>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="modal-footer border-0">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <i nz-icon nzType="close" class="me-1"></i>
+                Cerrar
+              </button>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
