@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router'; // Agregado ActivatedRoute
 import { UsersService } from '../../Services/users-service';
 import { AuthService } from '../../Services/auth-service';
+import { NzNotificationService } from 'ng-zorro-antd/notification'; // Agregado
 
 @Component({
   selector: 'app-login',
@@ -14,7 +15,9 @@ export class LoginComponent implements OnInit {
   constructor(
     private service: UsersService, 
     private auth: AuthService, 
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute, // Inyectamos ActivatedRoute para leer params
+    private notification: NzNotificationService // Inyectamos notificaciones
   ) {}
 
   username: string = '';
@@ -30,6 +33,17 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Verificar si venimos redirigidos por sesión expirada
+    this.route.queryParams.subscribe(params => {
+      if (params['sessionExpired'] === 'true') {
+        this.notification.warning(
+          'Sesión Expirada',
+          'Tu sesión ha caducado. Por favor, inicia sesión nuevamente.',
+          { nzDuration: 5000 }
+        );
+      }
+    });
+
     this.auth.logout();
   }
 
@@ -53,7 +67,7 @@ export class LoginComponent implements OnInit {
           this.auth.setToken(res.token);
           this.clearError();
           this.clearFormErrors();
-          // Se eliminó la notificación de éxito, redirige directo
+          // Redirigir al home
           this.router.navigate(['/home/']);
         } else {
           this.errorMessage = 'Credenciales inválidas.';

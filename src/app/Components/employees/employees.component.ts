@@ -91,36 +91,52 @@ export class EmployeesComponent implements OnInit {
     this.clearFormErrors();
   }
 
+  // --- VALIDACIÓN MEJORADA ---
   validateEmployeeForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
     
     // Validar Nombre
     if (!this.currentName || this.currentName.trim() === '') {
-      this.formErrors.name = 'El nombre es requerido';
+      this.formErrors.name = 'El nombre es requerido.';
       isValid = false;
     }
     
     // Validar Usuario
     if (!this.currentUsername || this.currentUsername.trim() === '') {
-      this.formErrors.username = 'El usuario es requerido';
+      this.formErrors.username = 'El usuario es requerido.';
+      isValid = false;
+    } else if (this.currentUsername.length < 4) {
+      this.formErrors.username = 'El usuario debe tener al menos 4 caracteres.';
       isValid = false;
     }
     
     // Validar Email
     if (!this.currentEmail || this.currentEmail.trim() === '') {
-      this.formErrors.email = 'El email es requerido';
+      this.formErrors.email = 'El email es requerido.';
       isValid = false;
     } else if (!this.isValidEmail(this.currentEmail)) {
-      this.formErrors.email = 'Formato de email inválido';
+      this.formErrors.email = 'Formato de email inválido.';
       isValid = false;
     }
     
-    // Validar Contraseña (solo si es crear, o si es editar y escribió algo)
+    // Validar Contraseña
     if (!this.isEditMode) {
+      // En Creación: Obligatoria y mínimo 6 caracteres
       if (!this.currentPassword || this.currentPassword.trim() === '') {
-        this.formErrors.password = 'La contraseña es requerida';
+        this.formErrors.password = 'La contraseña es requerida.';
         isValid = false;
+      } else if (this.currentPassword.length < 6) {
+        this.formErrors.password = 'La contraseña debe tener al menos 6 caracteres.';
+        isValid = false;
+      }
+    } else {
+      // En Edición: Opcional, pero si escribe, validar longitud
+      if (this.currentPassword && this.currentPassword.trim() !== '') {
+        if (this.currentPassword.length < 6) {
+          this.formErrors.password = 'La nueva contraseña debe tener al menos 6 caracteres.';
+          isValid = false;
+        }
       }
     }
 
@@ -293,7 +309,6 @@ export class EmployeesComponent implements OnInit {
   clearModalError(): void { this.modalError = ''; }
   clearFormErrors(): void { this.formErrors = {}; }
   hasFormErrors(): boolean { return Object.keys(this.formErrors).length > 0; }
-  
   clearForm(): void {
     this.Name = ''; this.Username = ''; this.Email = ''; this.Password = '';
     this.NameEdit = ''; this.UsernameEdit = ''; this.EmailEdit = ''; this.PasswordEdit = '';

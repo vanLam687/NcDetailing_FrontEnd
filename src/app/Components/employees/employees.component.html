@@ -128,6 +128,9 @@
                 <span>{{ modalError }}</span>
               </div>
             </div>
+            <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+              <strong>Por favor corrige los errores marcados.</strong>
+            </div>
 
             <form (ngSubmit)="isEditMode ? EditEmployee() : CreateEmployee()">
               <div class="row g-2">
@@ -141,7 +144,7 @@
                     name="name" 
                     placeholder="Ej: Juan Pérez"
                     required>
-                  <div *ngIf="formErrors.name" class="invalid-feedback">{{ formErrors.name }}</div>
+                  <div *ngIf="formErrors.name" class="invalid-feedback d-block">{{ formErrors.name }}</div>
                 </div>
                 
                 <div class="col-md-6">
@@ -154,7 +157,7 @@
                     name="username" 
                     placeholder="Ej: jperez"
                     required>
-                  <div *ngIf="formErrors.username" class="invalid-feedback">{{ formErrors.username }}</div>
+                  <div *ngIf="formErrors.username" class="invalid-feedback d-block">{{ formErrors.username }}</div>
                 </div>
                 
                 <div class="col-12">
@@ -167,7 +170,7 @@
                     name="email" 
                     placeholder="Ej: juan@example.com"
                     required>
-                  <div *ngIf="formErrors.email" class="invalid-feedback">{{ formErrors.email }}</div>
+                  <div *ngIf="formErrors.email" class="invalid-feedback d-block">{{ formErrors.email }}</div>
                 </div>
                 
                 <div class="col-12">
@@ -180,7 +183,7 @@
                     name="password" 
                     placeholder="Ej: ********"
                     [required]="!isEditMode">
-                  <div *ngIf="formErrors.password" class="invalid-feedback">{{ formErrors.password }}</div>
+                  <div *ngIf="formErrors.password" class="invalid-feedback d-block">{{ formErrors.password }}</div>
                 </div>
                 
                 <div class="col-12">
