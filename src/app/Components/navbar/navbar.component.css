@@ -103,6 +103,56 @@
   gap: 20px;
 }
 
+/* ESTILOS DE LA CAMPANA DE ALERTAS */
+.alerts-section {
+  display: flex;
+  align-items: center;
+}
+
+.alerts-section i:hover {
+  opacity: 0.8;
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
+
+/* Estilo del menú desplegable de alertas */
+.alerts-menu {
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.alert-item {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.alert-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Ajustes para el texto del producto */
+.alert-item .product-info strong {
+  font-size: 13px;
+  margin-bottom: 2px;
+  line-height: 1.2;
+}
+
+/* Badge de stock limpio */
+.alert-item .badge {
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  min-width: 70px;
+  text-align: center;
+  border: none !important; /* Asegura que no haya bordes */
+}
+
+/* FIN ALERTAS */
+
 .user-info {
   display: flex;
   flex-direction: column;

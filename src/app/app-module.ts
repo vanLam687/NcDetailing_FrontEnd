@@ -33,6 +33,7 @@ import { NzInputNumberModule } from 'ng-zorro-antd/input-number';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzNotificationComponent } from 'ng-zorro-antd/notification';
+import { NzBadgeModule } from 'ng-zorro-antd/badge';
 
 // NZ-Zorro locales
 import { NZ_I18N, es_ES } from 'ng-zorro-antd/i18n';
@@ -114,6 +115,7 @@ const icons: IconDefinition[] = Object.keys(antDesignIcons)
     NzInputNumberModule,
     NzListModule,
     NzNotificationComponent,
+    NzBadgeModule,
 
     // ApexCharts + Material
     NgApexchartsModule,

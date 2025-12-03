@@ -1,5 +1,4 @@
 <div class="app-container">
-  <!-- Header superior -->
   <header class="app-header">
     <div class="header-content">
       <div class="brand-section">
@@ -13,6 +12,51 @@
       </div>
       
       <div class="user-section">
+
+        <div class="alerts-section me-3" *ngIf="canAccessProducts()">
+          <a nz-dropdown [nzDropdownMenu]="menu" nzTrigger="click" nzPlacement="bottomRight" (click)="checkLowStock()">
+            <nz-badge [nzCount]="lowStockProducts.length" [nzOverflowCount]="99" nzSize="small">
+              <i nz-icon nzType="bell" style="font-size: 20px; color: black; cursor: pointer;"></i>
+            </nz-badge>
+          </a>
+          
+          <nz-dropdown-menu #menu="nzDropdownMenu">
+            <ul nz-menu class="alerts-menu">
+              <li nz-menu-group>
+                <span title>
+                  <i nz-icon nzType="alert" class="me-2 text-warning"></i>
+                  Alertas de Reposición
+                </span>
+              </li>
+              <li nz-menu-divider></li>
+              
+              <ng-container *ngIf="lowStockProducts.length > 0; else noAlerts">
+                <li nz-menu-item *ngFor="let p of lowStockProducts" class="alert-item" [routerLink]="['/home/products']">
+                  <div class="w-100">
+                    <div class="mb-1">
+                      <strong class="text-dark text-break" style="font-size: 13px;">{{ p.name }}</strong>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                      <span class="badge" 
+                            [class.bg-danger]="p.stock === 0" 
+                            [class.bg-warning]="p.stock > 0">
+                        Stock: {{ p.stock }}
+                      </span>
+                    </div>
+                  </div>
+                </li>
+              </ng-container>
+
+              <ng-template #noAlerts>
+                <div class="p-3 text-center text-muted">
+                  <i nz-icon nzType="check-circle" style="font-size: 24px; color: #27ae60;"></i>
+                  <p class="mb-0 mt-2 small">Stock en orden</p>
+                </div>
+              </ng-template>
+            </ul>
+          </nz-dropdown-menu>
+        </div>
         <div class="user-info">
           <span class="user-greeting">Hola, {{getUserName()}}</span>
           <span class="user-role">{{getUserRoleName()}}</span>
@@ -25,94 +69,59 @@
   </header>
 
   <div class="app-body">
-    <!-- Sidebar mejorado -->
     <aside class="app-sidebar" [class.collapsed]="isCollapsed">
       <nav class="sidebar-nav">
-        
         <ul class="nav-menu">
           <li class="nav-item">
             <a class="nav-link" routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-              <div class="nav-icon">
-                <i nz-icon nzType="dashboard"></i>
-              </div>
+              <div class="nav-icon"><i nz-icon nzType="dashboard"></i></div>
               <span class="nav-label">Dashboard</span>
             </a>
           </li>
-
-          <!-- Métricas - Solo Admin -->
           <li class="nav-item" *ngIf="canAccessMetrics()">
             <a class="nav-link" routerLink="/home/metrics" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="bar-chart"></i>
-              </div>
+              <div class="nav-icon"><i nz-icon nzType="bar-chart"></i></div>
               <span class="nav-label">Métricas</span>
             </a>
           </li>
-
-          <!-- Ventas - Admin y Empleado -->
           <li class="nav-item" *ngIf="canAccessSales()">
             <a class="nav-link" routerLink="/home/sales" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="dollar"></i>
-              </div>
+              <div class="nav-icon"><i nz-icon nzType="dollar"></i></div>
               <span class="nav-label">Ventas</span>
             </a>
           </li>
-
-          <!-- Clientes - Admin y Empleado -->
           <li class="nav-item" *ngIf="canAccessClients()">
             <a class="nav-link" routerLink="/home/clients" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="user"></i>
-              </div>
+              <div class="nav-icon"><i nz-icon nzType="user"></i></div>
               <span class="nav-label">Clientes</span>
             </a>
           </li>
-          
-          <!-- Servicios - Admin y Empleado -->
           <li class="nav-item" *ngIf="canAccessServices()">
             <a class="nav-link" routerLink="/home/services" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="tool"></i>
-              </div>
+              <div class="nav-icon"><i nz-icon nzType="tool"></i></div>
               <span class="nav-label">Servicios</span>
             </a>
           </li>
-          
-          <!-- Productos - Admin y Empleado -->
           <li class="nav-item" *ngIf="canAccessProducts()">
             <a class="nav-link" routerLink="/home/products" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="shopping"></i>
-              </div>
+              <div class="nav-icon"><i nz-icon nzType="shopping"></i></div>
               <span class="nav-label">Productos</span>
             </a>
           </li>
-
-          <!-- Empleados - Solo Admin -->
           <li class="nav-item" *ngIf="canAccessEmployees()">
             <a class="nav-link" routerLink="/home/employees" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="team"></i>
-              </div>
+              <div class="nav-icon"><i nz-icon nzType="team"></i></div>
               <span class="nav-label">Empleados</span>
             </a>
           </li>
-
-          <!-- Auditorías - Solo Admin -->
           <li class="nav-item" *ngIf="canAccessAudit()">
             <a class="nav-link" routerLink="/home/audit" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="audit"></i>
-              </div>
+              <div class="nav-icon"><i nz-icon nzType="audit"></i></div>
               <span class="nav-label">Auditorías</span>
             </a>
           </li>
-
         </ul>
-
       </nav>
-      
       <div class="sidebar-footer">
         <button class="sidebar-logout" (click)="logout()">
           <i nz-icon nzType="logout"></i>
@@ -121,7 +130,6 @@
       </div>
     </aside>
 
-    <!-- Área de contenido principal -->
     <main class="app-main">
       <div class="main-content">
         <router-outlet></router-outlet>
