@@ -128,9 +128,6 @@
                 <span>{{ modalError }}</span>
               </div>
             </div>
-            <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
-              <strong>Por favor corrige los errores marcados.</strong>
-            </div>
 
             <form (ngSubmit)="isEditMode ? EditEmployee() : CreateEmployee()">
               <div class="row g-2">

@@ -3,9 +3,10 @@
     <div class="card-body p-4">
 
       <div class="text-center mb-4">
-        <div class="mb-3 logo-container">
+        <div class="logo-container mb-3">
           <img src="assets/logo.png" alt="Logo NC Detailing" class="login-logo">
         </div>
+        
         <p class="text-secondary">Ingresa a tu cuenta</p>
       </div>
 
@@ -74,12 +75,8 @@
         <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
           <div class="d-flex align-items-center">
             <i nz-icon nzType="warning" class="me-2"></i>
-            <span>Por favor, corrige los siguientes errores:</span>
+            <span>Por favor, corrige los errores marcados.</span>
           </div>
-          <ul class="mb-0 mt-1">
-            <li *ngFor="let error of formErrors | keyvalue">{{ error.value }}</li>
-          </ul>
-          <button type="button" class="btn-close" (click)="clearFormErrors()"></button>
         </div>
 
         <div *ngIf="errorMessage" class="mb-3">

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router'; // Agregado ActivatedRoute
+import { Router, ActivatedRoute } from '@angular/router';
 import { UsersService } from '../../Services/users-service';
 import { AuthService } from '../../Services/auth-service';
-import { NzNotificationService } from 'ng-zorro-antd/notification'; // Agregado
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-login',
@@ -11,14 +11,6 @@ import { NzNotificationService } from 'ng-zorro-antd/notification'; // Agregado
   styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit {
-
-  constructor(
-    private service: UsersService, 
-    private auth: AuthService, 
-    private router: Router,
-    private route: ActivatedRoute, // Inyectamos ActivatedRoute para leer params
-    private notification: NzNotificationService // Inyectamos notificaciones
-  ) {}
 
   username: string = '';
   password: string = '';
@@ -32,13 +24,20 @@ export class LoginComponent implements OnInit {
     this.showPassword = !this.showPassword;
   }
 
+  constructor(
+    private service: UsersService, 
+    private auth: AuthService, 
+    private router: Router,
+    private route: ActivatedRoute,
+    private notification: NzNotificationService
+  ) {}
+
   ngOnInit(): void {
-    // Verificar si venimos redirigidos por sesión expirada
     this.route.queryParams.subscribe(params => {
       if (params['sessionExpired'] === 'true') {
         this.notification.warning(
           'Sesión Expirada',
-          'Tu sesión ha caducado. Por favor, inicia sesión nuevamente.',
+          'Tu sesión ha caducado. Por favor, ingresa tus credenciales nuevamente.',
           { nzDuration: 5000 }
         );
       }
@@ -65,9 +64,6 @@ export class LoginComponent implements OnInit {
 
         if (res.login === true && res.token) {
           this.auth.setToken(res.token);
-          this.clearError();
-          this.clearFormErrors();
-          // Redirigir al home
           this.router.navigate(['/home/']);
         } else {
           this.errorMessage = 'Credenciales inválidas.';
