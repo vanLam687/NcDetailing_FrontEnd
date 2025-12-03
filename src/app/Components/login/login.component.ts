@@ -53,7 +53,7 @@ export class LoginComponent implements OnInit {
           this.auth.setToken(res.token);
           this.clearError();
           this.clearFormErrors();
-          this.showSuccessNotification('¡Bienvenido!');
+          // Se eliminó la notificación de éxito, redirige directo
           this.router.navigate(['/home/']);
         } else {
           this.errorMessage = 'Credenciales inválidas.';
@@ -111,60 +111,5 @@ export class LoginComponent implements OnInit {
 
   hasFormErrors(): boolean {
     return Object.keys(this.formErrors).length > 0;
-  }
-
-  private showSuccessNotification(message: string): void {
-    const notification = document.createElement('div');
-    notification.className = 'alert alert-success alert-dismissible fade show custom-toast';
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      min-width: 350px;
-      max-width: 450px;
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-      color: white;
-      padding: 16px 20px;
-      animation: slideInRight 0.3s ease-out;
-    `;
-    
-    notification.innerHTML = `
-      <div class="d-flex align-items-center">
-        <span style="font-size: 22px; font-weight: bold; color: white; margin-right: 12px; line-height: 1;">✔</span>
-        <div class="flex-grow-1">
-          <strong class="me-auto" style="font-size: 16px; display: block; margin-bottom: 4px;">¡Éxito!</strong>
-          <div style="font-size: 14px; opacity: 0.95;">${message}</div>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" style="filter: brightness(0) invert(1); opacity: 0.8; margin-left: 16px;"></button>
-      </div>
-    `;
-
-    if (!document.querySelector('#toast-styles')) {
-      const style = document.createElement('style');
-      style.id = 'toast-styles';
-      style.textContent = `
-        @keyframes slideInRight { 
-          from { transform: translateX(100%); opacity: 0; } 
-          to { transform: translateX(0); opacity: 1; } 
-        }
-        .custom-toast { backdrop-filter: blur(10px); border-left: 4px solid #1e8449 !important; }
-      `;
-      document.head.appendChild(style);
-    }
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.style.animation = 'slideInRight 0.3s ease-out reverse';
-        setTimeout(() => { 
-          if (notification.parentNode) notification.parentNode.removeChild(notification); 
-        }, 300);
-      }
-    }, 4000);
   }
 }

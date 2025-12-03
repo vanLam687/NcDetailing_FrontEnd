@@ -31,7 +31,6 @@ export class ServicesComponent implements OnInit {
 
   // Navegación
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
-  // SE ELIMINÓ: historyStack
   
   // Req 1: Bloqueo botones
   isSubmitting: boolean = false;
@@ -115,7 +114,8 @@ export class ServicesComponent implements OnInit {
   showCreateForm(): void { 
     if (!this.isAdmin) return;
     this.activeView = 'create'; 
-    this.clearForm(); this.clearError(); this.clearModalError(); this.clearFormErrors();
+    this.clearForm(); 
+    this.clearError(); this.clearModalError(); this.clearFormErrors();
   }
 
   showEditForm(service: any): void {
@@ -128,8 +128,17 @@ export class ServicesComponent implements OnInit {
     this.ServicePrice = service.price; 
     this.ServiceCategoryId = service.category_id;
     
-    const cat = this.DataSourceCategories.find(c => c.id === service.category_id);
-    this.ServiceCategoryName = cat ? cat.name : '';
+    // CORRECCIÓN: Fijar el nombre de la categoría si ya existe
+    if (service.category) {
+        this.ServiceCategoryName = service.category;
+    } else {
+        // Fallback por si no viene el nombre en el objeto service
+        const cat = this.DataSourceCategories.find(c => c.id == service.category_id);
+        this.ServiceCategoryName = cat ? cat.name : '';
+    }
+
+    // IMPORTANTE: Reiniciar la lista filtrada para que el dropdown muestre todas las opciones
+    this.filteredCategories = [...this.DataSourceCategories];
     
     this.clearError(); this.clearModalError(); this.clearFormErrors();
   }
@@ -157,7 +166,12 @@ export class ServicesComponent implements OnInit {
 
   clearForm(): void {
     this.ServiceName = ''; this.ServiceDescription = ''; this.ServicePrice = 0;
-    this.ServiceCategoryId = 0; this.ServiceCategoryName = ''; this.clearFormErrors();
+    this.ServiceCategoryId = 0; this.ServiceCategoryName = ''; 
+    
+    // Reiniciar también al limpiar
+    this.filteredCategories = [...this.DataSourceCategories];
+    
+    this.clearFormErrors();
   }
 
   filterCategories(event: any): void {
@@ -395,7 +409,6 @@ export class ServicesComponent implements OnInit {
   handleModalError(e: any): void { 
     this.clearFormErrors(); 
     this.modalError = this.getGenericErrorMessage(e.status); 
-    // Sin notificación extra
   }
   
   clearError(): void { this.errorMessage = ''; }

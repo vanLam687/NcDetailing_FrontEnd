@@ -31,7 +31,6 @@ export class ProductsComponent implements OnInit {
 
   // Navegación
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
-  // SE ELIMINÓ: historyStack (ya no guardamos historial de navegación)
   
   // Req 1: Flag para bloquear botones
   isSubmitting: boolean = false;
@@ -108,7 +107,7 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  // --- NAVEGACIÓN SIMPLIFICADA (SIN HISTORIAL) ---
+  // --- NAVEGACIÓN ---
 
   showListView(): void {
     this.activeView = 'list';
@@ -119,7 +118,8 @@ export class ProductsComponent implements OnInit {
   showCreateForm(): void {
     if (!this.isAdmin) return;
     this.activeView = 'create';
-    this.clearForm(); this.clearError(); this.clearModalError(); this.clearFormErrors();
+    this.clearForm(); 
+    this.clearError(); this.clearModalError(); this.clearFormErrors();
   }
 
   showEditForm(product: any): void {
@@ -133,8 +133,17 @@ export class ProductsComponent implements OnInit {
     this.ProductMinStock = product.min_stock;
     this.ProductCategoryId = product.category_id;
     
-    const category = this.DataSourceCategories.find(cat => cat.id === product.category_id);
-    this.ProductCategoryName = category ? category.name : '';
+    // CORRECCIÓN: Usar el nombre de categoría que ya viene en el producto para que aparezca fijo
+    if (product.category) {
+       this.ProductCategoryName = product.category;
+    } else {
+       // Fallback: buscar en la lista si no viene el nombre (usando == para evitar errores de tipo)
+       const category = this.DataSourceCategories.find(cat => cat.id == product.category_id);
+       this.ProductCategoryName = category ? category.name : '';
+    }
+    
+    // Reiniciar la lista filtrada para que el dropdown muestre todo si se quiere cambiar
+    this.filteredCategories = [...this.DataSourceCategories];
     
     this.clearError(); this.clearModalError(); this.clearFormErrors();
   }
@@ -154,10 +163,7 @@ export class ProductsComponent implements OnInit {
 
   canShowEdit(): boolean { return this.SelectedProduct !== null; }
 
-  // SE ELIMINÓ: private addToHistory(view: string)
-
   goBack(): void {
-    // Simplemente volvemos a la lista de productos
     this.showListView();
   }
 
@@ -167,6 +173,8 @@ export class ProductsComponent implements OnInit {
     this.ProductName = ''; this.ProductPrice = 0;
     this.ProductStock = 0; this.ProductMinStock = 0; this.ProductCategoryId = 0;
     this.ProductCategoryName = '';
+    // Reiniciar el filtro de categorías también al limpiar
+    this.filteredCategories = [...this.DataSourceCategories];
     this.clearFormErrors();
   }
 
