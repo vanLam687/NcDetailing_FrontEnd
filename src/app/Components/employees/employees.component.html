@@ -128,6 +128,9 @@
                 <span>{{ modalError }}</span>
               </div>
             </div>
+            <div *ngIf="hasFormErrors()" class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+              <strong>Por favor corrige los errores marcados.</strong>
+            </div>
 
             <form (ngSubmit)="isEditMode ? EditEmployee() : CreateEmployee()">
               <div class="row g-2">
@@ -172,14 +175,22 @@
                 
                 <div class="col-12">
                   <label class="form-label fw-bold mb-1">{{ isEditMode ? 'Nueva Contraseña' : 'Contraseña *' }}</label>
-                  <input 
-                    type="password" 
-                    class="form-control form-control-sm" 
-                    [class.is-invalid]="formErrors.password"
-                    [(ngModel)]="currentPassword" 
-                    name="password" 
-                    placeholder="Ej: ********"
-                    [required]="!isEditMode">
+                  <nz-input-group [nzSuffix]="suffixTemplate">
+                    <input 
+                      [type]="showPassword ? 'text' : 'password'" 
+                      class="form-control form-control-sm" 
+                      [class.is-invalid]="formErrors.password"
+                      [(ngModel)]="currentPassword" 
+                      name="password" 
+                      placeholder="Ej: ********"
+                      [required]="!isEditMode"
+                      nz-input
+                    />
+                  </nz-input-group>
+                  <ng-template #suffixTemplate>
+                    <i nz-icon [nzType]="showPassword ? 'eye-invisible' : 'eye'" (click)="togglePassword()" class="password-eye-icon"></i>
+                  </ng-template>
+
                   <div *ngIf="formErrors.password" class="invalid-feedback d-block">{{ formErrors.password }}</div>
                 </div>
                 

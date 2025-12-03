@@ -169,8 +169,7 @@ export class ClientsComponent implements OnInit {
   }
 
   validateVehicleForm(): boolean {
-    // No limpiamos todos los errores aquí para no borrar los del cliente si existen,
-    // pero limpiamos los específicos de vehículo
+    // Limpiar errores específicos de vehículo
     if (this.formErrors.vehicleBrand) delete this.formErrors.vehicleBrand;
     if (this.formErrors.vehicleModel) delete this.formErrors.vehicleModel;
     if (this.formErrors.vehicleYear) delete this.formErrors.vehicleYear;
@@ -178,9 +177,20 @@ export class ClientsComponent implements OnInit {
     if (this.formErrors.vehicleLicensePlate) delete this.formErrors.vehicleLicensePlate;
 
     let isValid = true;
+    const currentYear = new Date().getFullYear();
+
     if (!this.NewVehicleBrand) { this.formErrors.vehicleBrand = 'Marca requerida'; isValid = false; }
     if (!this.NewVehicleModel) { this.formErrors.vehicleModel = 'Modelo requerido'; isValid = false; }
-    if (!this.NewVehicleYear) { this.formErrors.vehicleYear = 'Año requerido'; isValid = false; }
+    
+    // VALIDACIÓN DE AÑO: No negativo, mayor a 1900, no futuro lejano
+    if (!this.NewVehicleYear) { 
+        this.formErrors.vehicleYear = 'Año requerido'; 
+        isValid = false; 
+    } else if (this.NewVehicleYear < 1900 || this.NewVehicleYear > currentYear + 1) {
+        this.formErrors.vehicleYear = `Año inválido (1900 - ${currentYear + 1})`;
+        isValid = false;
+    }
+
     if (!this.NewVehicleColor) { this.formErrors.vehicleColor = 'Color requerido'; isValid = false; }
     if (!this.NewVehicleLicensePlate) { this.formErrors.vehicleLicensePlate = 'Patente requerida'; isValid = false; }
     
@@ -385,11 +395,11 @@ export class ClientsComponent implements OnInit {
   clearModalError(): void {
     this.modalError = '';
   }
-
+  
   clearFormErrors(): void {
     this.formErrors = {};
   }
-
+  
   hasFormErrors(): boolean {
     return Object.keys(this.formErrors).length > 0;
   }

@@ -119,7 +119,7 @@
   font-size: 11px;
 }
 
-/* Formularios */
+/* Formularios generales */
 .form-control, .form-select {
   border-radius: 6px;
   border: 1px solid rgba(117, 134, 165, 0.3);
@@ -208,25 +208,15 @@
   font-weight: 500;
 }
 
-/* Textos */
-.text-muted {
-  color: #7586a5 !important;
-  font-size: 10px;
+/* Estilos para el icono de ojo en la contraseña */
+.password-eye-icon {
+  cursor: pointer;
+  color: #999;
+  transition: color 0.3s;
 }
 
-/* Iconos */
-i[nz-icon] {
-  font-size: 12px;
-}
-
-/* Utilidades */
-.vr {
-  opacity: 0.3;
-  height: 16px;
-}
-
-.border-top {
-  border-top: 1px solid rgba(117, 134, 165, 0.1) !important;
+.password-eye-icon:hover {
+  color: #6c63b8;
 }
 
 /* Modales */
@@ -280,3 +270,11 @@ i[nz-icon] {
     padding: 6px 10px;
   }
 }
+
+/* --- SOLUCIÓN AL BORDE DOBLE --- */
+/* Elimina el borde y la sombra de Bootstrap cuando el input está dentro de un grupo de NG-ZORRO */
+nz-input-group input.form-control {
+  border: none !important;
+  box-shadow: none !important;
+}
+/* ------------------------------- */
