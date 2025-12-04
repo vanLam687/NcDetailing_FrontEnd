@@ -2,6 +2,9 @@
    DASHBOARD - PALETA UNIFICADA
    =========================== */
 
+/* Importamos la fuente para el título */
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
 /* Fondo general */
 .container-fluid.p-4 {
   background: linear-gradient(135deg, #f5f7ff 0%, #f3f0ff 100%);
@@ -16,6 +19,12 @@
   background: #6c63b8 !important;
   border-bottom: none !important;
   border-radius: 10px 10px 0 0 !important;
+}
+
+/* Clase para el título */
+.brand-title {
+  font-family: 'Russo One', sans-serif;
+  letter-spacing: 1px;
 }
 
 .card-header h3,

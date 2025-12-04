@@ -1,11 +1,10 @@
 <div class="app-container">
-  <!-- Header superior -->
   <header class="app-header">
     <div class="header-content">
       <div class="brand-section">
         <div class="brand-logo">
-          <div class="logo-icon">NC</div>
-          <h1 class="brand-name">Detailing</h1>
+          <!-- <div class="logo-icon">NC</div> -->
+          <h1 class="brand-name">NcDetailing</h1>
         </div>
         <button class="sidebar-toggle" (click)="toggleSidebar()">
           <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>
@@ -13,6 +12,57 @@
       </div>
       
       <div class="user-section">
+
+        <div class="alerts-section me-3" *ngIf="canAccessProducts()">
+          <div class="notification-trigger" 
+               nz-popover
+               [nzPopoverContent]="contentTemplate"
+               [nzPopoverTitle]="titleTemplate"
+               nzPopoverTrigger="click"
+               nzPopoverPlacement="bottomRight"
+               [nzPopoverOverlayClassName]="'stock-alert-popover'"
+               (click)="checkLowStock()">
+            <nz-badge [nzCount]="lowStockProducts.length" [nzOverflowCount]="99" nzSize="small">
+              <i nz-icon nzType="bell" style="font-size: 20px; color: black; cursor: pointer;"></i>
+            </nz-badge>
+          </div>
+
+          <ng-template #titleTemplate>
+            <div class="d-flex align-items-center gap-2">
+              <i nz-icon nzType="alert" class="text-warning"></i>
+              <span>Alertas de Reposición</span>
+            </div>
+          </ng-template>
+          
+          <ng-template #contentTemplate>
+            <div class="popover-scroll-content">
+              <ng-container *ngIf="lowStockProducts.length > 0; else noAlerts">
+                <div *ngFor="let p of lowStockProducts" class="alert-item-popover" [routerLink]="['/home/products']">
+                  <div class="w-100">
+                    <div class="mb-1">
+                      <strong class="text-dark text-break" style="font-size: 13px;">{{ p.name }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-start mt-1">
+                      <span class="badge" 
+                            [class.bg-danger]="p.stock === 0" 
+                            [class.bg-warning]="p.stock > 0">
+                        Stock: {{ p.stock }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+
+              <ng-template #noAlerts>
+                <div class="p-3 text-center text-muted">
+                  <i nz-icon nzType="check-circle" style="font-size: 24px; color: #27ae60;"></i>
+                  <p class="mb-0 mt-2 small">Stock en orden</p>
+                </div>
+              </ng-template>
+            </div>
+          </ng-template>
+        </div>
+        
         <div class="user-info">
           <span class="user-greeting">Hola, {{getUserName()}}</span>
           <span class="user-role">{{getUserRoleName()}}</span>
@@ -25,103 +75,122 @@
   </header>
 
   <div class="app-body">
-    <!-- Sidebar mejorado -->
     <aside class="app-sidebar" [class.collapsed]="isCollapsed">
       <nav class="sidebar-nav">
-        
         <ul class="nav-menu">
+          
           <li class="nav-item">
-            <a class="nav-link" routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-              <div class="nav-icon">
-                <i nz-icon nzType="dashboard"></i>
-              </div>
+            <a class="nav-link" 
+               routerLink="/home" 
+               routerLinkActive="active" 
+               [routerLinkActiveOptions]="{ exact: true }"
+               nz-tooltip 
+               [nzTooltipTitle]="isCollapsed ? 'Dashboard' : null" 
+               nzTooltipPlacement="right">
+              <div class="nav-icon"><i nz-icon nzType="dashboard"></i></div>
               <span class="nav-label">Dashboard</span>
             </a>
           </li>
 
-          <!-- Métricas - Solo Admin -->
           <li class="nav-item" *ngIf="canAccessMetrics()">
-            <a class="nav-link" routerLink="/home/metrics" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="bar-chart"></i>
-              </div>
+            <a class="nav-link" 
+               routerLink="/home/metrics" 
+               routerLinkActive="active"
+               nz-tooltip 
+               [nzTooltipTitle]="isCollapsed ? 'Métricas' : null" 
+               nzTooltipPlacement="right">
+              <div class="nav-icon"><i nz-icon nzType="bar-chart"></i></div>
               <span class="nav-label">Métricas</span>
             </a>
           </li>
 
-          <!-- Ventas - Admin y Empleado -->
           <li class="nav-item" *ngIf="canAccessSales()">
-            <a class="nav-link" routerLink="/home/sales" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="dollar"></i>
-              </div>
+            <a class="nav-link" 
+               routerLink="/home/sales" 
+               routerLinkActive="active"
+               nz-tooltip 
+               [nzTooltipTitle]="isCollapsed ? 'Ventas' : null" 
+               nzTooltipPlacement="right">
+              <div class="nav-icon"><i nz-icon nzType="dollar"></i></div>
               <span class="nav-label">Ventas</span>
             </a>
           </li>
 
-          <!-- Clientes - Admin y Empleado -->
           <li class="nav-item" *ngIf="canAccessClients()">
-            <a class="nav-link" routerLink="/home/clients" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="user"></i>
-              </div>
+            <a class="nav-link" 
+               routerLink="/home/clients" 
+               routerLinkActive="active"
+               nz-tooltip 
+               [nzTooltipTitle]="isCollapsed ? 'Clientes' : null" 
+               nzTooltipPlacement="right">
+              <div class="nav-icon"><i nz-icon nzType="user"></i></div>
               <span class="nav-label">Clientes</span>
             </a>
           </li>
-          
-          <!-- Servicios - Admin y Empleado -->
+
           <li class="nav-item" *ngIf="canAccessServices()">
-            <a class="nav-link" routerLink="/home/services" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="tool"></i>
-              </div>
+            <a class="nav-link" 
+               routerLink="/home/services" 
+               routerLinkActive="active"
+               nz-tooltip 
+               [nzTooltipTitle]="isCollapsed ? 'Servicios' : null" 
+               nzTooltipPlacement="right">
+              <div class="nav-icon"><i nz-icon nzType="tool"></i></div>
               <span class="nav-label">Servicios</span>
             </a>
           </li>
-          
-          <!-- Productos - Admin y Empleado -->
+
           <li class="nav-item" *ngIf="canAccessProducts()">
-            <a class="nav-link" routerLink="/home/products" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="shopping"></i>
-              </div>
+            <a class="nav-link" 
+               routerLink="/home/products" 
+               routerLinkActive="active"
+               nz-tooltip 
+               [nzTooltipTitle]="isCollapsed ? 'Productos' : null" 
+               nzTooltipPlacement="right">
+              <div class="nav-icon"><i nz-icon nzType="shopping"></i></div>
               <span class="nav-label">Productos</span>
             </a>
           </li>
 
-          <!-- Empleados - Solo Admin -->
           <li class="nav-item" *ngIf="canAccessEmployees()">
-            <a class="nav-link" routerLink="/home/employees" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="team"></i>
-              </div>
+            <a class="nav-link" 
+               routerLink="/home/employees" 
+               routerLinkActive="active"
+               nz-tooltip 
+               [nzTooltipTitle]="isCollapsed ? 'Empleados' : null" 
+               nzTooltipPlacement="right">
+              <div class="nav-icon"><i nz-icon nzType="team"></i></div>
               <span class="nav-label">Empleados</span>
             </a>
           </li>
 
-          <!-- Auditorías - Solo Admin -->
           <li class="nav-item" *ngIf="canAccessAudit()">
-            <a class="nav-link" routerLink="/home/audit" routerLinkActive="active">
-              <div class="nav-icon">
-                <i nz-icon nzType="audit"></i>
-              </div>
+            <a class="nav-link" 
+               routerLink="/home/audit" 
+               routerLinkActive="active"
+               nz-tooltip 
+               [nzTooltipTitle]="isCollapsed ? 'Auditorías' : null" 
+               nzTooltipPlacement="right">
+              <div class="nav-icon"><i nz-icon nzType="audit"></i></div>
               <span class="nav-label">Auditorías</span>
             </a>
           </li>
 
         </ul>
-
       </nav>
       
       <div class="sidebar-footer">
-        <button class="sidebar-logout" (click)="logout()">
+        <button class="sidebar-logout" 
+                (click)="logout()"
+                nz-tooltip 
+                [nzTooltipTitle]="isCollapsed ? 'Cerrar sesión' : null" 
+                nzTooltipPlacement="right">
           <i nz-icon nzType="logout"></i>
           <span>Cerrar sesión</span>
         </button>
       </div>
     </aside>
 
-    <!-- Área de contenido principal -->
     <main class="app-main">
       <div class="main-content">
         <router-outlet></router-outlet>

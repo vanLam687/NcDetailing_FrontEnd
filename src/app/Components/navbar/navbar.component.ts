@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../Services/auth-service';
+import { ProductsService } from '../../Services/products-service';
 
 @Component({
   selector: 'app-navbar',
@@ -8,11 +9,43 @@ import { AuthService } from '../../Services/auth-service';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
   
   isCollapsed = false;
+  lowStockProducts: any[] = []; // Lista de productos con stock bajo
+  isLoadingAlerts = false;
 
-  constructor(private router: Router, public authService: AuthService) {}
+  constructor(
+    private router: Router, 
+    public authService: AuthService,
+    private productsService: ProductsService // Inyectamos servicio de productos
+  ) {}
+
+  ngOnInit(): void {
+    // Si el usuario está logueado y tiene permiso de ver productos (Admin o Empleado)
+    if (this.authService.isLoggedIn() && this.canAccessProducts()) {
+      this.checkLowStock();
+    }
+  }
+
+  // --- Lógica de Alertas de Stock ---
+  checkLowStock(): void {
+    this.isLoadingAlerts = true;
+    // Obtenemos solo productos activos para no alertar sobre los borrados
+    this.productsService.getProducts(undefined, undefined, 'active').subscribe({
+      next: (response: any) => {
+        const allProducts = response.data || [];
+        
+        // Filtramos: Stock actual <= Stock Mínimo
+        this.lowStockProducts = allProducts.filter((p: any) => p.stock <= p.min_stock);
+        this.isLoadingAlerts = false;
+      },
+      error: () => {
+        console.error('Error al verificar stock bajo');
+        this.isLoadingAlerts = false;
+      }
+    });
+  }
 
   // Getters para usar en la plantilla
   get isAdmin(): boolean {
@@ -25,45 +58,14 @@ export class NavbarComponent {
 
   // --- Permisos de Rutas ---
 
-  // Dashboard: Visible para todos (Admin y Empleado)
-  canAccessDashboard(): boolean {
-    return this.authService.hasPermission([1, 2]);
-  }
-
-  // Métricas: Solo Admin
-  canAccessMetrics(): boolean {
-    return this.authService.hasPermission([1]);
-  }
-
-  // Ventas: Visible para todos
-  canAccessSales(): boolean {
-    return this.authService.hasPermission([1, 2]);
-  }
-
-  // Clientes: Visible para todos
-  canAccessClients(): boolean {
-    return this.authService.hasPermission([1, 2]);
-  }
-
-  // Servicios: Visible para todos (pero con restricciones internas)
-  canAccessServices(): boolean {
-    return this.authService.hasPermission([1, 2]);
-  }
-
-  // Productos: Visible para todos (pero con restricciones internas)
-  canAccessProducts(): boolean {
-    return this.authService.hasPermission([1, 2]);
-  }
-
-  // Empleados: Solo Admin
-  canAccessEmployees(): boolean {
-    return this.authService.hasPermission([1]);
-  }
-
-  // Auditorías: Solo Admin
-  canAccessAudit(): boolean {
-    return this.authService.hasPermission([1]);
-  }
+  canAccessDashboard(): boolean { return this.authService.hasPermission([1, 2]); }
+  canAccessMetrics(): boolean { return this.authService.hasPermission([1]); }
+  canAccessSales(): boolean { return this.authService.hasPermission([1, 2]); }
+  canAccessClients(): boolean { return this.authService.hasPermission([1, 2]); }
+  canAccessServices(): boolean { return this.authService.hasPermission([1, 2]); }
+  canAccessProducts(): boolean { return this.authService.hasPermission([1, 2]); }
+  canAccessEmployees(): boolean { return this.authService.hasPermission([1]); }
+  canAccessAudit(): boolean { return this.authService.hasPermission([1]); }
 
   // --- Helpers de Usuario ---
 

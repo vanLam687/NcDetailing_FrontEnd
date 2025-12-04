@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../Services/auth-service';
 import { ProductsService } from '../../Services/products-service';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-products',
@@ -11,7 +12,12 @@ import { ProductsService } from '../../Services/products-service';
 })
 export class ProductsComponent implements OnInit {
 
-  constructor(private service: ProductsService, private router: Router, private authService: AuthService) {}
+  constructor(
+    private service: ProductsService, 
+    private router: Router, 
+    private authService: AuthService,
+    private notification: NzNotificationService 
+  ) {}
 
   DataSourceProducts: any[] = [];
   DataSourceCategories: any[] = [];
@@ -20,13 +26,16 @@ export class ProductsComponent implements OnInit {
   // Filtros
   SearchName: string = '';
   SelectedCategory: string = '';
-  ProductStatus: 'active' | 'inactive' | 'all' = 'active';
-  CategoryStatus: 'active' | 'inactive' | 'all' = 'active';
+  ProductStatus: 'active' | 'inactive' = 'active'; 
+  CategoryStatus: 'active' | 'inactive' = 'active';
 
   // Navegación
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
   private historyStack: string[] = ['list'];
   
+  // Bloqueo de botones
+  isSubmitting: boolean = false;
+
   // Formulario Producto
   ProductName: string = '';
   ProductPrice: number = 0;
@@ -54,7 +63,6 @@ export class ProductsComponent implements OnInit {
   modalError: string = '';
   formErrors: any = {};
 
-  // Getter para verificar si es admin desde la vista
   get isAdmin(): boolean {
     return this.authService.isAdmin();
   }
@@ -104,20 +112,23 @@ export class ProductsComponent implements OnInit {
 
   showListView(): void {
     this.activeView = 'list';
+    this.SelectedProduct = null;
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetProducts();
     this.addToHistory('list');
   }
 
   showCreateForm(): void {
-    if (!this.isAdmin) return; // Protección extra
+    if (!this.isAdmin) return;
     this.activeView = 'create';
-    this.clearForm(); this.clearError(); this.clearModalError(); this.clearFormErrors();
+    this.SelectedProduct = null;
+    this.clearForm(); 
+    this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.addToHistory('create');
   }
 
   showEditForm(product: any): void {
-    if (!this.isAdmin) return; // Protección extra
+    if (!this.isAdmin) return;
     this.activeView = 'edit';
     this.SelectedProduct = product;
     this.IdEdit = product.id;
@@ -127,16 +138,27 @@ export class ProductsComponent implements OnInit {
     this.ProductMinStock = product.min_stock;
     this.ProductCategoryId = product.category_id;
     
-    const category = this.DataSourceCategories.find(cat => cat.id === product.category_id);
-    this.ProductCategoryName = category ? category.name : '';
+    // Asignar nombre y buscar ID si falta
+    if (product.category) {
+       this.ProductCategoryName = product.category;
+       if (!this.ProductCategoryId) {
+         const match = this.DataSourceCategories.find(c => c.name === product.category);
+         if (match) this.ProductCategoryId = match.id;
+       }
+    } else {
+       const cat = this.DataSourceCategories.find(c => c.id == this.ProductCategoryId);
+       this.ProductCategoryName = cat ? cat.name : '';
+    }
     
+    this.filteredCategories = [...this.DataSourceCategories];
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.addToHistory('edit');
   }
 
   showCategoriesView(): void {
-    if (!this.isAdmin) return; // Protección extra
+    if (!this.isAdmin) return;
     this.activeView = 'categories';
+    this.SelectedProduct = null;
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetCategories();
     this.addToHistory('categories');
@@ -173,6 +195,7 @@ export class ProductsComponent implements OnInit {
     this.ProductName = ''; this.ProductPrice = 0;
     this.ProductStock = 0; this.ProductMinStock = 0; this.ProductCategoryId = 0;
     this.ProductCategoryName = '';
+    this.filteredCategories = [...this.DataSourceCategories];
     this.clearFormErrors();
   }
 
@@ -187,6 +210,7 @@ export class ProductsComponent implements OnInit {
     this.ProductCategoryId = category.id;
     this.ProductCategoryName = category.name;
     this.filteredCategories = this.DataSourceCategories;
+    if (this.formErrors.productCategory) delete this.formErrors.productCategory;
   }
 
   validateProductForm(): boolean {
@@ -205,7 +229,7 @@ export class ProductsComponent implements OnInit {
       this.formErrors.productMinStock = 'Stock mínimo inválido'; isValid = false;
     }
     if (!this.ProductCategoryId) {
-      this.formErrors.productCategory = 'Categoría requerida'; isValid = false;
+      this.formErrors.productCategory = 'La categoría es requerida'; isValid = false;
     }
     return isValid;
   }
@@ -221,19 +245,24 @@ export class ProductsComponent implements OnInit {
   // --- CRUD PRODUCTOS ---
 
   CreateProduct(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return;
     if (!this.validateProductForm()) return;
+    
+    this.isSubmitting = true;
     const product = {
       name: this.ProductName.trim(),
       price: this.ProductPrice, stock: this.ProductStock, min_stock: this.ProductMinStock,
       category_id: this.ProductCategoryId
     };
+    
     this.service.postProduct(product).subscribe({
       next: () => {
-        this.showSuccessNotification('Producto creado');
+        this.notification.success('¡Éxito!', 'Producto creado correctamente');
         this.showListView();
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
@@ -241,19 +270,24 @@ export class ProductsComponent implements OnInit {
   }
 
   EditProduct(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return;
     if (!this.validateProductForm()) return;
+    
+    this.isSubmitting = true;
     const product: any = {
       name: this.ProductName.trim(),
       price: this.ProductPrice, stock: this.ProductStock, min_stock: this.ProductMinStock,
       category_id: this.ProductCategoryId
     };
+    
     this.service.putProduct(this.IdEdit.toString(), product).subscribe({
       next: () => {
-        this.showSuccessNotification('Producto actualizado');
+        this.notification.success('¡Éxito!', 'Producto actualizado correctamente');
         this.showListView();
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
@@ -270,7 +304,7 @@ export class ProductsComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.deleteProduct(this.IdDelete.toString()).subscribe({
       next: () => {
-        this.showSuccessNotification('Producto eliminado');
+        this.notification.success('Operación completada', 'Producto eliminado correctamente');
         this.GetProducts();
         this.closeModal('deleteProductModal');
       },
@@ -291,7 +325,7 @@ export class ProductsComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.restoreProduct(this.IdRestore.toString()).subscribe({
       next: () => {
-        this.showSuccessNotification('Producto restaurado');
+        this.notification.success('Operación completada', 'Producto restaurado correctamente');
         this.GetProducts();
         this.closeModal('restoreProductModal');
       },
@@ -305,14 +339,18 @@ export class ProductsComponent implements OnInit {
   // --- CRUD CATEGORÍAS ---
 
   CreateCategory(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return;
     if (!this.validateCategoryForm()) return;
+    
+    this.isSubmitting = true;
     this.service.postCategory({ name: this.CategoryName.trim() }).subscribe({
       next: () => {
-        this.showSuccessNotification('Categoría creada');
+        this.notification.success('¡Éxito!', 'Categoría creada correctamente');
         this.CategoryName = ''; this.GetCategories(); this.closeModal('createCategoryModal');
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
@@ -320,14 +358,18 @@ export class ProductsComponent implements OnInit {
   }
 
   EditCategory(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return;
     if (!this.validateCategoryForm()) return;
+    
+    this.isSubmitting = true;
     this.service.putCategory(this.CategoryToEdit.id.toString(), { name: this.CategoryName.trim() }).subscribe({
       next: () => {
-        this.showSuccessNotification('Categoría actualizada');
+        this.notification.success('¡Éxito!', 'Categoría actualizada correctamente');
         this.CategoryName = ''; this.CategoryToEdit = null; this.GetCategories(); this.closeModal('editCategoryModal');
+        this.isSubmitting = false;
       },
       error: (error) => { 
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; } 
         this.handleModalError(error); 
       }
@@ -343,7 +385,7 @@ export class ProductsComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.deleteCategory(this.CategoryToDelete.id.toString()).subscribe({
       next: () => { 
-        this.showSuccessNotification('Categoría eliminada'); 
+        this.notification.success('Operación completada', 'Categoría eliminada correctamente');
         this.CategoryToDelete = null; 
         this.GetCategories(); 
         this.closeModal('deleteCategoryModal'); 
@@ -352,6 +394,7 @@ export class ProductsComponent implements OnInit {
         if (error.status === 401) { this.authService.logout(); return; } 
         if (error.status === 409) {
           this.modalError = 'No se puede eliminar la categoría porque tiene productos asociados.';
+          this.notification.warning('Atención', 'No se puede eliminar: tiene productos asociados.');
           return;
         }
         this.handleModalError(error); 
@@ -368,7 +411,7 @@ export class ProductsComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.restoreCategory(this.CategoryToRestore.id.toString()).subscribe({
       next: () => { 
-        this.showSuccessNotification('Categoría restaurada'); 
+        this.notification.success('Operación completada', 'Categoría restaurada correctamente');
         this.CategoryToRestore = null; 
         this.GetCategories(); 
         this.closeModal('restoreCategoryModal'); 
@@ -390,23 +433,16 @@ export class ProductsComponent implements OnInit {
 
   ApplyFilters(): void { this.GetProducts(); }
   ClearFilters(): void { this.SearchName = ''; this.SelectedCategory = ''; this.ProductStatus = 'active'; this.GetProducts(); }
-  onProductStatusChange(newStatus: 'active' | 'inactive' | 'all'): void { this.ProductStatus = newStatus; this.GetProducts(); }
-  onCategoryStatusChange(newStatus: 'active' | 'inactive' | 'all'): void { this.CategoryStatus = newStatus; this.GetCategories(); }
+  // @ts-ignore
+  onProductStatusChange(newStatus: 'active' | 'inactive'): void { this.ProductStatus = newStatus; this.GetProducts(); }
+  // @ts-ignore
+  onCategoryStatusChange(newStatus: 'active' | 'inactive'): void { this.CategoryStatus = newStatus; this.GetCategories(); }
 
   // --- HELPERS ---
 
   private closeModal(modalId: string): void {
     const modal = document.getElementById(modalId);
     if (modal) { const i = (window as any).bootstrap.Modal.getInstance(modal); if (i) i.hide(); }
-  }
-
-  private showSuccessNotification(message: string): void {
-    const n = document.createElement('div');
-    n.className = 'alert alert-success alert-dismissible fade show custom-toast';
-    n.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;min-width:350px;background:linear-gradient(135deg,#27ae60 0%,#229954 100%);color:white;padding:16px 20px;`;
-    n.innerHTML = `<div class="d-flex align-items-center"><span style="font-size:22px;margin-right:12px;">✔</span><div><strong>¡Éxito!</strong><div>${message}</div></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button></div>`;
-    document.body.appendChild(n);
-    setTimeout(() => { if(n.parentNode) n.parentNode.removeChild(n); }, 4000);
   }
 
   // --- MANEJO DE ERRORES GENÉRICO ---

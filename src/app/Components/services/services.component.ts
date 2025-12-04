@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ServicesService } from '../../Services/services-service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../Services/auth-service';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-services',
@@ -11,7 +12,12 @@ import { AuthService } from '../../Services/auth-service';
 })
 export class ServicesComponent implements OnInit {
 
-  constructor(private service: ServicesService, private router: Router, private authService: AuthService) {}
+  constructor(
+    private service: ServicesService, 
+    private router: Router, 
+    private authService: AuthService,
+    private notification: NzNotificationService
+  ) {}
 
   DataSourceServices: any[] = [];
   DataSourceCategories: any[] = [];
@@ -20,13 +26,15 @@ export class ServicesComponent implements OnInit {
   // Filtros
   SearchName: string = '';
   SelectedCategory: string = '';
-  ServiceStatus: 'active' | 'inactive' | 'all' = 'active';
-  CategoryStatus: 'active' | 'inactive' | 'all' = 'active';
+  ServiceStatus: 'active' | 'inactive' = 'active';
+  CategoryStatus: 'active' | 'inactive' = 'active';
 
   // Navegación
   activeView: 'list' | 'create' | 'edit' | 'categories' = 'list';
-  private historyStack: string[] = ['list'];
   
+  // Bloqueo de botones
+  isSubmitting: boolean = false;
+
   // Formulario Servicio
   ServiceName: string = '';
   ServiceDescription: string = '';
@@ -53,7 +61,6 @@ export class ServicesComponent implements OnInit {
   modalError: string = '';
   formErrors: any = {};
 
-  // Getter de Admin
   get isAdmin(): boolean {
     return this.authService.isAdmin();
   }
@@ -100,16 +107,17 @@ export class ServicesComponent implements OnInit {
 
   showListView(): void { 
     this.activeView = 'list'; 
+    this.SelectedService = null;
     this.clearError(); this.clearModalError(); this.clearFormErrors(); 
     this.GetServices(); 
-    this.addToHistory('list'); 
   }
 
   showCreateForm(): void { 
     if (!this.isAdmin) return;
     this.activeView = 'create'; 
-    this.clearForm(); this.clearError(); this.clearModalError(); this.clearFormErrors();
-    this.addToHistory('create'); 
+    this.SelectedService = null;
+    this.clearForm(); 
+    this.clearError(); this.clearModalError(); this.clearFormErrors();
   }
 
   showEditForm(service: any): void {
@@ -122,51 +130,53 @@ export class ServicesComponent implements OnInit {
     this.ServicePrice = service.price; 
     this.ServiceCategoryId = service.category_id;
     
-    const cat = this.DataSourceCategories.find(c => c.id === service.category_id);
-    this.ServiceCategoryName = cat ? cat.name : '';
+    // CORRECCIÓN: Buscar nombre de categoría correctamente
+    if (service.category) {
+        this.ServiceCategoryName = service.category;
+        // Si falta el ID pero tenemos nombre, buscar ID (por seguridad)
+        if (!this.ServiceCategoryId) {
+           const match = this.DataSourceCategories.find(c => c.name === service.category);
+           if (match) this.ServiceCategoryId = match.id;
+        }
+    } else {
+        // Si no hay nombre, buscar por ID
+        const cat = this.DataSourceCategories.find(c => c.id == this.ServiceCategoryId);
+        this.ServiceCategoryName = cat ? cat.name : '';
+    }
+    
+    // Reiniciar lista para el dropdown
+    this.filteredCategories = [...this.DataSourceCategories];
     
     this.clearError(); this.clearModalError(); this.clearFormErrors();
-    this.addToHistory('edit');
   }
 
   showCategoriesView(): void { 
     if (!this.isAdmin) return;
     this.activeView = 'categories'; 
+    this.SelectedService = null;
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetCategories(); 
-    this.addToHistory('categories'); 
   }
 
   showEditBack(): void { 
     if (this.SelectedService && this.isAdmin) { 
       this.activeView = 'edit'; 
-      this.addToHistory('edit'); 
     } 
   }
 
   canShowEdit(): boolean { return this.SelectedService !== null; }
 
-  private addToHistory(view: string): void { 
-    this.historyStack.push(view); 
-    if(this.historyStack.length > 10) this.historyStack.shift(); 
-  }
-
   goBack(): void {
-    if (this.historyStack.length > 1) {
-      this.historyStack.pop();
-      const prev = this.historyStack[this.historyStack.length - 1];
-      this.activeView = prev as any;
-      if(this.activeView === 'list') this.SelectedService = null;
-    } else {
-      this.showListView();
-    }
+    this.showListView();
   }
 
   // --- FORMULARIOS ---
 
   clearForm(): void {
     this.ServiceName = ''; this.ServiceDescription = ''; this.ServicePrice = 0;
-    this.ServiceCategoryId = 0; this.ServiceCategoryName = ''; this.clearFormErrors();
+    this.ServiceCategoryId = 0; this.ServiceCategoryName = ''; 
+    this.filteredCategories = [...this.DataSourceCategories];
+    this.clearFormErrors();
   }
 
   filterCategories(event: any): void {
@@ -178,6 +188,7 @@ export class ServicesComponent implements OnInit {
     this.ServiceCategoryId = c.id; 
     this.ServiceCategoryName = c.name; 
     this.filteredCategories = this.DataSourceCategories; 
+    if (this.formErrors.serviceCategory) delete this.formErrors.serviceCategory;
   }
 
   // --- VALIDACIÓN ---
@@ -185,35 +196,63 @@ export class ServicesComponent implements OnInit {
   validateServiceForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
-    if(!this.ServiceName || this.ServiceName.trim() === '') { this.formErrors.serviceName = 'Nombre requerido'; isValid = false; }
-    if(!this.ServicePrice || this.ServicePrice <= 0) { this.formErrors.servicePrice = 'Precio debe ser mayor a 0'; isValid = false; }
-    if(!this.ServiceCategoryId) { this.formErrors.serviceCategory = 'Categoría requerida'; isValid = false; }
+    if(!this.ServiceName || this.ServiceName.trim() === '') { 
+      this.formErrors.serviceName = 'El nombre es requerido'; isValid = false; 
+    }
+    if(!this.ServicePrice || this.ServicePrice <= 0) { 
+      this.formErrors.servicePrice = 'El precio debe ser mayor a 0'; isValid = false; 
+    }
+    if(!this.ServiceCategoryId) { 
+      this.formErrors.serviceCategory = 'La categoría es requerida'; isValid = false; 
+    }
     return isValid;
   }
 
   validateCategoryForm(): boolean {
     this.clearFormErrors();
-    if(!this.CategoryName || this.CategoryName.trim() === '') { this.formErrors.categoryName = 'Nombre requerido'; return false; }
+    if(!this.CategoryName || this.CategoryName.trim() === '') { 
+      this.formErrors.categoryName = 'El nombre es requerido'; return false; 
+    }
     return true;
   }
 
   // --- CRUD SERVICIOS ---
 
   CreateService(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return;
     if(!this.validateServiceForm()) return;
+    
+    this.isSubmitting = true;
     this.service.postService({name: this.ServiceName.trim(), price: this.ServicePrice, category_id: this.ServiceCategoryId}).subscribe({
-      next: () => { this.showSuccessNotification('Servicio creado'); this.showListView(); },
-      error: (e) => { if(e.status===401){this.authService.logout();return;} this.handleModalError(e); }
+      next: () => { 
+        this.notification.success('¡Éxito!', 'Servicio creado correctamente');
+        this.showListView(); 
+        this.isSubmitting = false;
+      },
+      error: (e) => { 
+        this.isSubmitting = false;
+        if(e.status===401){this.authService.logout();return;} 
+        this.handleModalError(e); 
+      }
     });
   }
 
   EditService(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return;
     if(!this.validateServiceForm()) return;
+    
+    this.isSubmitting = true;
     this.service.putService(this.IdEdit.toString(), {name: this.ServiceName.trim(), price: this.ServicePrice, category_id: this.ServiceCategoryId}).subscribe({
-      next: () => { this.showSuccessNotification('Servicio actualizado'); this.showListView(); },
-      error: (e) => { if(e.status===401){this.authService.logout();return;} this.handleModalError(e); }
+      next: () => { 
+        this.notification.success('¡Éxito!', 'Servicio actualizado correctamente');
+        this.showListView(); 
+        this.isSubmitting = false;
+      },
+      error: (e) => { 
+        this.isSubmitting = false;
+        if(e.status===401){this.authService.logout();return;} 
+        this.handleModalError(e); 
+      }
     });
   }
 
@@ -227,7 +266,7 @@ export class ServicesComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.deleteService(this.IdDelete.toString()).subscribe({
       next: () => { 
-        this.showSuccessNotification('Servicio eliminado'); 
+        this.notification.success('Operación completada', 'Servicio eliminado correctamente');
         this.GetServices(); 
         this.closeModal('deleteServiceModal'); 
       },
@@ -245,7 +284,7 @@ export class ServicesComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.restoreService(this.IdRestore.toString()).subscribe({
       next: () => { 
-        this.showSuccessNotification('Servicio restaurado'); 
+        this.notification.success('Operación completada', 'Servicio restaurado correctamente');
         this.GetServices(); 
         this.closeModal('restoreServiceModal'); 
       },
@@ -256,28 +295,42 @@ export class ServicesComponent implements OnInit {
   // --- CRUD CATEGORÍAS ---
 
   CreateCategory(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return;
     if(!this.validateCategoryForm()) return;
+    
+    this.isSubmitting = true;
     this.service.postCategory({name: this.CategoryName.trim()}).subscribe({
       next: () => { 
-        this.showSuccessNotification('Categoría creada'); 
+        this.notification.success('¡Éxito!', 'Categoría creada correctamente');
         this.CategoryName=''; this.GetCategories(); 
         this.closeModal('createCategoryModal'); 
+        this.isSubmitting = false;
       },
-      error: (e) => { if(e.status===401){this.authService.logout();return;} this.handleModalError(e); }
+      error: (e) => { 
+        this.isSubmitting = false;
+        if(e.status===401){this.authService.logout();return;} 
+        this.handleModalError(e); 
+      }
     });
   }
 
   EditCategory(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin || this.isSubmitting) return;
     if(!this.validateCategoryForm()) return;
+    
+    this.isSubmitting = true;
     this.service.putCategory(this.CategoryToEdit.id.toString(), {name: this.CategoryName.trim()}).subscribe({
       next: () => { 
-        this.showSuccessNotification('Categoría actualizada'); 
+        this.notification.success('¡Éxito!', 'Categoría actualizada correctamente');
         this.CategoryName=''; this.CategoryToEdit=null; this.GetCategories(); 
         this.closeModal('editCategoryModal'); 
+        this.isSubmitting = false;
       },
-      error: (e) => { if(e.status===401){this.authService.logout();return;} this.handleModalError(e); }
+      error: (e) => { 
+        this.isSubmitting = false;
+        if(e.status===401){this.authService.logout();return;} 
+        this.handleModalError(e); 
+      }
     });
   }
 
@@ -290,7 +343,7 @@ export class ServicesComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.deleteCategory(this.CategoryToDelete.id.toString()).subscribe({
       next: () => { 
-        this.showSuccessNotification('Categoría eliminada'); 
+        this.notification.success('Operación completada', 'Categoría eliminada correctamente');
         this.CategoryToDelete=null; 
         this.GetCategories(); 
         this.closeModal('deleteCategoryModal'); 
@@ -299,6 +352,7 @@ export class ServicesComponent implements OnInit {
         if(e.status===401){this.authService.logout();return;} 
         if (e.status === 409) {
           this.modalError = 'No se puede eliminar la categoría porque tiene servicios asociados.';
+          this.notification.warning('Atención', 'No se puede eliminar: tiene servicios asociados.');
           return;
         }
         this.handleModalError(e); 
@@ -315,7 +369,7 @@ export class ServicesComponent implements OnInit {
     if (!this.isAdmin) return;
     this.service.restoreCategory(this.CategoryToRestore.id.toString()).subscribe({
       next: () => { 
-        this.showSuccessNotification('Categoría restaurada'); 
+        this.notification.success('Operación completada', 'Categoría restaurada correctamente');
         this.CategoryToRestore=null; 
         this.GetCategories(); 
         this.closeModal('restoreCategoryModal'); 
@@ -334,23 +388,16 @@ export class ServicesComponent implements OnInit {
 
   ApplyFilters(): void { this.GetServices(); }
   ClearFilters(): void { this.SearchName = ''; this.SelectedCategory = ''; this.ServiceStatus = 'active'; this.GetServices(); }
-  onServiceStatusChange(n: 'active'|'inactive'|'all'): void { this.ServiceStatus = n; this.GetServices(); }
-  onCategoryStatusChange(n: 'active'|'inactive'|'all'): void { this.CategoryStatus = n; this.GetCategories(); }
+  // @ts-ignore
+  onServiceStatusChange(n: 'active'|'inactive'): void { this.ServiceStatus = n; this.GetServices(); }
+  // @ts-ignore
+  onCategoryStatusChange(n: 'active'|'inactive'): void { this.CategoryStatus = n; this.GetCategories(); }
 
   // --- HELPERS ---
 
   private closeModal(id: string): void { 
     const m = document.getElementById(id); 
     if(m){const i=(window as any).bootstrap.Modal.getInstance(m);if(i)i.hide();} 
-  }
-
-  private showSuccessNotification(message: string): void {
-    const n = document.createElement('div');
-    n.className = 'alert alert-success alert-dismissible fade show custom-toast';
-    n.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;min-width:350px;background:linear-gradient(135deg,#27ae60 0%,#229954 100%);color:white;padding:16px 20px;`;
-    n.innerHTML = `<div class="d-flex align-items-center"><span style="font-size:22px;margin-right:12px;">✔</span><div><strong>¡Éxito!</strong><div>${message}</div></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button></div>`;
-    document.body.appendChild(n);
-    setTimeout(() => { if(n.parentNode) n.parentNode.removeChild(n); }, 4000);
   }
 
   // --- MANEJO DE ERRORES GENÉRICO ---
@@ -362,7 +409,7 @@ export class ServicesComponent implements OnInit {
       case 401: return 'Sesión expirada. Inicie sesión nuevamente.';
       case 403: return 'No tiene permisos para esta acción.';
       case 404: return 'Servicio o categoría no encontrada.';
-      case 409: return 'Ya existe un registro con ese nombre.'; // Por defecto
+      case 409: return 'Ya existe un registro con ese nombre.';
       case 500: return 'Error interno del servidor.';
       default: return 'Ocurrió un error inesperado.';
     }

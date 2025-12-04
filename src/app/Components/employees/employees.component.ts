@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { EmployeesService } from '../../Services/employees-service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../Services/auth-service';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-employees',
@@ -11,7 +12,12 @@ import { AuthService } from '../../Services/auth-service';
 })
 export class EmployeesComponent implements OnInit {
 
-  constructor(private service: EmployeesService, private router: Router, private authService: AuthService) {}
+  constructor(
+    private service: EmployeesService, 
+    private router: Router, 
+    private authService: AuthService,
+    private notification: NzNotificationService
+  ) {}
 
   // Datos
   DataSourceEmployees: any[] = [];
@@ -19,11 +25,17 @@ export class EmployeesComponent implements OnInit {
   isEditMode: boolean = false;
   EmployeeStatus: 'active' | 'inactive' = 'active';
 
+  // Req 1: Bloqueo botón
+  isSubmitting: boolean = false;
+
   // Formulario
   Name: string = '';
   Username: string = '';
   Email: string = '';
   Password: string = '';
+  
+  // Mostrar/Ocultar Contraseña
+  showPassword: boolean = false;
 
   // Edición
   IdEdit: number = 0;
@@ -51,49 +63,58 @@ export class EmployeesComponent implements OnInit {
     }
   }
 
+  // --- NAVEGACIÓN ---
+
   showListView(): void {
     this.activeView = 'list';
     this.clearForm();
-    this.clearError();
-    this.clearModalError();
-    this.clearFormErrors();
-    this.GetEmployees();
   }
 
   showCreateForm(): void {
     this.activeView = 'form';
     this.isEditMode = false;
     this.clearForm();
-    this.clearError();
-    this.clearModalError();
-    this.clearFormErrors();
   }
 
   showEditForm(employee: any): void {
     this.activeView = 'form';
     this.isEditMode = true;
+    
     this.IdEdit = employee.id;
     this.NameEdit = employee.name;
     this.UsernameEdit = employee.username;
     this.EmailEdit = employee.email;
-    this.PasswordEdit = '';
+    this.PasswordEdit = ''; // Contraseña vacía al iniciar edición
+    this.showPassword = false; // Resetear visibilidad
+    
     this.clearError();
     this.clearModalError();
     this.clearFormErrors();
   }
 
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  // --- VALIDACIÓN ---
+
   validateEmployeeForm(): boolean {
     this.clearFormErrors();
     let isValid = true;
-    // Validaciones front
+    
+    // Validar Nombre
     if (!this.currentName || this.currentName.trim() === '') {
       this.formErrors.name = 'El nombre es requerido';
       isValid = false;
     }
+    
+    // Validar Usuario
     if (!this.currentUsername || this.currentUsername.trim() === '') {
       this.formErrors.username = 'El usuario es requerido';
       isValid = false;
     }
+    
+    // Validar Email
     if (!this.currentEmail || this.currentEmail.trim() === '') {
       this.formErrors.email = 'El email es requerido';
       isValid = false;
@@ -101,12 +122,24 @@ export class EmployeesComponent implements OnInit {
       this.formErrors.email = 'Formato de email inválido';
       isValid = false;
     }
+    
+    // Validar Contraseña (solo en creación)
     if (!this.isEditMode) {
       if (!this.currentPassword || this.currentPassword.trim() === '') {
         this.formErrors.password = 'La contraseña es requerida';
         isValid = false;
+      } else if (this.currentPassword.length < 6) {
+        this.formErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+        isValid = false;
       }
+    } else {
+       // Si está editando y escribe algo, validamos longitud
+       if (this.currentPassword && this.currentPassword.length > 0 && this.currentPassword.length < 6) {
+          this.formErrors.password = 'La contraseña debe tener al menos 6 caracteres';
+          isValid = false;
+       }
     }
+
     return isValid;
   }
 
@@ -114,6 +147,8 @@ export class EmployeesComponent implements OnInit {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
+
+  // --- CRUD ---
 
   GetEmployees(): void {
     this.service.GetEmployees(this.EmployeeStatus).subscribe({
@@ -129,19 +164,25 @@ export class EmployeesComponent implements OnInit {
   }
 
   CreateEmployee(): void {
+    if (this.isSubmitting) return;
     if (!this.validateEmployeeForm()) return;
+    
+    this.isSubmitting = true;
     const employee = {
       name: this.Name.trim(),
       username: this.Username.trim(),
       email: this.Email.trim(),
       password: this.Password
     };
+    
     this.service.PostEmployee(employee).subscribe({
       next: () => {
-        this.showSuccessNotification('Empleado creado correctamente');
+        this.notification.success('¡Éxito!', 'Empleado creado correctamente');
         this.showListView();
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
@@ -149,21 +190,28 @@ export class EmployeesComponent implements OnInit {
   }
 
   EditEmployee(): void {
+    if (this.isSubmitting) return;
     if (!this.validateEmployeeForm()) return;
+    
+    this.isSubmitting = true;
     const employee: any = {
       name: this.NameEdit.trim(),
       username: this.UsernameEdit.trim(),
       email: this.EmailEdit.trim()
     };
+    // Solo enviamos contraseña si se escribió algo
     if (this.PasswordEdit && this.PasswordEdit.trim() !== '') {
       employee.password = this.PasswordEdit;
     }
+    
     this.service.PutEmployee(this.IdEdit.toString(), employee).subscribe({
       next: () => {
-        this.showSuccessNotification('Empleado actualizado correctamente');
+        this.notification.success('¡Éxito!', 'Empleado actualizado correctamente');
         this.showListView();
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
@@ -178,13 +226,17 @@ export class EmployeesComponent implements OnInit {
   }
 
   DeleteEmployee(): void {
+    if(this.isSubmitting) return;
+    this.isSubmitting = true;
     this.service.DeleteEmployee(this.IdDelete.toString()).subscribe({
       next: () => {
-        this.showSuccessNotification('Empleado eliminado correctamente');
+        this.notification.success('Operación completada', 'Empleado eliminado correctamente');
         this.GetEmployees();
         this.closeModal('deleteEmployeeModal');
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
@@ -199,19 +251,24 @@ export class EmployeesComponent implements OnInit {
   }
 
   RestoreEmployeeConfirm(): void {
+    if(this.isSubmitting) return;
+    this.isSubmitting = true;
     this.service.RestoreEmployee(this.IdRestore.toString()).subscribe({
       next: () => {
-        this.showSuccessNotification('Empleado restaurado correctamente');
+        this.notification.success('Operación completada', 'Empleado restaurado correctamente');
         this.GetEmployees();
         this.closeModal('restoreEmployeeModal');
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
     });
   }
 
+  // @ts-ignore
   onEmployeeStatusChange(newStatus: 'active' | 'inactive'): void {
     this.EmployeeStatus = newStatus;
     this.GetEmployees();
@@ -225,47 +282,16 @@ export class EmployeesComponent implements OnInit {
     }
   }
 
-  private showSuccessNotification(message: string): void {
-    const notification = document.createElement('div');
-    notification.className = 'alert alert-success alert-dismissible fade show custom-toast';
-    notification.style.cssText = `
-      position: fixed; top: 20px; right: 20px; z-index: 9999;
-      min-width: 350px; max-width: 450px; border: none; border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15); background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-      color: white; padding: 16px 20px; animation: slideInRight 0.3s ease-out;
-    `;
-    notification.innerHTML = `
-      <div class="d-flex align-items-center">
-        <span style="font-size: 22px; font-weight: bold; color: white; margin-right: 12px; line-height: 1;">✔</span>
-        <div class="flex-grow-1">
-          <strong class="me-auto" style="font-size: 16px; display: block; margin-bottom: 4px;">¡Éxito!</strong>
-          <div style="font-size: 14px; opacity: 0.95;">${message}</div>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" style="filter: brightness(0) invert(1); opacity: 0.8; margin-left: 16px;"></button>
-      </div>`;
-    
-    if (!document.querySelector('#toast-styles')) {
-      const style = document.createElement('style');
-      style.id = 'toast-styles';
-      style.textContent = `@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } } .custom-toast { backdrop-filter: blur(10px); border-left: 4px solid #1e8449 !important; }`;
-      document.head.appendChild(style);
-    }
-    document.body.appendChild(notification);
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.style.animation = 'slideInRight 0.3s ease-out reverse';
-        setTimeout(() => { if (notification.parentNode) notification.parentNode.removeChild(notification); }, 300);
-      }
-    }, 4000);
-  }
-
   // Getters/Setters helpers
   get currentName(): string { return this.isEditMode ? this.NameEdit : this.Name; }
   set currentName(value: string) { if (this.isEditMode) this.NameEdit = value; else this.Name = value; }
+  
   get currentUsername(): string { return this.isEditMode ? this.UsernameEdit : this.Username; }
   set currentUsername(value: string) { if (this.isEditMode) this.UsernameEdit = value; else this.Username = value; }
+  
   get currentEmail(): string { return this.isEditMode ? this.EmailEdit : this.Email; }
   set currentEmail(value: string) { if (this.isEditMode) this.EmailEdit = value; else this.Email = value; }
+  
   get currentPassword(): string { return this.isEditMode ? this.PasswordEdit : this.Password; }
   set currentPassword(value: string) { if (this.isEditMode) this.PasswordEdit = value; else this.Password = value; }
 
@@ -297,9 +323,12 @@ export class EmployeesComponent implements OnInit {
   clearModalError(): void { this.modalError = ''; }
   clearFormErrors(): void { this.formErrors = {}; }
   hasFormErrors(): boolean { return Object.keys(this.formErrors).length > 0; }
+  
   clearForm(): void {
     this.Name = ''; this.Username = ''; this.Email = ''; this.Password = '';
     this.NameEdit = ''; this.UsernameEdit = ''; this.EmailEdit = ''; this.PasswordEdit = '';
-    this.clearModalError(); this.clearFormErrors();
+    this.showPassword = false; // Resetear visualización
+    this.clearError(); this.clearModalError(); this.clearFormErrors();
+    this.GetEmployees();
   }
 }
