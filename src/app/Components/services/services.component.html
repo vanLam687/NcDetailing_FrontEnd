@@ -101,7 +101,7 @@
             <h6 class="mb-0">Servicios</h6>
           </div>
           <div class="card-body p-0">
-            <nz-table #servicesTable [nzData]="DataSourceServices" class="w-100 compact-table" nzSize="small">
+            <nz-table #servicesTable [nzData]="DataSourceServices" [nzScroll]="{ x: '900px' }" class="w-100 compact-table" nzSize="small">
               <thead>
                 <tr>
                   <th class="ps-2" style="color: #333;">ID</th>
@@ -162,7 +162,7 @@
             </div>
           </div>
           <div class="card-body p-0">
-            <nz-table #categoriesTable [nzData]="DataSourceCategories" class="w-100 compact-table" nzSize="small">
+            <nz-table #categoriesTable [nzData]="DataSourceCategories" [nzScroll]="{ x: '600px' }" class="w-100 compact-table" nzSize="small">
               <thead>
                 <tr>
                   <th class="ps-2" style="color: #333;">ID</th>

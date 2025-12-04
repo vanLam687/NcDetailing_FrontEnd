@@ -76,7 +76,7 @@
             <h6 class="mb-0">Clientes</h6>
           </div>
           <div class="card-body p-0">
-            <nz-table #clientsTable [nzData]="DataSourceClients" class="w-100 compact-table" nzSize="small">
+            <nz-table #clientsTable [nzData]="DataSourceClients" [nzScroll]="{ x: '1000px' }" class="w-100 compact-table" nzSize="small">
               <thead>
                 <tr>
                   <th class="ps-2" style="color: #333;">ID</th>

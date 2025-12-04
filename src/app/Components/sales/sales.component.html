@@ -128,7 +128,8 @@
           <nz-table 
             #salesTable 
             [nzData]="activeView === 'products' ? DataSourceSalesProducts : DataSourceSalesServices" 
-            class="w-100 compact-table" 
+            [nzScroll]="{ x: '1200px' }"
+            class="w-100 compact-table"
             nzSize="small">
             <thead>
               <tr>
