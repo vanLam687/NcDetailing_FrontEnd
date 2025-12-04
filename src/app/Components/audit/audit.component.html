@@ -93,7 +93,7 @@
             <h6 class="mb-0">Registros de Auditoría</h6>
           </div>
           <div class="card-body p-0">
-            <nz-table #auditTable [nzData]="DataSourceAudit" class="w-100 compact-table" nzSize="small">
+            <nz-table #auditTable [nzData]="DataSourceAudit" [nzScroll]="{ x: '1000px' }" class="w-100 compact-table" nzSize="small">
               <thead>
                 <tr>
                   <th class="ps-2" style="color: #333;">Fecha/Hora</th>
