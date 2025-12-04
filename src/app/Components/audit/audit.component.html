@@ -76,73 +76,86 @@
         </div>
       </div>
 
-      <div class="card shadow-sm">
-        <div class="card-header py-2 px-3">
-          <h6 class="mb-0">Registros de Auditoría</h6>
+      <div *ngIf="isLoading" class="text-center p-5 my-5">
+        <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+        <p class="mt-2 text-muted">Cargando registros...</p>
+      </div>
+
+      <div *ngIf="!isLoading">
+        <div *ngIf="DataSourceAudit.length === 0" class="card shadow-sm">
+          <div class="card-body text-center p-5">
+            <p class="text-muted">No se encontraron registros con los filtros aplicados.</p>
+          </div>
         </div>
-        <div class="card-body p-0">
-          <nz-table #auditTable [nzData]="DataSourceAudit" class="w-100 compact-table" nzSize="small">
-            <thead>
-              <tr>
-                <th class="ps-2" style="color: #333;">Fecha/Hora</th>
-                <th style="color: #333;">Usuario</th>
-                <th style="color: #333;">Acción</th>
-                <th style="color: #333;">Entidad</th>
-                <th style="color: #333;">ID Entidad</th>
-                <th style="color: #333;">Estado</th>
-                <th style="color: #333;">IP</th>
-                <th class="text-center pe-2" style="color: #333;">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let log of auditTable.data" class="table-row">
-                <td class="ps-2" style="color: #333;">
-                  <small>{{ log.created_at | date:'dd/MM/yyyy HH:mm' }}</small>
-                </td>
-                <td style="color: #333;">
-                  <strong>{{ log.username || 'Sistema' }}</strong>
-                  <br>
-                  <small class="text-muted">ID: {{ log.user_id || 'N/A' }}</small>
-                </td>
-                <td style="color: #333;">
-                  <span [class]="getActionTypeClass(log.action_type)">
-                    {{ log.action_type }}
-                  </span>
-                </td>
-                <td style="color: #333;">{{ log.entity_type || '-' }}</td>
-                <td style="color: #333;">{{ log.entity_id || '-' }}</td>
-                <td style="color: #333;">
-                  <span [class]="getStatusClass(log.status)">
-                    {{ log.status }}
-                  </span>
-                </td>
-                <td style="color: #333;">
-                  <small>{{ log.ip_address || '-' }}</small>
-                </td>
-                <td class="text-center pe-2">
-                  <div class="d-flex gap-1 justify-content-center">
-                    <button 
-                      *ngIf="hasChanges(log.changes)"
-                      class="btn btn-outline-info btn-sm"
-                      (click)="viewChanges(log.changes)"
-                      nz-tooltip nzTooltipTitle="Ver detalles">
-                      <i nz-icon nzType="eye"></i>
-                    </button>
-                    
-                    <button 
-                      *ngIf="hasError(log.error_message)"
-                      class="btn btn-outline-danger btn-sm"
-                      (click)="viewError(log.error_message)"
-                      nz-tooltip nzTooltipTitle="Ver error">
-                      <i nz-icon nzType="exclamation-circle"></i>
-                    </button>
-                    
-                    <span *ngIf="!hasChanges(log.changes) && !hasError(log.error_message)" class="text-muted">-</span>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </nz-table>
+  
+        <div *ngIf="DataSourceAudit.length > 0" class="card shadow-sm">
+          <div class="card-header py-2 px-3">
+            <h6 class="mb-0">Registros de Auditoría</h6>
+          </div>
+          <div class="card-body p-0">
+            <nz-table #auditTable [nzData]="DataSourceAudit" class="w-100 compact-table" nzSize="small">
+              <thead>
+                <tr>
+                  <th class="ps-2" style="color: #333;">Fecha/Hora</th>
+                  <th style="color: #333;">Usuario</th>
+                  <th style="color: #333;">Acción</th>
+                  <th style="color: #333;">Entidad</th>
+                  <th style="color: #333;">ID Entidad</th>
+                  <th style="color: #333;">Estado</th>
+                  <th style="color: #333;">IP</th>
+                  <th class="text-center pe-2" style="color: #333;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let log of auditTable.data" class="table-row">
+                  <td class="ps-2" style="color: #333;">
+                    <small>{{ log.created_at | date:'dd/MM/yyyy HH:mm' }}</small>
+                  </td>
+                  <td style="color: #333;">
+                    <strong>{{ log.username || 'Sistema' }}</strong>
+                    <br>
+                    <small class="text-muted">ID: {{ log.user_id || 'N/A' }}</small>
+                  </td>
+                  <td style="color: #333;">
+                    <span [class]="getActionTypeClass(log.action_type)">
+                      {{ log.action_type }}
+                    </span>
+                  </td>
+                  <td style="color: #333;">{{ log.entity_type || '-' }}</td>
+                  <td style="color: #333;">{{ log.entity_id || '-' }}</td>
+                  <td style="color: #333;">
+                    <span [class]="getStatusClass(log.status)">
+                      {{ log.status }}
+                    </span>
+                  </td>
+                  <td style="color: #333;">
+                    <small>{{ log.ip_address || '-' }}</small>
+                  </td>
+                  <td class="text-center pe-2">
+                    <div class="d-flex gap-1 justify-content-center">
+                      <button 
+                        *ngIf="hasChanges(log.changes)"
+                        class="btn btn-outline-info btn-sm"
+                        (click)="viewChanges(log.changes)"
+                        nz-tooltip nzTooltipTitle="Ver detalles">
+                        <i nz-icon nzType="eye"></i>
+                      </button>
+                      
+                      <button 
+                        *ngIf="hasError(log.error_message)"
+                        class="btn btn-outline-danger btn-sm"
+                        (click)="viewError(log.error_message)"
+                        nz-tooltip nzTooltipTitle="Ver error">
+                        <i nz-icon nzType="exclamation-circle"></i>
+                      </button>
+                      
+                      <span *ngIf="!hasChanges(log.changes) && !hasError(log.error_message)" class="text-muted">-</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </div>
         </div>
       </div>
     </div>

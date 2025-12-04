@@ -37,6 +37,7 @@ export class AuditComponent implements OnInit {
   showErrorModal: boolean = false;
 
   errorMessage: string = '';
+  isLoading: boolean = false;
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
@@ -55,16 +56,19 @@ export class AuditComponent implements OnInit {
     if (this.StartDate) filters.startDate = this.StartDate;
     if (this.EndDate) filters.endDate = this.EndDate;
 
+    this.isLoading = true;
     this.service.getAuditLogs(filters).subscribe({
       next: (data: any) => {
         this.DataSourceAudit = data.data;
         this.clearError();
+        this.isLoading = false;
       },
       error: (error) => {
         if (error.status === 401) {
           this.authService.logout();
           return;
         }
+        this.isLoading = false;
         this.handleError(error);
       }
     });

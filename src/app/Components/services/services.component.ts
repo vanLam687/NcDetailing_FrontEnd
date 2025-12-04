@@ -60,6 +60,7 @@ export class ServicesComponent implements OnInit {
   errorMessage: string = '';
   modalError: string = '';
   formErrors: any = {};
+  isLoading: boolean = false;
 
   get isAdmin(): boolean {
     return this.authService.isAdmin();
@@ -77,14 +78,17 @@ export class ServicesComponent implements OnInit {
   // --- CARGA DE DATOS ---
 
   GetServices(): void {
+    this.isLoading = true;
     this.service.getServices(this.SearchName, this.SelectedCategory, this.ServiceStatus).subscribe({
       next: (data: any) => { 
         this.DataSourceServices = data.data; 
         this.clearError(); 
+        this.isLoading = false;
       },
       error: (error) => { 
         if (error.status === 401) { this.authService.logout(); return; } 
         this.handleError(error); 
+        this.isLoading = false;
       }
     });
   }

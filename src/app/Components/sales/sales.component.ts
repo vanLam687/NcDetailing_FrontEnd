@@ -80,6 +80,7 @@ export class SalesComponent implements OnInit {
   modalError: string = '';
   formErrors: any = {};
   
+  isLoading: boolean = false;
   // Bloqueo de botones
   isSubmitting: boolean = false;
 
@@ -157,20 +158,30 @@ export class SalesComponent implements OnInit {
        this.notification.warning('Atención', 'Seleccione ambas fechas para filtrar por rango.');
        return;
     }
+    this.isLoading = true;
     this.salesService.getSalesProducts({clientName: this.FilterClientName, startDate: this.FilterStartDate, endDate: this.FilterEndDate, paymentStatusId: this.FilterPaymentStatus ? parseInt(this.FilterPaymentStatus) : null}).subscribe({
-      next: (d: any) => { this.DataSourceSalesProducts = d.data; this.clearError(); },
-      error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleError(e); }
+      next: (d: any) => { 
+        this.DataSourceSalesProducts = d.data; 
+        this.clearError(); 
+        this.isLoading = false;
+      },
+      error: (e) => { 
+        if (e.status === 401) { this.authService.logout(); return; } 
+        this.handleError(e); 
+        this.isLoading = false;
+      }
     });
   }
 
   GetSalesServices(): void {
     if ((this.FilterStartDate && !this.FilterEndDate) || (!this.FilterStartDate && this.FilterEndDate)) {
-       this.notification.warning('Atención', 'Seleccione ambas fechas para filtrar por rango.');
-       return;
+      this.notification.warning('Atención', 'Seleccione ambas fechas para filtrar por rango.');
+      return;
     }
+    this.isLoading = true;
     this.salesService.getSalesServices({clientName: this.FilterClientName, startDate: this.FilterStartDate, endDate: this.FilterEndDate, paymentStatusId: this.FilterPaymentStatus ? parseInt(this.FilterPaymentStatus) : null, serviceStatusId: this.FilterServiceStatus ? parseInt(this.FilterServiceStatus) : null}).subscribe({
-      next: (d: any) => { this.DataSourceSalesServices = d.data; this.clearError(); },
-      error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleError(e); }
+      next: (d: any) => { this.DataSourceSalesServices = d.data; this.clearError(); this.isLoading = false; },
+      error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleError(e); this.isLoading = false; }
     });
   }
 
