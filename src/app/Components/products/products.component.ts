@@ -112,7 +112,7 @@ export class ProductsComponent implements OnInit {
 
   showListView(): void {
     this.activeView = 'list';
-    this.SelectedProduct = null; // CORRECCIÓN: Limpiar selección al ir a lista
+    this.SelectedProduct = null;
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetProducts();
     this.addToHistory('list');
@@ -121,7 +121,7 @@ export class ProductsComponent implements OnInit {
   showCreateForm(): void {
     if (!this.isAdmin) return;
     this.activeView = 'create';
-    this.SelectedProduct = null; // CORRECCIÓN: Limpiar selección al crear
+    this.SelectedProduct = null;
     this.clearForm(); 
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.addToHistory('create');
@@ -158,7 +158,7 @@ export class ProductsComponent implements OnInit {
   showCategoriesView(): void {
     if (!this.isAdmin) return;
     this.activeView = 'categories';
-    this.SelectedProduct = null; // CORRECCIÓN: Limpiar selección al ir a categorías
+    this.SelectedProduct = null;
     this.clearError(); this.clearModalError(); this.clearFormErrors();
     this.GetCategories();
     this.addToHistory('categories');

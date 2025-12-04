@@ -226,13 +226,17 @@ export class EmployeesComponent implements OnInit {
   }
 
   DeleteEmployee(): void {
+    if(this.isSubmitting) return;
+    this.isSubmitting = true;
     this.service.DeleteEmployee(this.IdDelete.toString()).subscribe({
       next: () => {
         this.notification.success('Operación completada', 'Empleado eliminado correctamente');
         this.GetEmployees();
         this.closeModal('deleteEmployeeModal');
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }
@@ -247,13 +251,17 @@ export class EmployeesComponent implements OnInit {
   }
 
   RestoreEmployeeConfirm(): void {
+    if(this.isSubmitting) return;
+    this.isSubmitting = true;
     this.service.RestoreEmployee(this.IdRestore.toString()).subscribe({
       next: () => {
         this.notification.success('Operación completada', 'Empleado restaurado correctamente');
         this.GetEmployees();
         this.closeModal('restoreEmployeeModal');
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleModalError(error);
       }

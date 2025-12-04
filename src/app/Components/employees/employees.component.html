@@ -208,14 +208,16 @@
                         type="button" 
                         class="btn btn-outline-danger btn-sm" 
                         (click)="clearForm()" 
-                        *ngIf="!isEditMode">
+                        *ngIf="!isEditMode"
+                        [disabled]="isSubmitting">
                         Limpiar
                       </button>
                       <button 
                         type="submit" 
                         class="btn btn-primary btn-sm" 
                         [disabled]="isSubmitting">
-                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span> {{ isEditMode ? 'Guardar' : 'Crear' }}
+                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span> 
+                        {{ isSubmitting ? (isEditMode ? 'Guardando...' : 'Creando...') : (isEditMode ? 'Guardar' : 'Crear') }}
                       </button>
                     </div>
                   </div>
@@ -237,7 +239,13 @@
           <p class="mb-3">¿Estás seguro de que deseas eliminar al empleado <strong>"{{ EmployeeToDeleteName }}"</strong>?</p>
           <div *ngIf="modalError" class="alert alert-danger">{{ modalError }}</div>
         </div>
-        <div class="modal-footer justify-content-center"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-danger" (click)="DeleteEmployee()">Eliminar</button></div>
+        <div class="modal-footer justify-content-center">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-danger" (click)="DeleteEmployee()" [disabled]="isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+            Eliminar
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -251,7 +259,13 @@
           <p class="mb-3">¿Estás seguro de que deseas restaurar al empleado <strong>"{{ EmployeeToRestoreName }}"</strong>?</p>
           <div *ngIf="modalError" class="alert alert-danger">{{ modalError }}</div>
         </div>
-        <div class="modal-footer justify-content-center"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-success" (click)="RestoreEmployeeConfirm()">Restaurar</button></div>
+        <div class="modal-footer justify-content-center">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-success" (click)="RestoreEmployeeConfirm()" [disabled]="isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+            Restaurar
+          </button>
+        </div>
       </div>
     </div>
   </div>

@@ -50,19 +50,23 @@
   gap: 12px;
 }
 
+/* === ESTILO DEL LOGO ACTUALIZADO === */
 .logo-icon {
-  width: 44px;
-  height: 44px;
-  background: var(--white);
-  color: var(--primary-purple);
-  border-radius: 10px;
+  /* Se eliminó el cuadro blanco, bordes y sombra */
+  color: var(--white); /* Color blanco para que se vea sobre el fondo oscuro */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  font-size: 18px;
-  box-shadow: 0 4px 8px rgba(88, 81, 160, 0.3);
+  
+  /* Fuente Cinzel para parecerse al logo */
+  font-family: 'Cinzel', serif; 
+  font-weight: 700;
+  font-size: 32px; /* Aumentado el tamaño de fuente para que destaque más sin el cuadro */
+  letter-spacing: -2px; /* Unir un poco más la N y la C */
+  
   transition: transform 0.3s ease;
+  /* Añadida sombra de texto para mejor legibilidad */
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); 
 }
 
 .logo-icon:hover {
@@ -70,12 +74,17 @@
 }
 
 .brand-name {
-  font-size: 22px;
+  /* Fuente Cinzel para el texto también */
+  font-family: 'Cinzel', serif;
+  font-size: 24px;
   font-weight: 700;
   margin: 0;
   color: var(--white);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Se eliminó text-transform: uppercase; para permitir minúsculas */
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+/* =================================== */
 
 .sidebar-toggle {
   background: rgba(255, 255, 255, 0.15);
@@ -143,31 +152,40 @@
   border-radius: 8px;
 }
 
-.alert-item {
+/* Estilos popover */
+.alert-item-popover {
+  padding: 10px 16px;
   border-bottom: 1px solid #f0f0f0;
-  padding: 12px 16px;
   cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: flex-start;
 }
 
-.alert-item:hover {
-  background-color: #f8f9fa;
+.alert-item-popover:hover {
+  background-color: #f9f9fc;
 }
 
-.alert-item .product-info strong {
-  font-size: 13px;
-  margin-bottom: 2px;
-  line-height: 1.2;
+.alert-item-popover:last-child {
+  border-bottom: none;
 }
 
-.alert-item .badge {
-  font-size: 11px;
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  min-width: 70px;
-  text-align: center;
-  border: none !important;
+.popover-scroll-content {
+  max-height: 300px;
+  overflow-y: auto;
+  min-width: 250px;
+}
+
+/* Custom Scrollbar para el popover */
+.popover-scroll-content::-webkit-scrollbar {
+  width: 6px;
+}
+.popover-scroll-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.popover-scroll-content::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
 }
 
 /* === FIN ALERTAS === */
@@ -218,7 +236,7 @@
 /* Sidebar - FONDO BLANCO SOLIDO */
 .app-sidebar {
   width: 280px;
-  background: #ffffff; /* Blanco sólido, sin transparencia */
+  background: #ffffff;
   box-shadow: 4px 0 20px rgba(88, 81, 160, 0.1);
   display: flex;
   flex-direction: column;
@@ -321,7 +339,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: #ffffff; /* Blanco sólido */
+  background: #ffffff;
   margin-top: auto;
 }
 
@@ -385,15 +403,12 @@
     left: 0;
     bottom: 0;
     z-index: 100;
-    /* Oculto por defecto desplazándolo a la izquierda */
     transform: translateX(-100%);
     box-shadow: 8px 0 30px rgba(88, 81, 160, 0.3);
-    /* FONDO BLANCO SÓLIDO EN MÓVIL */
     background: #ffffff;
   }
   
   .app-sidebar:not(.collapsed) {
-    /* Se muestra al quitar la clase collapsed (o al activarla según tu lógica de toggle) */
     transform: translateX(0);
   }
   

@@ -275,7 +275,8 @@
                       <button 
                         type="button" 
                         class="btn btn-outline-danger btn-sm"
-                        (click)="clearForm()">
+                        (click)="clearForm()"
+                        [disabled]="isSubmitting">
                         Limpiar
                       </button>
                       <button 

@@ -392,8 +392,9 @@
               <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
                 Cancelar
               </button>
-              <button type="button" class="btn btn-primary btn-sm" (click)="CreateProductSale()">
-                Crear Venta
+              <button type="button" class="btn btn-primary btn-sm" (click)="CreateProductSale()" [disabled]="isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                {{ isSubmitting ? 'Creando...' : 'Crear Venta' }}
               </button>
             </div>
           </div>
@@ -580,8 +581,9 @@
               <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">
                 Cancelar
               </button>
-              <button type="button" class="btn btn-primary btn-sm" (click)="CreateServiceSale()">
-                Crear Venta
+              <button type="button" class="btn btn-primary btn-sm" (click)="CreateServiceSale()" [disabled]="isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                {{ isSubmitting ? 'Creando...' : 'Crear Venta' }}
               </button>
             </div>
           </div>
@@ -804,7 +806,8 @@
             Cancelar
           </button>
           <button type="button" class="btn btn-warning btn-sm" (click)="UpdatePaymentStatus()" 
-                  [disabled]="isSaleFinalized || !hasPaymentStatusChanged">
+                  [disabled]="isSaleFinalized || !hasPaymentStatusChanged || isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
             Actualizar Estado
           </button>
         </div>
@@ -852,7 +855,8 @@
             Cancelar
           </button>
           <button type="button" class="btn btn-primary btn-sm" (click)="UpdateServiceStatus()" 
-                  [disabled]="!hasServiceStatusChanged">
+                  [disabled]="!hasServiceStatusChanged || isSubmitting">
+            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
             Actualizar Estado
           </button>
         </div>

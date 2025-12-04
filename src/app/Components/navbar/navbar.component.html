@@ -3,8 +3,8 @@
     <div class="header-content">
       <div class="brand-section">
         <div class="brand-logo">
-          <div class="logo-icon">NC</div>
-          <h1 class="brand-name">Detailing</h1>
+          <!-- <div class="logo-icon">NC</div> -->
+          <h1 class="brand-name">NcDetailing</h1>
         </div>
         <button class="sidebar-toggle" (click)="toggleSidebar()">
           <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>
@@ -42,7 +42,7 @@
                     <div class="mb-1">
                       <strong class="text-dark text-break" style="font-size: 13px;">{{ p.name }}</strong>
                     </div>
-                    <div class="d-flex justify-content-end">
+                    <div class="d-flex justify-content-start mt-1">
                       <span class="badge" 
                             [class.bg-danger]="p.stock === 0" 
                             [class.bg-warning]="p.stock > 0">

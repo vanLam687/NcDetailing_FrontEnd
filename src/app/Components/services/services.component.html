@@ -4,9 +4,11 @@
       <div class="card shadow-sm mb-2">
         <div class="card-body py-1 px-3">
           <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-              <h5 class="mb-0" style="color: #333;">Gestión de Servicios</h5>
-              <div class="vr" style="height: 16px;"></div>
+            
+            <h5 class="mb-0" style="color: #333;">Gestión de Servicios</h5>
+
+            <div class="d-flex align-items-center gap-3">
+              
               <div class="btn-group" role="group">
                 <button 
                   type="button" 
@@ -21,6 +23,21 @@
                 <button *ngIf="isAdmin"
                   type="button" 
                   class="btn btn-sm" 
+                  [class.btn-primary]="activeView === 'create'"
+                  [class.btn-outline-primary]="activeView !== 'create'"
+                  (click)="showCreateForm()"
+                  [disabled]="activeView === 'create' || activeView === 'edit'">
+                  <i nz-icon nzType="plus"></i>
+                  Nuevo Servicio
+                </button>
+              </div>
+
+              <div class="vr" style="height: 24px; opacity: 0.2;"></div>
+
+              <div class="btn-group" role="group" *ngIf="isAdmin">
+                <button 
+                  type="button" 
+                  class="btn btn-sm" 
                   [class.btn-primary]="activeView === 'categories'"
                   [class.btn-outline-primary]="activeView !== 'categories'"
                   (click)="showCategoriesView()"
@@ -28,37 +45,16 @@
                   <i nz-icon nzType="folder-open"></i>
                   Lista Categorías
                 </button>
-                <button *ngIf="isAdmin"
-                  type="button" 
-                  class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'create'"
-                  [class.btn-outline-primary]="activeView !== 'create'"
-                  (click)="showCreateForm()"
+                <button 
+                  class="btn btn-outline-primary btn-sm"
+                  data-bs-toggle="modal" 
+                  data-bs-target="#createCategoryModal"
                   [disabled]="activeView === 'create' || activeView === 'edit'">
-                  <i nz-icon nzType="plus"></i>
-                  Nuevo servicio
-                </button>
-                <button *ngIf="isAdmin"
-                  type="button" 
-                  class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'edit'"
-                  [class.btn-outline-primary]="activeView !== 'edit'"
-                  (click)="showEditBack()"
-                  [disabled]="!canShowEdit() || activeView === 'create' || activeView === 'edit'">
-                  <i nz-icon nzType="edit"></i>
-                  Editar
+                  <i nz-icon nzType="folder-add"></i>
+                  Nueva Categoría
                 </button>
               </div>
-            </div>
-            
-            <div class="d-flex gap-1" *ngIf="(activeView === 'list' || activeView === 'categories') && isAdmin">
-              <button 
-                class="btn btn-outline-primary btn-sm"
-                data-bs-toggle="modal" 
-                data-bs-target="#createCategoryModal">
-                <i nz-icon nzType="folder-add"></i>
-                Nueva Categoría
-              </button>
+
             </div>
           </div>
         </div>
@@ -265,7 +261,10 @@
                   <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                       <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goBack()"><i nz-icon nzType="arrow-left"></i> Volver</button>
-                      <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting"><span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span> Crear</button>
+                      <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting">
+                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                        {{ isSubmitting ? 'Creando...' : 'Crear' }}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -312,7 +311,10 @@
                   <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                       <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goBack()"><i nz-icon nzType="arrow-left"></i> Volver</button>
-                      <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting"><span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span> Guardar</button>
+                      <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting">
+                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                        {{ isSubmitting ? 'Guardando...' : 'Guardar' }}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -338,7 +340,10 @@
             </div>
             <div class="modal-footer">
               <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button class="btn btn-primary" (click)="CreateCategory()">Crear</button>
+              <button class="btn btn-primary" (click)="CreateCategory()" [disabled]="isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                Crear
+              </button>
             </div>
           </div>
         </div>
@@ -361,7 +366,10 @@
             </div>
             <div class="modal-footer">
               <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button class="btn btn-primary" (click)="EditCategory()">Guardar</button>
+              <button class="btn btn-primary" (click)="EditCategory()" [disabled]="isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                Guardar
+              </button>
             </div>
           </div>
         </div>

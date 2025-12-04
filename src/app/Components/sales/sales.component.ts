@@ -79,6 +79,9 @@ export class SalesComponent implements OnInit {
   errorMessage: string = '';
   modalError: string = '';
   formErrors: any = {};
+  
+  // Bloqueo de botones
+  isSubmitting: boolean = false;
 
   constructor(
     private salesService: SalesService,
@@ -232,7 +235,10 @@ export class SalesComponent implements OnInit {
 
   // Create Sales
   CreateProductSale(): void {
+    if (this.isSubmitting) return;
     if (!this.validateProductSaleForm()) return;
+    
+    this.isSubmitting = true;
     const sale = {
       client_id: this.NewProdSale_ClientId, payment_method_id: this.NewProdSale_PaymentMethodId,
       payment_status_id: this.NewProdSale_PaymentStatusId, observations: this.NewProdSale_Observations,
@@ -243,13 +249,21 @@ export class SalesComponent implements OnInit {
         this.notification.success('¡Éxito!', 'Venta de productos creada correctamente.');
         this.GetSalesProducts(); 
         this.closeModal('createProductSaleModal'); 
+        this.isSubmitting = false;
       },
-      error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
+      error: (e) => { 
+        this.isSubmitting = false;
+        if (e.status === 401) { this.authService.logout(); return; } 
+        this.handleModalError(e); 
+      }
     });
   }
 
   CreateServiceSale(): void {
+    if (this.isSubmitting) return;
     if (!this.validateServiceSaleForm()) return;
+    
+    this.isSubmitting = true;
     const sale = {
       client_id: this.NewSvcSale_ClientId, vehicle_id: this.NewSvcSale_VehicleId,
       payment_method_id: this.NewSvcSale_PaymentMethodId, payment_status_id: this.NewSvcSale_PaymentStatusId,
@@ -260,8 +274,13 @@ export class SalesComponent implements OnInit {
         this.notification.success('¡Éxito!', 'Venta de servicios creada correctamente.');
         this.GetSalesServices(); 
         this.closeModal('createServiceSaleModal'); 
+        this.isSubmitting = false;
       },
-      error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
+      error: (e) => { 
+        this.isSubmitting = false;
+        if (e.status === 401) { this.authService.logout(); return; } 
+        this.handleModalError(e); 
+      }
     });
   }
 
@@ -299,15 +318,25 @@ export class SalesComponent implements OnInit {
   get hasPaymentStatusChanged(): boolean { return this.NewPaymentStatusId !== this.originalPaymentStatusId; }
 
   UpdatePaymentStatus(): void {
-    if (this.isSaleFinalized || !this.hasPaymentStatusChanged) { this.modalError = 'No se puede modificar o sin cambios'; return; }
+    if (this.isSaleFinalized || !this.hasPaymentStatusChanged || this.isSubmitting) { 
+      if(!this.isSubmitting) this.modalError = 'No se puede modificar o sin cambios'; 
+      return; 
+    }
+    
+    this.isSubmitting = true;
     this.salesService.updatePaymentStatus(this.IdUpdatePayment.toString(), this.NewPaymentStatusId).subscribe({
       next: () => { 
         this.notification.success('¡Éxito!', 'Estado de pago actualizado.');
         this.GetSalesProducts(); 
         this.GetSalesServices(); 
         this.closeModal('updatePaymentModal'); 
+        this.isSubmitting = false;
       },
-      error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
+      error: (e) => { 
+        this.isSubmitting = false;
+        if (e.status === 401) { this.authService.logout(); return; } 
+        this.handleModalError(e); 
+      }
     });
   }
 
@@ -321,18 +350,21 @@ export class SalesComponent implements OnInit {
   get hasServiceStatusChanged(): boolean { return Number(this.NewServiceStatusId) !== Number(this.originalServiceStatusId); }
 
   UpdateServiceStatus(): void {
-    if (!this.hasServiceStatusChanged) { 
-        this.modalError = 'No se puede elegir el mismo estado de servicio.'; 
+    if (!this.hasServiceStatusChanged || this.isSubmitting) { 
+        if(!this.isSubmitting) this.modalError = 'No se puede elegir el mismo estado de servicio.'; 
         return; 
     }
 
+    this.isSubmitting = true;
     this.salesService.updateServiceStatus(this.IdUpdateServiceStatus.toString(), this.NewServiceStatusId).subscribe({
       next: () => { 
         this.notification.success('¡Éxito!', 'Estado del servicio actualizado.');
         this.GetSalesServices(); 
         this.closeModal('updateServiceStatusModal'); 
+        this.isSubmitting = false;
       },
       error: (e) => { 
+        this.isSubmitting = false;
         if (e.status === 401) { this.authService.logout(); return; } 
         if (e.status === 400) {
             this.modalError = 'El estado seleccionado es el mismo que el actual.';
