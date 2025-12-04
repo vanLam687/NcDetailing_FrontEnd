@@ -7,8 +7,8 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class EmployeesService {
-  url = 'http://localhost:3000/api/employees/';
-  //url = 'https://ncdetailing.up.railway.app/api/employees/';
+
+  url = 'https://ncdetailing.up.railway.app/api/employees/';
 
   constructor(
     private http: HttpClient, 
