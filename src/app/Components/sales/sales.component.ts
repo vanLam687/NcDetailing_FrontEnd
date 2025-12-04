@@ -5,6 +5,7 @@ import { SalesService } from '../../Services/sales-service';
 import { ClientsService } from '../../Services/clients-service';
 import { ProductsService } from '../../Services/products-service';
 import { ServicesService } from '../../Services/services-service';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-sales',
@@ -78,6 +79,9 @@ export class SalesComponent implements OnInit {
   errorMessage: string = '';
   modalError: string = '';
   formErrors: any = {};
+  
+  // Bloqueo de botones
+  isSubmitting: boolean = false;
 
   constructor(
     private salesService: SalesService,
@@ -85,7 +89,8 @@ export class SalesComponent implements OnInit {
     private productsService: ProductsService,  
     private servicesService: ServicesService,  
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private notification: NzNotificationService
   ) {}
 
   ngOnInit(): void {
@@ -94,30 +99,6 @@ export class SalesComponent implements OnInit {
     } else {
       this.router.navigate(['/login']);
     }
-  }
-
-  showToast(message: string, type: 'success' | 'error' | 'warning' = 'success'): void {
-    const n = document.createElement('div');
-    n.className = 'alert alert-dismissible fade show custom-toast';
-    n.style.cssText = `position:fixed;top:20px;right:20px;z-index:9999;min-width:350px;padding:16px 20px;`;
-    
-    if (type === 'success') {
-      n.style.background = 'linear-gradient(135deg, #27ae60 0%, #229954 100%)';
-      n.style.color = 'white';
-      n.style.borderLeft = '4px solid #1e8449';
-    } else if (type === 'error') {
-      n.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
-      n.style.color = 'white';
-      n.style.borderLeft = '4px solid #a93226';
-    } else {
-      n.style.background = 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)';
-      n.style.color = 'white';
-      n.style.borderLeft = '4px solid #a84300';
-    }
-    
-    n.innerHTML = `<div class="d-flex align-items-center"><span style="font-size:22px;margin-right:12px;">${type === 'success' ? '✔' : type === 'error' ? '✖' : '⚠'}</span><div><strong>${type === 'success' ? '¡Éxito!' : type === 'error' ? 'Error' : 'Advertencia'}</strong><div>${message}</div></div><button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button></div>`;
-    document.body.appendChild(n);
-    setTimeout(() => { if(n.parentNode) n.parentNode.removeChild(n); }, 4000);
   }
 
   closeModal(id: string): void { const m = document.getElementById(id); if(m){const i=(window as any).bootstrap.Modal.getInstance(m);if(i)i.hide();} }
@@ -155,18 +136,27 @@ export class SalesComponent implements OnInit {
     this.DataSourceServiceStatus = [{ id: 1, name: 'Pendiente' }, { id: 2, name: 'En Progreso' }, { id: 3, name: 'Completado' }, { id: 4, name: 'Cancelado' }];
   }
 
-  // Filters & Selection (simplified)
+  // Filters & Selection
   filterClients(event: any): void { const t = event.target.value.toLowerCase(); this.filteredClients = this.DataSourceClients.filter(c => `${c.first_name} ${c.last_name}`.toLowerCase().includes(t)); }
   filterProducts(event: any): void { const t = event.target.value.toLowerCase(); this.filteredProducts = this.DataSourceMasterProducts.filter(p => p.name.toLowerCase().includes(t)); }
   filterServices(event: any): void { const t = event.target.value.toLowerCase(); this.filteredServices = this.DataSourceMasterServices.filter(s => s.name.toLowerCase().includes(t)); }
 
-  selectClient(c: any): void { this.NewProdSale_ClientId = c.id; this.NewSvcSale_ClientId = c.id; this.clientSearchTerm = `${c.first_name} ${c.last_name}`; this.OnClientChangeForServices(c.id); this.clearFormErrors(); }
+  selectClient(c: any): void { 
+    this.NewProdSale_ClientId = c.id; 
+    this.NewSvcSale_ClientId = c.id; 
+    this.clientSearchTerm = `${c.first_name} ${c.last_name}`; 
+    this.OnClientChangeForServices(c.id); 
+    this.clearFormErrors(); 
+  }
+  
   selectProduct(p: any): void { this.Temp_ProductId = p.id; this.productSearchTerm = p.name; this.clearFormErrors(); }
   selectService(s: any): void { this.Temp_ServiceId = s.id; this.serviceSearchTerm = s.name; this.clearFormErrors(); }
 
   GetSalesProducts(): void {
-    if (this.FilterStartDate && !this.FilterEndDate) { this.showToast('Seleccione fecha fin', 'warning'); return; }
-    if (!this.FilterStartDate && this.FilterEndDate) { this.showToast('Seleccione fecha inicio', 'warning'); return; }
+    if ((this.FilterStartDate && !this.FilterEndDate) || (!this.FilterStartDate && this.FilterEndDate)) {
+       this.notification.warning('Atención', 'Seleccione ambas fechas para filtrar por rango.');
+       return;
+    }
     this.salesService.getSalesProducts({clientName: this.FilterClientName, startDate: this.FilterStartDate, endDate: this.FilterEndDate, paymentStatusId: this.FilterPaymentStatus ? parseInt(this.FilterPaymentStatus) : null}).subscribe({
       next: (d: any) => { this.DataSourceSalesProducts = d.data; this.clearError(); },
       error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleError(e); }
@@ -174,8 +164,10 @@ export class SalesComponent implements OnInit {
   }
 
   GetSalesServices(): void {
-    if (this.FilterStartDate && !this.FilterEndDate) { this.showToast('Seleccione fecha fin', 'warning'); return; }
-    if (!this.FilterStartDate && this.FilterEndDate) { this.showToast('Seleccione fecha inicio', 'warning'); return; }
+    if ((this.FilterStartDate && !this.FilterEndDate) || (!this.FilterStartDate && this.FilterEndDate)) {
+       this.notification.warning('Atención', 'Seleccione ambas fechas para filtrar por rango.');
+       return;
+    }
     this.salesService.getSalesServices({clientName: this.FilterClientName, startDate: this.FilterStartDate, endDate: this.FilterEndDate, paymentStatusId: this.FilterPaymentStatus ? parseInt(this.FilterPaymentStatus) : null, serviceStatusId: this.FilterServiceStatus ? parseInt(this.FilterServiceStatus) : null}).subscribe({
       next: (d: any) => { this.DataSourceSalesServices = d.data; this.clearError(); },
       error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleError(e); }
@@ -205,19 +197,27 @@ export class SalesComponent implements OnInit {
     return isValid;
   }
 
-  // Logic to add/remove items (Product/Service) - Simplified
+  // Logic to add/remove items (Product/Service)
   AddProductToSale(): void {
     this.clearModalError();
-    if (!this.Temp_ProductId || this.Temp_ProductQty <= 0) { this.modalError = 'Datos inválidos'; return; }
+    if (!this.Temp_ProductId || !this.Temp_ProductQty || this.Temp_ProductQty < 1) { 
+      this.modalError = 'Seleccione un producto y cantidad válida (mínimo 1)'; 
+      return; 
+    }
     const p = this.DataSourceMasterProducts.find(x => x.id === this.Temp_ProductId);
     if (p) {
       if (p.stock < this.Temp_ProductQty) { this.modalError = 'Stock insuficiente'; return; }
       const exists = this.NewProdSale_ProductsList.findIndex(x => x.product_id === p.id);
       if (exists > -1) this.NewProdSale_ProductsList[exists].quantity += this.Temp_ProductQty;
       else this.NewProdSale_ProductsList.push({ product_id: p.id, name: p.name, price: p.price, quantity: this.Temp_ProductQty });
-      this.Temp_ProductId = 0; this.Temp_ProductQty = 1; this.productSearchTerm = ''; this.filteredProducts = [...this.DataSourceMasterProducts];
+      
+      this.Temp_ProductId = 0; 
+      this.Temp_ProductQty = 1; 
+      this.productSearchTerm = ''; 
+      this.filteredProducts = [...this.DataSourceMasterProducts];
     }
   }
+  
   RemoveProductFromSale(i: number): void { this.NewProdSale_ProductsList.splice(i, 1); }
 
   AddServiceToSale(): void {
@@ -230,32 +230,57 @@ export class SalesComponent implements OnInit {
       this.Temp_ServiceId = 0; this.serviceSearchTerm = ''; this.filteredServices = [...this.DataSourceMasterServices];
     }
   }
+  
   RemoveServiceFromSale(i: number): void { this.NewSvcSale_ServicesList.splice(i, 1); }
 
   // Create Sales
   CreateProductSale(): void {
+    if (this.isSubmitting) return;
     if (!this.validateProductSaleForm()) return;
+    
+    this.isSubmitting = true;
     const sale = {
       client_id: this.NewProdSale_ClientId, payment_method_id: this.NewProdSale_PaymentMethodId,
       payment_status_id: this.NewProdSale_PaymentStatusId, observations: this.NewProdSale_Observations,
       products: this.NewProdSale_ProductsList.map(p => ({ product_id: p.product_id, quantity: p.quantity }))
     };
     this.salesService.postSaleProducts(sale).subscribe({
-      next: () => { this.showToast('Venta creada', 'success'); this.GetSalesProducts(); this.closeModal('createProductSaleModal'); },
-      error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
+      next: () => { 
+        this.notification.success('¡Éxito!', 'Venta de productos creada correctamente.');
+        this.GetSalesProducts(); 
+        this.closeModal('createProductSaleModal'); 
+        this.isSubmitting = false;
+      },
+      error: (e) => { 
+        this.isSubmitting = false;
+        if (e.status === 401) { this.authService.logout(); return; } 
+        this.handleModalError(e); 
+      }
     });
   }
 
   CreateServiceSale(): void {
+    if (this.isSubmitting) return;
     if (!this.validateServiceSaleForm()) return;
+    
+    this.isSubmitting = true;
     const sale = {
       client_id: this.NewSvcSale_ClientId, vehicle_id: this.NewSvcSale_VehicleId,
       payment_method_id: this.NewSvcSale_PaymentMethodId, payment_status_id: this.NewSvcSale_PaymentStatusId,
       observations: this.NewSvcSale_Observations, services: this.NewSvcSale_ServicesList.map(s => ({ service_id: s.service_id }))
     };
     this.salesService.postSalesServices(sale).subscribe({
-      next: () => { this.showToast('Venta creada', 'success'); this.GetSalesServices(); this.closeModal('createServiceSaleModal'); },
-      error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
+      next: () => { 
+        this.notification.success('¡Éxito!', 'Venta de servicios creada correctamente.');
+        this.GetSalesServices(); 
+        this.closeModal('createServiceSaleModal'); 
+        this.isSubmitting = false;
+      },
+      error: (e) => { 
+        this.isSubmitting = false;
+        if (e.status === 401) { this.authService.logout(); return; } 
+        this.handleModalError(e); 
+      }
     });
   }
 
@@ -265,9 +290,21 @@ export class SalesComponent implements OnInit {
   }
 
   ViewSaleDetails(sale: any): void {
-    this.SelectedSale = sale; this.clearError();
-    if (sale.products && sale.products.length > 0) { setTimeout(() => { this.closeModal('viewServiceSaleModal'); new (window as any).bootstrap.Modal(document.getElementById('viewProductSaleModal')).show(); }, 50); }
-    else if (sale.services && sale.services.length > 0) { setTimeout(() => { this.closeModal('viewProductSaleModal'); new (window as any).bootstrap.Modal(document.getElementById('viewServiceSaleModal')).show(); }, 50); }
+    this.SelectedSale = sale; 
+    this.clearError();
+
+    if (sale.products && sale.products.length > 0) { 
+        setTimeout(() => { 
+            this.closeModal('viewServiceSaleModal'); 
+            new (window as any).bootstrap.Modal(document.getElementById('viewProductSaleModal')).show(); 
+        }, 50); 
+    }
+    else if (sale.services && sale.services.length > 0) { 
+        setTimeout(() => { 
+            this.closeModal('viewProductSaleModal'); 
+            new (window as any).bootstrap.Modal(document.getElementById('viewServiceSaleModal')).show(); 
+        }, 50); 
+    }
   }
 
   // Updates
@@ -281,10 +318,25 @@ export class SalesComponent implements OnInit {
   get hasPaymentStatusChanged(): boolean { return this.NewPaymentStatusId !== this.originalPaymentStatusId; }
 
   UpdatePaymentStatus(): void {
-    if (this.isSaleFinalized || !this.hasPaymentStatusChanged) { this.modalError = 'No se puede modificar o sin cambios'; return; }
+    if (this.isSaleFinalized || !this.hasPaymentStatusChanged || this.isSubmitting) { 
+      if(!this.isSubmitting) this.modalError = 'No se puede modificar o sin cambios'; 
+      return; 
+    }
+    
+    this.isSubmitting = true;
     this.salesService.updatePaymentStatus(this.IdUpdatePayment.toString(), this.NewPaymentStatusId).subscribe({
-      next: () => { this.showToast('Pago actualizado', 'success'); this.GetSalesProducts(); this.GetSalesServices(); this.closeModal('updatePaymentModal'); },
-      error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
+      next: () => { 
+        this.notification.success('¡Éxito!', 'Estado de pago actualizado.');
+        this.GetSalesProducts(); 
+        this.GetSalesServices(); 
+        this.closeModal('updatePaymentModal'); 
+        this.isSubmitting = false;
+      },
+      error: (e) => { 
+        this.isSubmitting = false;
+        if (e.status === 401) { this.authService.logout(); return; } 
+        this.handleModalError(e); 
+      }
     });
   }
 
@@ -295,13 +347,32 @@ export class SalesComponent implements OnInit {
     this.clearError(); this.clearModalError();
   }
 
-  get hasServiceStatusChanged(): boolean { return this.NewServiceStatusId !== this.originalServiceStatusId; }
+  get hasServiceStatusChanged(): boolean { return Number(this.NewServiceStatusId) !== Number(this.originalServiceStatusId); }
 
   UpdateServiceStatus(): void {
-    if (!this.hasServiceStatusChanged) { this.modalError = 'Sin cambios'; return; }
+    if (!this.hasServiceStatusChanged || this.isSubmitting) { 
+        if(!this.isSubmitting) this.modalError = 'No se puede elegir el mismo estado de servicio.'; 
+        return; 
+    }
+
+    this.isSubmitting = true;
     this.salesService.updateServiceStatus(this.IdUpdateServiceStatus.toString(), this.NewServiceStatusId).subscribe({
-      next: () => { this.showToast('Estado servicio actualizado', 'success'); this.GetSalesServices(); this.closeModal('updateServiceStatusModal'); },
-      error: (e) => { if (e.status === 401) { this.authService.logout(); return; } this.handleModalError(e); }
+      next: () => { 
+        this.notification.success('¡Éxito!', 'Estado del servicio actualizado.');
+        this.GetSalesServices(); 
+        this.closeModal('updateServiceStatusModal'); 
+        this.isSubmitting = false;
+      },
+      error: (e) => { 
+        this.isSubmitting = false;
+        if (e.status === 401) { this.authService.logout(); return; } 
+        if (e.status === 400) {
+            this.modalError = 'El estado seleccionado es el mismo que el actual.';
+            this.notification.warning('Aviso', this.modalError);
+        } else {
+            this.handleModalError(e); 
+        }
+      }
     });
   }
 
@@ -326,7 +397,12 @@ export class SalesComponent implements OnInit {
   }
 
   handleError(e: any): void { this.clearFormErrors(); this.errorMessage = this.getGenericErrorMessage(e.status); }
-  handleModalError(e: any): void { this.clearFormErrors(); this.modalError = this.getGenericErrorMessage(e.status); this.showToast(this.modalError, 'error'); }
+  
+  handleModalError(e: any): void { 
+    this.clearFormErrors(); 
+    this.modalError = this.getGenericErrorMessage(e.status); 
+    this.notification.error('Error', this.modalError);
+  }
 
   clearError(): void { this.errorMessage = ''; }
   clearModalError(): void { this.modalError = ''; }

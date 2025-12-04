@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { UsersService } from '../../Services/users-service';
 import { AuthService } from '../../Services/auth-service';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-login',
@@ -10,12 +11,6 @@ import { AuthService } from '../../Services/auth-service';
   styleUrl: './login.component.css'
 })
 export class LoginComponent implements OnInit {
-
-  constructor(
-    private service: UsersService, 
-    private auth: AuthService, 
-    private router: Router
-  ) {}
 
   username: string = '';
   password: string = '';
@@ -29,7 +24,25 @@ export class LoginComponent implements OnInit {
     this.showPassword = !this.showPassword;
   }
 
+  constructor(
+    private service: UsersService, 
+    private auth: AuthService, 
+    private router: Router,
+    private route: ActivatedRoute,
+    private notification: NzNotificationService
+  ) {}
+
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['sessionExpired'] === 'true') {
+        this.notification.warning(
+          'Sesión Expirada',
+          'Tu sesión ha caducado. Por favor, ingresa tus credenciales nuevamente.',
+          { nzDuration: 5000 }
+        );
+      }
+    });
+
     this.auth.logout();
   }
 
@@ -51,9 +64,6 @@ export class LoginComponent implements OnInit {
 
         if (res.login === true && res.token) {
           this.auth.setToken(res.token);
-          this.clearError();
-          this.clearFormErrors();
-          this.showSuccessNotification('¡Bienvenido!');
           this.router.navigate(['/home/']);
         } else {
           this.errorMessage = 'Credenciales inválidas.';
@@ -111,60 +121,5 @@ export class LoginComponent implements OnInit {
 
   hasFormErrors(): boolean {
     return Object.keys(this.formErrors).length > 0;
-  }
-
-  private showSuccessNotification(message: string): void {
-    const notification = document.createElement('div');
-    notification.className = 'alert alert-success alert-dismissible fade show custom-toast';
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      min-width: 350px;
-      max-width: 450px;
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-      color: white;
-      padding: 16px 20px;
-      animation: slideInRight 0.3s ease-out;
-    `;
-    
-    notification.innerHTML = `
-      <div class="d-flex align-items-center">
-        <span style="font-size: 22px; font-weight: bold; color: white; margin-right: 12px; line-height: 1;">✔</span>
-        <div class="flex-grow-1">
-          <strong class="me-auto" style="font-size: 16px; display: block; margin-bottom: 4px;">¡Éxito!</strong>
-          <div style="font-size: 14px; opacity: 0.95;">${message}</div>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" style="filter: brightness(0) invert(1); opacity: 0.8; margin-left: 16px;"></button>
-      </div>
-    `;
-
-    if (!document.querySelector('#toast-styles')) {
-      const style = document.createElement('style');
-      style.id = 'toast-styles';
-      style.textContent = `
-        @keyframes slideInRight { 
-          from { transform: translateX(100%); opacity: 0; } 
-          to { transform: translateX(0); opacity: 1; } 
-        }
-        .custom-toast { backdrop-filter: blur(10px); border-left: 4px solid #1e8449 !important; }
-      `;
-      document.head.appendChild(style);
-    }
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.style.animation = 'slideInRight 0.3s ease-out reverse';
-        setTimeout(() => { 
-          if (notification.parentNode) notification.parentNode.removeChild(notification); 
-        }, 300);
-      }
-    }, 4000);
   }
 }

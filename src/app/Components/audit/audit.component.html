@@ -1,7 +1,6 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-12">
-      <!-- Header -->
       <div class="card shadow-sm mb-2">
         <div class="card-body py-1 px-3">
           <div class="d-flex justify-content-between align-items-center">
@@ -12,7 +11,6 @@
         </div>
       </div>
 
-      <!-- Mensaje de error general -->
       <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
         <div class="d-flex align-items-center">
           <i nz-icon nzType="exclamation-circle" class="me-2"></i>
@@ -21,11 +19,9 @@
         <button type="button" class="btn-close" (click)="clearError()"></button>
       </div>
 
-      <!-- Filtros -->
       <div class="card shadow-sm mb-2">
         <div class="card-body py-1 px-3">
           <div class="row g-1 align-items-center">
-            <!-- Username -->
             <div class="col-md-3">
               <input 
                 type="text" 
@@ -34,7 +30,6 @@
                 placeholder="Usuario...">
             </div>
             
-            <!-- Tipo de Acción -->
             <div class="col-md-2">
               <select class="form-select form-select-sm" [(ngModel)]="SelectedActionType">
                 <option value="">Todas las acciones</option>
@@ -44,7 +39,6 @@
               </select>
             </div>
 
-            <!-- Tipo de Entidad -->
             <div class="col-md-2">
               <select class="form-select form-select-sm" [(ngModel)]="SelectedEntityType">
                 <option value="">Todas las entidades</option>
@@ -54,7 +48,6 @@
               </select>
             </div>
 
-            <!-- Fecha Inicio -->
             <div class="col-md-2">
               <input 
                 type="date" 
@@ -63,7 +56,6 @@
                 placeholder="Desde...">
             </div>
 
-            <!-- Fecha Fin -->
             <div class="col-md-2">
               <input 
                 type="date" 
@@ -72,7 +64,6 @@
                 placeholder="Hasta...">
             </div>
 
-            <!-- Botones -->
             <div class="col-md-1">
               <button class="btn btn-primary btn-sm me-1" (click)="ApplyFilters()">
                 <i nz-icon nzType="search"></i>
@@ -85,7 +76,6 @@
         </div>
       </div>
 
-      <!-- Tabla de auditorías -->
       <div class="card shadow-sm">
         <div class="card-header py-2 px-3">
           <h6 class="mb-0">Registros de Auditoría</h6>
@@ -131,25 +121,22 @@
                 </td>
                 <td class="text-center pe-2">
                   <div class="d-flex gap-1 justify-content-center">
-                    <!-- Botón para ver cambios - CAMBIADO DE LÁPIZ A OJO -->
                     <button 
                       *ngIf="hasChanges(log.changes)"
                       class="btn btn-outline-info btn-sm"
                       (click)="viewChanges(log.changes)"
-                      title="Ver cambios">
+                      nz-tooltip nzTooltipTitle="Ver detalles">
                       <i nz-icon nzType="eye"></i>
                     </button>
                     
-                    <!-- Botón para ver error -->
                     <button 
                       *ngIf="hasError(log.error_message)"
                       class="btn btn-outline-danger btn-sm"
                       (click)="viewError(log.error_message)"
-                      title="Ver error">
+                      nz-tooltip nzTooltipTitle="Ver error">
                       <i nz-icon nzType="exclamation-circle"></i>
                     </button>
                     
-                    <!-- Placeholder cuando no hay acciones -->
                     <span *ngIf="!hasChanges(log.changes) && !hasError(log.error_message)" class="text-muted">-</span>
                   </div>
                 </td>
@@ -161,7 +148,6 @@
     </div>
   </div>
 
-  <!-- Modal para ver cambios completos -->
   <div *ngIf="showChangesModal" class="modal-backdrop fade show" (click)="closeChangesModal()"></div>
   <div *ngIf="showChangesModal" class="modal fade show d-block" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -195,7 +181,6 @@
     </div>
   </div>
 
-  <!-- Modal para ver errores -->
   <div *ngIf="showErrorModal" class="modal-backdrop fade show" (click)="closeErrorModal()"></div>
   <div *ngIf="showErrorModal" class="modal fade show d-block" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ClientsService } from '../../Services/clients-service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../Services/auth-service';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-clients',
@@ -11,7 +12,12 @@ import { AuthService } from '../../Services/auth-service';
 })
 export class ClientsComponent implements OnInit {
 
-  constructor(private service: ClientsService, private router: Router, private authService: AuthService) {}
+  constructor(
+    private service: ClientsService, 
+    private router: Router, 
+    private authService: AuthService,
+    private notification: NzNotificationService
+  ) {}
 
   // Datos
   DataSourceClients: any[] = [];
@@ -48,6 +54,10 @@ export class ClientsComponent implements OnInit {
   // Errores
   errorMessage: string = '';
   modalError: string = '';
+  formErrors: any = {}; // Objeto para errores de validación
+  
+  // Control de envío
+  isSubmitting: boolean = false;
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
@@ -127,7 +137,73 @@ export class ClientsComponent implements OnInit {
     });
   }
 
+  // --- VALIDACIONES ---
+
+  validateClientForm(isEdit: boolean): boolean {
+    this.clearFormErrors();
+    let isValid = true;
+
+    const fname = isEdit ? this.FirstNameEdit : this.FirstName;
+    const lname = isEdit ? this.LastNameEdit : this.LastName;
+    const email = isEdit ? this.EmailEdit : this.Email;
+    const phone = isEdit ? this.PhoneEdit : this.Phone;
+
+    if (!fname || fname.trim() === '') {
+      this.formErrors.firstName = 'El nombre es requerido';
+      isValid = false;
+    }
+    if (!lname || lname.trim() === '') {
+      this.formErrors.lastName = 'El apellido es requerido';
+      isValid = false;
+    }
+    if (!email || email.trim() === '') {
+      this.formErrors.email = 'El email es requerido';
+      isValid = false;
+    }
+    if (!phone || phone.trim() === '') {
+      this.formErrors.phone = 'El teléfono es requerido';
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  validateVehicleForm(): boolean {
+    // Limpiar errores específicos de vehículo
+    if (this.formErrors.vehicleBrand) delete this.formErrors.vehicleBrand;
+    if (this.formErrors.vehicleModel) delete this.formErrors.vehicleModel;
+    if (this.formErrors.vehicleYear) delete this.formErrors.vehicleYear;
+    if (this.formErrors.vehicleColor) delete this.formErrors.vehicleColor;
+    if (this.formErrors.vehicleLicensePlate) delete this.formErrors.vehicleLicensePlate;
+
+    let isValid = true;
+    const currentYear = new Date().getFullYear();
+
+    if (!this.NewVehicleBrand) { this.formErrors.vehicleBrand = 'Marca requerida'; isValid = false; }
+    if (!this.NewVehicleModel) { this.formErrors.vehicleModel = 'Modelo requerido'; isValid = false; }
+    
+    if (!this.NewVehicleYear) { 
+        this.formErrors.vehicleYear = 'Año requerido'; 
+        isValid = false; 
+    } else if (this.NewVehicleYear < 1900 || this.NewVehicleYear > currentYear + 1) {
+        this.formErrors.vehicleYear = `Año inválido (1900 - ${currentYear})`;
+        isValid = false;
+    }
+
+    if (!this.NewVehicleColor) { this.formErrors.vehicleColor = 'Color requerido'; isValid = false; }
+    if (!this.NewVehicleLicensePlate) { this.formErrors.vehicleLicensePlate = 'Patente requerida'; isValid = false; }
+    
+    return isValid;
+  }
+
   CreateClient(): void {
+    if (this.isSubmitting) return;
+    
+    if (!this.validateClientForm(false)) {
+      return;
+    }
+
+    this.isSubmitting = true;
     const client = {
       first_name: this.FirstName,
       last_name: this.LastName,
@@ -139,16 +215,26 @@ export class ClientsComponent implements OnInit {
     this.service.postClient(client).subscribe({
       next: () => {
         this.clearError();
+        this.notification.success('¡Éxito!', 'Cliente creado correctamente');
         this.showListView();
         this.GetClients();
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         this.handleModalError(error);
       }
     });
   }
 
   EditClient(): void {
+    if (this.isSubmitting) return;
+
+    if (!this.validateClientForm(true)) {
+      return;
+    }
+
+    this.isSubmitting = true;
     const client: any = {
       first_name: this.FirstNameEdit,
       last_name: this.LastNameEdit,
@@ -168,10 +254,13 @@ export class ClientsComponent implements OnInit {
     this.service.putClient(this.IdEdit.toString(), client).subscribe({
       next: () => {
         this.clearError();
+        this.notification.success('¡Éxito!', 'Cliente actualizado correctamente');
         this.showListView();
         this.GetClients();
+        this.isSubmitting = false;
       },
       error: (error) => {
+        this.isSubmitting = false;
         this.handleModalError(error);
       }
     });
@@ -183,32 +272,35 @@ export class ClientsComponent implements OnInit {
   }
 
   AddVehicle(): void {
-    if (this.NewVehicleBrand && this.NewVehicleModel && this.NewVehicleYear && 
-        this.NewVehicleColor && this.NewVehicleLicensePlate) {
-      
-      const vehicle = {
-        brand: this.NewVehicleBrand,
-        model: this.NewVehicleModel,
-        year: this.NewVehicleYear,
-        color: this.NewVehicleColor,
-        license_plate: this.NewVehicleLicensePlate
-      };
-
-      if (this.activeView === 'edit') {
-        this.VehiclesEdit.push(vehicle);
-      } else {
-        this.Vehicles.push(vehicle);
-      }
-      this.clearModalError();
-      
-      this.NewVehicleBrand = '';
-      this.NewVehicleModel = '';
-      this.NewVehicleYear = new Date().getFullYear();
-      this.NewVehicleColor = '';
-      this.NewVehicleLicensePlate = '';
-    } else {
-      this.modalError = 'Por favor, complete todos los campos del vehículo';
+    if (!this.validateVehicleForm()) {
+      return;
     }
+      
+    const vehicle = {
+      brand: this.NewVehicleBrand,
+      model: this.NewVehicleModel,
+      year: this.NewVehicleYear,
+      color: this.NewVehicleColor,
+      license_plate: this.NewVehicleLicensePlate
+    };
+
+    if (this.activeView === 'edit') {
+      this.VehiclesEdit.push(vehicle);
+    } else {
+      this.Vehicles.push(vehicle);
+    }
+    
+    this.NewVehicleBrand = '';
+    this.NewVehicleModel = '';
+    this.NewVehicleYear = new Date().getFullYear();
+    this.NewVehicleColor = '';
+    this.NewVehicleLicensePlate = '';
+    
+    if (this.formErrors.vehicleBrand) delete this.formErrors.vehicleBrand;
+    if (this.formErrors.vehicleModel) delete this.formErrors.vehicleModel;
+    if (this.formErrors.vehicleYear) delete this.formErrors.vehicleYear;
+    if (this.formErrors.vehicleColor) delete this.formErrors.vehicleColor;
+    if (this.formErrors.vehicleLicensePlate) delete this.formErrors.vehicleLicensePlate;
   }
 
   RemoveVehicle(index: number): void {
@@ -266,8 +358,6 @@ export class ClientsComponent implements OnInit {
     return `${client.first_name} ${client.last_name}`;
   }
 
-  // --- MANEJO DE ERRORES GENÉRICO ---
-
   private getGenericErrorMessage(status: number): string {
     switch (status) {
       case 0: return 'Error de conexión. Verifique su internet.';
@@ -282,10 +372,12 @@ export class ClientsComponent implements OnInit {
   }
 
   handleError(error: any): void {
+    this.clearFormErrors();
     this.errorMessage = this.getGenericErrorMessage(error.status);
   }
 
   handleModalError(error: any): void {
+    this.clearFormErrors();
     this.modalError = this.getGenericErrorMessage(error.status);
   }
 
@@ -295,6 +387,14 @@ export class ClientsComponent implements OnInit {
 
   clearModalError(): void {
     this.modalError = '';
+  }
+  
+  clearFormErrors(): void {
+    this.formErrors = {};
+  }
+  
+  hasFormErrors(): boolean {
+    return Object.keys(this.formErrors).length > 0;
   }
 
   clearForm(): void {
@@ -314,5 +414,6 @@ export class ClientsComponent implements OnInit {
     this.NewVehicleColor = '';
     this.NewVehicleLicensePlate = '';
     this.modalError = '';
+    this.clearFormErrors();
   }
 }

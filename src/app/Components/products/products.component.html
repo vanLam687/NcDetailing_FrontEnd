@@ -4,58 +4,57 @@
       <div class="card shadow-sm mb-2">
         <div class="card-body py-1 px-3">
           <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
-              <h5 class="mb-0" style="color: #333;">Gestión de Productos</h5>
-              <div class="vr" style="height: 16px;"></div>
+            
+            <h5 class="mb-0" style="color: #333;">Gestión de Productos</h5>
+
+            <div class="d-flex align-items-center gap-3">
+              
               <div class="btn-group" role="group">
                 <button 
                   type="button" 
                   class="btn btn-sm" 
                   [class.btn-primary]="activeView === 'list'"
                   [class.btn-outline-primary]="activeView !== 'list'"
-                  (click)="showListView()">
+                  (click)="showListView()"
+                  [disabled]="activeView === 'create' || activeView === 'edit'">
                   <i nz-icon nzType="unordered-list"></i>
                   Lista Productos
                 </button>
                 <button *ngIf="isAdmin"
                   type="button" 
                   class="btn btn-sm" 
+                  [class.btn-primary]="activeView === 'create'"
+                  [class.btn-outline-primary]="activeView !== 'create'"
+                  (click)="showCreateForm()"
+                  [disabled]="activeView === 'create' || activeView === 'edit'">
+                  <i nz-icon nzType="plus"></i>
+                  Nuevo Producto
+                </button>
+              </div>
+
+              <div class="vr" style="height: 24px; opacity: 0.2;"></div>
+
+              <div class="btn-group" role="group" *ngIf="isAdmin">
+                <button 
+                  type="button" 
+                  class="btn btn-sm" 
                   [class.btn-primary]="activeView === 'categories'"
                   [class.btn-outline-primary]="activeView !== 'categories'"
-                  (click)="showCategoriesView()">
+                  (click)="showCategoriesView()"
+                  [disabled]="activeView === 'create' || activeView === 'edit'">
                   <i nz-icon nzType="folder-open"></i>
                   Lista Categorías
                 </button>
-                <button *ngIf="isAdmin"
-                  type="button" 
-                  class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'create'"
-                  [class.btn-outline-primary]="activeView !== 'create'"
-                  (click)="showCreateForm()">
-                  <i nz-icon nzType="plus"></i>
-                  Nuevo producto
-                </button>
-                <button *ngIf="isAdmin"
-                  type="button" 
-                  class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'edit'"
-                  [class.btn-outline-primary]="activeView !== 'edit'"
-                  (click)="showEditBack()"
-                  [disabled]="!canShowEdit()">
-                  <i nz-icon nzType="edit"></i>
-                  Editar
+                <button 
+                  class="btn btn-outline-primary btn-sm"
+                  data-bs-toggle="modal" 
+                  data-bs-target="#createCategoryModal"
+                  [disabled]="activeView === 'create' || activeView === 'edit'">
+                  <i nz-icon nzType="folder-add"></i>
+                  Nueva Categoría
                 </button>
               </div>
-            </div>
-            
-            <div class="d-flex gap-1" *ngIf="(activeView === 'list' || activeView === 'categories') && isAdmin">
-              <button 
-                class="btn btn-outline-primary btn-sm"
-                data-bs-toggle="modal" 
-                data-bs-target="#createCategoryModal">
-                <i nz-icon nzType="folder-add"></i>
-                Nueva Categoría
-              </button>
+
             </div>
           </div>
         </div>
@@ -78,7 +77,7 @@
               </div>
               <div class="col-md-3">
                 <select class="form-select form-select-sm" [(ngModel)]="SelectedCategory">
-                  <option value="">Todas</option>
+                  <option value="">Todas las categorías</option>
                   <option *ngFor="let category of DataSourceCategories" [value]="category.name">{{ category.name }}</option>
                 </select>
               </div>
@@ -120,7 +119,11 @@
                   <td style="color: #333;">{{ product.category || '-' }}</td>
                   <td style="color: #333;"><strong>${{ product.price }}</strong></td>
                   <td style="color: #333;">
-                    <span [class.text-danger]="product.stock === 0" [class.text-warning]="product.stock <= product.min_stock">
+                    <span 
+                      class="fw-bold"
+                      [class.text-danger]="product.stock === 0" 
+                      [class.text-warning]="product.stock <= product.min_stock && product.stock > 0"
+                      [class.text-success]="product.stock > product.min_stock">
                       {{ product.stock }}
                     </span>
                   </td>
@@ -173,7 +176,6 @@
               <select class="form-select form-select-sm" [(ngModel)]="CategoryStatus" (change)="onCategoryStatusChange(CategoryStatus)" style="width:160px;">
                 <option value="active">Activas</option>
                 <option value="inactive">Inactivas</option>
-                <option value="all">Todas</option>
               </select>
             </div>
           </div>
@@ -231,6 +233,8 @@
             <h6 class="mb-0"><i nz-icon nzType="plus"></i> Nuevo Producto</h6>
           </div>
           <div class="card-body">
+            <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">{{ modalError }}</div>
+            
             <form (ngSubmit)="CreateProduct()">
                <div class="row g-2">
                 <div class="col-12">
@@ -272,8 +276,11 @@
                   <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                     <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goBack()"><i nz-icon nzType="arrow-left"></i> Volver</button>
                     <div class="d-flex gap-1">
-                      <button type="button" class="btn btn-outline-danger btn-sm" (click)="clearForm()">Limpiar</button>
-                      <button type="submit" class="btn btn-primary btn-sm">Crear</button>
+                      <button type="button" class="btn btn-outline-danger btn-sm" (click)="clearForm()" [disabled]="isSubmitting">Limpiar</button>
+                      <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting">
+                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        {{ isSubmitting ? 'Creando...' : 'Crear' }}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -289,6 +296,8 @@
             <h6 class="mb-0"><i nz-icon nzType="edit"></i> Editar Producto - {{ SelectedProduct?.name }}</h6>
           </div>
           <div class="card-body">
+             <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">{{ modalError }}</div>
+             
              <form (ngSubmit)="EditProduct()">
                 <div class="row g-2">
                   <div class="col-12">
@@ -330,7 +339,10 @@
                     <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                       <button type="button" class="btn btn-outline-secondary btn-sm" (click)="goBack()"><i nz-icon nzType="arrow-left"></i> Volver</button>
                       <div class="d-flex gap-1">
-                        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+                        <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting">
+                          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                          {{ isSubmitting ? 'Guardando...' : 'Guardar' }}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -340,11 +352,11 @@
          </div>
       </div>
 
-      <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
+      <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="createCategoryModalLabel">Crear Nueva Categoría</h5>
+              <h5 class="modal-title">Crear Nueva Categoría</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="clearModalError(); clearFormErrors();"></button>
             </div>
             <div class="modal-body">
@@ -363,11 +375,15 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">Cancelar</button>
-              <button type="button" class="btn btn-primary" (click)="CreateCategory()">Crear Categoría</button>
+              <button type="button" class="btn btn-primary" (click)="CreateCategory()" [disabled]="isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                Crear Categoría
+              </button>
             </div>
           </div>
         </div>
       </div>
+
       <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
@@ -391,26 +407,26 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="clearModalError(); clearFormErrors();">Cancelar</button>
-              <button type="button" class="btn btn-primary" (click)="EditCategory()">Guardar Cambios</button>
+              <button type="button" class="btn btn-primary" (click)="EditCategory()" [disabled]="isSubmitting">
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+                Guardar Cambios
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
+      <div class="modal fade" id="deleteProductModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header border-0">
-              <h5 class="modal-title w-100 text-center" id="deleteProductModalLabel" style="font-weight: 600;">Eliminar Producto</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              <h5 class="modal-title w-100 text-center">Eliminar Producto</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center">
-              <div *ngIf="modalError" class="alert alert-danger alert-dismissible fade show mb-3 text-start" role="alert">
-                <div class="d-flex align-items-center"><i nz-icon nzType="exclamation-circle" class="me-2"></i><span>{{ modalError }}</span></div>
-              </div>
+              <div *ngIf="modalError" class="alert alert-danger text-start">{{ modalError }}</div>
               <div class="mb-4"><i nz-icon nzType="exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i></div>
               <p class="mb-3" style="color: #666; line-height: 1.5;">¿Estás seguro de que deseas eliminar el producto <strong>"{{ ProductToDeleteName }}"</strong>?</p>
-              <p class="text-muted small">Esta acción no se puede deshacer.</p>
             </div>
             <div class="modal-footer border-0 justify-content-center">
               <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
@@ -453,7 +469,6 @@
               </div>
               <div class="mb-4"><i nz-icon nzType="exclamation-circle" style="font-size: 48px; color: #e74c3c;"></i></div>
               <p class="mb-3" style="color: #666; line-height: 1.5;">¿Estás seguro de que deseas eliminar la categoría <strong>"{{ CategoryToDelete?.name }}"</strong>?</p>
-              <p class="text-muted small">Esta acción no se puede deshacer. No podrás eliminar categorías que estén siendo utilizadas por productos.</p>
             </div>
             <div class="modal-footer border-0 justify-content-center">
               <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Cancelar</button>

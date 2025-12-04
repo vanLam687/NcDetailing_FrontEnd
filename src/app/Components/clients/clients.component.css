@@ -103,6 +103,41 @@
   color: white;
 }
 
+.btn-outline-info {
+  background: transparent;
+  border: 2px solid #17a2b8;
+  color: #17a2b8;
+}
+
+.btn-outline-info:hover {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-outline-success {
+  background: transparent;
+  border: 2px solid #27ae60;
+  color: #27ae60;
+}
+
+.btn-outline-success:hover {
+  background: #27ae60;
+  color: white;
+}
+
+.btn-light-outline {
+  background: transparent;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+}
+
+.btn-light-outline:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+}
+
 .btn-sm {
   padding: 3px 6px;
   font-size: 11px;
@@ -125,6 +160,11 @@
 .form-control-sm, .form-select-sm {
   padding: 3px 6px;
   font-size: 11px;
+}
+
+.form-control.is-invalid {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.1);
 }
 
 .form-label {
@@ -200,6 +240,14 @@
   font-weight: 600;
 }
 
+.input-group-sm .form-control.is-invalid {
+  border-left: none;
+}
+
+.input-group-sm .form-control.is-invalid + .input-group-text {
+  border-color: #e74c3c;
+}
+
 /* Alertas */
 .alert {
   border-radius: 6px;
@@ -212,6 +260,21 @@
 .alert-danger {
   background: linear-gradient(135deg, #ffeaea 0%, #ffdbdb 100%);
   color: #e74c3c;
+  border-left: 4px solid #e74c3c;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fff4e6 0%, #ffeedb 100%);
+  color: #e67e22;
+  border-left: 4px solid #e67e22;
+}
+
+.invalid-feedback {
+  display: block;
+  font-size: 11px;
+  color: #e74c3c;
+  margin-top: 2px;
+  font-weight: 500;
 }
 
 /* Textos */
@@ -271,6 +334,45 @@ i[nz-icon] {
   border-radius: 0 0 10px 10px;
 }
 
+/* Estilos para el modal mejorado */
+.hover-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef !important;
+}
+
+.hover-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(108, 99, 184, 0.15) !important;
+  border-color: #6c63b8 !important;
+}
+
+.vehicle-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vehicle-details {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.btn-close-white {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* NUEVO: Scroll para el cuerpo del modal */
+.modal-scrollable-body {
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container-fluid {
@@ -290,114 +392,4 @@ i[nz-icon] {
   .card-body {
     padding: 8px !important;
   }
-}
-/* Estilos para el modal mejorado */
-.hover-card {
-  transition: all 0.3s ease;
-  border: 1px solid #e9ecef !important;
-}
-
-.hover-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(108, 99, 184, 0.15) !important;
-  border-color: #6c63b8 !important;
-}
-
-.vehicle-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.vehicle-details {
-  background: #f8f9fa;
-  border-radius: 6px;
-  padding: 12px;
-}
-
-.modal-content {
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.btn-close-white {
-  filter: invert(1) grayscale(100%) brightness(200%);
-}
-
-/* Mejoras para las cards del modal */
-.card-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.text-primary {
-  color: #6c63b8 !important;
-}
-
-.bg-primary {
-  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
-}
-/* Estilos para el modal mejorado */
-.hover-card {
-  transition: all 0.3s ease;
-  border: 1px solid #e9ecef !important;
-}
-
-.hover-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(108, 99, 184, 0.15) !important;
-  border-color: #6c63b8 !important;
-}
-
-.vehicle-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.vehicle-details {
-  background: #f8f9fa;
-  border-radius: 6px;
-  padding: 12px;
-}
-
-.modal-content {
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.btn-close-white {
-  filter: invert(1) grayscale(100%) brightness(200%);
-}
-
-/* Mejoras para las cards del modal */
-.card-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.text-primary {
-  color: #6c63b8 !important;
-}
-
-.bg-primary {
-  background: linear-gradient(135deg, #6c63b8 0%, #7a6fc1 100%) !important;
-}
-.btn-light-outline {
-  background: transparent;
-  border: 2px solid #ffffff;
-  color: #ffffff;
-}
-
-.btn-light-outline:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
 }
