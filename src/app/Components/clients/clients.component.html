@@ -66,11 +66,9 @@
         </div>
 
         <!-- Loading Spinner (reemplaza la tabla) -->
-        <div *ngIf="isLoading" class="card shadow-sm">
-          <div class="card-body text-center p-5">
-            <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
-            <p class="mt-2 text-muted">Cargando clientes...</p>
-          </div>
+        <div *ngIf="isLoading" class="text-center p-5 my-5">
+          <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+          <p class="mt-2 text-muted">Cargando clientes...</p>
         </div>
 
         <div class="card shadow-sm" *ngIf="!isLoading && DataSourceClients.length > 0">
@@ -484,9 +482,9 @@
             </div>
           </div>
           <div class="card-body">
-            <div *ngIf="HistoryLoading" class="text-center py-4">
-              <i nz-icon nzType="loading" nzTheme="outline" style="font-size: 24px;"></i>
-              <p class="text-muted mt-2">Cargando historial...</p>
+            <div *ngIf="HistoryLoading" class="text-center p-5 my-5">
+              <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+              <p class="mt-2 text-muted">Cargando historial...</p>
             </div>
 
             <div *ngIf="!HistoryLoading && ClientHistory">

@@ -277,12 +277,6 @@
   font-weight: 500;
 }
 
-/* Textos */
-.text-muted {
-  color: #7586a5 !important;
-  font-size: 10px;
-}
-
 /* Iconos */
 i[nz-icon] {
   font-size: 12px;

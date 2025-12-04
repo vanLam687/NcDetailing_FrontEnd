@@ -62,6 +62,7 @@ export class ProductsComponent implements OnInit {
   errorMessage: string = '';
   modalError: string = '';
   formErrors: any = {};
+  isLoading: boolean = false;
 
   get isAdmin(): boolean {
     return this.authService.isAdmin();
@@ -82,14 +83,17 @@ export class ProductsComponent implements OnInit {
     const selectedCategoryObj = this.DataSourceCategories.find(c => c.name === this.SelectedCategory);
     const categoryIdParam = selectedCategoryObj ? selectedCategoryObj.id : undefined;
 
+    this.isLoading = true;
     this.service.getProducts(this.SearchName, categoryIdParam?.toString(), this.ProductStatus).subscribe({
       next: (data: any) => {
         this.DataSourceProducts = data.data;
         this.clearError();
+        this.isLoading = false;
       },
       error: (error) => {
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleError(error);
+        this.isLoading = false;
       }
     });
   }

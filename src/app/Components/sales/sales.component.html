@@ -105,7 +105,19 @@
         </div>
       </div>
 
-      <div class="card shadow-sm">
+      <!-- Loading Spinner (reemplaza la tabla) -->
+      <div *ngIf="isLoading" class="text-center p-5 my-5">
+        <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+        <p class="mt-2 text-muted">Cargando ventas...</p>
+      </div>
+
+      <div *ngIf="!isLoading && (activeView === 'products' ? DataSourceSalesProducts : DataSourceSalesServices).length === 0" class="card shadow-sm">
+        <div class="card-body text-center p-5">
+          <p class="text-muted">No se encontraron ventas con los filtros aplicados.</p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm" *ngIf="!isLoading && (activeView === 'products' ? DataSourceSalesProducts : DataSourceSalesServices).length > 0">
         <div class="card-header py-2 px-3">
           <h6 class="mb-0">
             <i nz-icon [nzType]="activeView === 'products' ? 'shopping-cart' : 'car'"></i>
@@ -216,7 +228,6 @@
           </nz-table>
         </div>
       </div>
-    </div>
   </div>
 
   <div class="modal fade" id="createProductSaleModal" tabindex="-1" aria-labelledby="createProductSaleModalLabel" aria-hidden="true" data-bs-backdrop="static">

@@ -56,7 +56,19 @@
           </div>
         </div>
 
-        <div class="card shadow-sm">
+        <div *ngIf="isLoading" class="text-center p-5 my-5">
+          <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+          <p class="mt-2 text-muted">Cargando empleados...</p>
+        </div>
+
+        <div *ngIf="!isLoading && DataSourceEmployees.length === 0" class="card shadow-sm">
+          <div class="card-body text-center p-5">
+            <p class="text-muted">No se encontraron empleados con los filtros aplicados.</p>
+          </div>
+        </div>
+
+
+        <div class="card shadow-sm" *ngIf="!isLoading && DataSourceEmployees.length > 0">
           <div class="card-header py-2 px-3">
             <h6 class="mb-0">Empleados</h6>
           </div>
