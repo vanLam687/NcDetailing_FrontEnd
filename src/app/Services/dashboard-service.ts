@@ -7,8 +7,8 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class DashboardService {
-  url = 'http://localhost:3000/api/home/';
-  //url = 'https://ncdetailing.up.railway.app/api/home';
+  // url = 'http://localhost:3000/api/home/';
+  url = 'https://ncdetailing.up.railway.app/api/home';
 
   constructor(
     private http: HttpClient, 

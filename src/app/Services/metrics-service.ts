@@ -8,8 +8,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class MetricsService {
-  url = 'http://localhost:3000/api/metrics';
-  //url = 'https://ncdetailing.up.railway.app/api/metrics';
+  // url = 'http://localhost:3000/api/metrics';
+  url = 'https://ncdetailing.up.railway.app/api/metrics';
 
   constructor(
     private http: HttpClient,
