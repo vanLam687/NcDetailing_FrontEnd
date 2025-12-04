@@ -203,7 +203,7 @@
                         [nzTooltipTitle]="(sale.service_status === 'Completado' || sale.service_status === 'Cancelado') ? 'No se puede modificar un servicio finalizado' : 'Actualizar estado de servicio'">
                     <button
                       class="btn btn-outline-primary btn-sm"
-                      data-bs-toggle="modal"
+                      data-bs-toggle="modal" 
                       data-bs-target="#updateServiceStatusModal"
                       (click)="DatosUpdateServiceStatus(sale)"
                       [disabled]="sale.service_status === 'Completado' || sale.service_status === 'Cancelado'">
@@ -651,6 +651,11 @@
             </tfoot>
           </table>
         </div>
+
+        <div *ngIf="SelectedSale.observations" class="mt-3 pt-2 border-top">
+          <h6 class="text-primary">Observaciones</h6>
+          <p class="mb-0 small">{{ SelectedSale.observations }}</p>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
@@ -676,7 +681,15 @@
             <p class="mb-1"><strong>Cliente:</strong> {{ SelectedSale.client_name }}</p>
             
             <p class="mb-1"><strong>Vehículo:</strong> 
-              {{ SelectedSale.vehicle_info || SelectedSale.vehicle || (SelectedSale.vehicle_brand ? SelectedSale.vehicle_brand + ' ' + SelectedSale.vehicle_model : 'No especificado') }}
+              <span *ngIf="SelectedSale.vehicle">
+                {{ SelectedSale.vehicle.brand }} {{ SelectedSale.vehicle.model }} ({{ SelectedSale.vehicle.license_plate }})
+              </span>
+              <span *ngIf="!SelectedSale.vehicle && SelectedSale.vehicle_brand">
+                {{ SelectedSale.vehicle_brand }} {{ SelectedSale.vehicle_model }}
+              </span>
+              <span *ngIf="!SelectedSale.vehicle && !SelectedSale.vehicle_brand" class="text-muted fst-italic">
+                No especificado
+              </span>
             </p>
 
             <p class="mb-1"><strong>Fecha:</strong> {{ formatDate(SelectedSale.created_at) }}</p>
@@ -734,9 +747,9 @@
           </table>
         </div>
 
-        <div *ngIf="SelectedSale.observations" class="mt-3">
+        <div *ngIf="SelectedSale.observations" class="mt-3 pt-2 border-top">
           <h6 class="text-primary">Observaciones</h6>
-          <p class="mb-0">{{ SelectedSale.observations }}</p>
+          <p class="mb-0 small">{{ SelectedSale.observations }}</p>
         </div>
       </div>
       <div class="modal-footer">

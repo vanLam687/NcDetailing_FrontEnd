@@ -141,6 +141,7 @@
 .form-select:focus {
   border-color: #6c63b8;
   box-shadow: 0 0 0 2px rgba(108, 99, 184, 0.1);
+  transition: all 0.3s ease;
 }
 
 .form-label {
@@ -253,10 +254,8 @@
 /* Textos */
 .text-muted {
   color: #7586a5 !important;
-  /* Se eliminó el font-size fijo para que herede el tamaño correcto en modales */
 }
 
-/* Solo aplicamos tamaño pequeño si es etiqueta small o clase explícita */
 small.text-muted, .text-muted.small {
   font-size: 10px;
 }
@@ -328,7 +327,6 @@ i[nz-icon] {
   }
 }
 
-/* Mejoras adicionales para el formulario */
 .form-control:focus, .form-select:focus {
   border-color: #6c63b8;
   box-shadow: 0 0 0 2px rgba(108, 99, 184, 0.1);

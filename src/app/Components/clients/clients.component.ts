@@ -182,12 +182,11 @@ export class ClientsComponent implements OnInit {
     if (!this.NewVehicleBrand) { this.formErrors.vehicleBrand = 'Marca requerida'; isValid = false; }
     if (!this.NewVehicleModel) { this.formErrors.vehicleModel = 'Modelo requerido'; isValid = false; }
     
-    // VALIDACIÓN DE AÑO: No negativo, mayor a 1900, no futuro lejano
     if (!this.NewVehicleYear) { 
         this.formErrors.vehicleYear = 'Año requerido'; 
         isValid = false; 
     } else if (this.NewVehicleYear < 1900 || this.NewVehicleYear > currentYear + 1) {
-        this.formErrors.vehicleYear = `Año inválido (1900 - ${currentYear + 1})`;
+        this.formErrors.vehicleYear = `Año inválido (1900 - ${currentYear})`;
         isValid = false;
     }
 
@@ -196,8 +195,6 @@ export class ClientsComponent implements OnInit {
     
     return isValid;
   }
-
-  // --- CRUD ---
 
   CreateClient(): void {
     if (this.isSubmitting) return;
@@ -293,14 +290,12 @@ export class ClientsComponent implements OnInit {
       this.Vehicles.push(vehicle);
     }
     
-    // Limpiar campos
     this.NewVehicleBrand = '';
     this.NewVehicleModel = '';
     this.NewVehicleYear = new Date().getFullYear();
     this.NewVehicleColor = '';
     this.NewVehicleLicensePlate = '';
     
-    // Limpiar errores de vehículo
     if (this.formErrors.vehicleBrand) delete this.formErrors.vehicleBrand;
     if (this.formErrors.vehicleModel) delete this.formErrors.vehicleModel;
     if (this.formErrors.vehicleYear) delete this.formErrors.vehicleYear;
@@ -362,8 +357,6 @@ export class ClientsComponent implements OnInit {
   getFullName(client: any): string {
     return `${client.first_name} ${client.last_name}`;
   }
-
-  // --- MANEJO DE ERRORES GENÉRICO ---
 
   private getGenericErrorMessage(status: number): string {
     switch (status) {
