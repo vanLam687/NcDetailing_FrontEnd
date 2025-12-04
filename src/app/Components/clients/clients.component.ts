@@ -55,6 +55,7 @@ export class ClientsComponent implements OnInit {
   errorMessage: string = '';
   modalError: string = '';
   formErrors: any = {}; // Objeto para errores de validación
+  isLoading: boolean = false;
   
   // Control de envío
   isSubmitting: boolean = false;
@@ -126,13 +127,16 @@ export class ClientsComponent implements OnInit {
   }
 
   GetClients(): void {
+    this.isLoading = true;
     this.service.getClients(this.SearchTerm).subscribe({
       next: (data: any) => {
         this.DataSourceClients = data.data;
         this.clearError();
+        this.isLoading = false;
       },
       error: (error) => {
         this.handleError(error);
+        this.isLoading = false;
       }
     });
   }

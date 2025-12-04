@@ -54,6 +54,7 @@ export class EmployeesComponent implements OnInit {
   errorMessage: string = '';
   modalError: string = '';
   formErrors: any = {};
+  isLoading: boolean = false;
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
@@ -151,14 +152,17 @@ export class EmployeesComponent implements OnInit {
   // --- CRUD ---
 
   GetEmployees(): void {
+    this.isLoading = true;
     this.service.GetEmployees(this.EmployeeStatus).subscribe({
       next: (data: any) => {
         this.DataSourceEmployees = data.data;
         this.clearError();
+        this.isLoading = false;
       },
       error: (error) => {
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleError(error);
+        this.isLoading = false;
       }
     });
   }

@@ -95,12 +95,23 @@
           </div>
         </div>
 
-        <div class="card shadow-sm">
+        <div *ngIf="isLoading" class="text-center p-5 my-5">
+          <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+          <p class="mt-2 text-muted">Cargando productos...</p>
+        </div>
+
+        <div *ngIf="!isLoading && DataSourceProducts.length === 0" class="card shadow-sm">
+          <div class="card-body text-center p-5">
+            <p class="text-muted">No se encontraron productos con los filtros aplicados.</p>
+          </div>
+        </div>
+
+        <div class="card shadow-sm" *ngIf="!isLoading && DataSourceProducts.length > 0">
           <div class="card-header py-2 px-3">
             <h6 class="mb-0">Productos</h6>
           </div>
           <div class="card-body p-0">
-            <nz-table #productsTable [nzData]="DataSourceProducts" class="w-100 compact-table" nzSize="small">
+            <nz-table #productsTable [nzData]="DataSourceProducts" [nzScroll]="{ x: '1100px' }" class="w-100 compact-table" nzSize="small">
               <thead>
                 <tr>
                   <th class="ps-2" style="color: #333;">ID</th>
@@ -180,7 +191,7 @@
             </div>
           </div>
           <div class="card-body p-0">
-            <nz-table #categoriesTable [nzData]="DataSourceCategories" class="w-100 compact-table" nzSize="small">
+            <nz-table #categoriesTable [nzData]="DataSourceCategories" [nzScroll]="{ x: '600px' }" class="w-100 compact-table" nzSize="small">
               <thead>
                 <tr>
                   <th class="ps-2" style="color: #333;">ID</th>

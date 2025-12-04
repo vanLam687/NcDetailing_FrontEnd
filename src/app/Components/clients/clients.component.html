@@ -65,12 +65,18 @@
           </div>
         </div>
 
-        <div class="card shadow-sm">
+        <!-- Loading Spinner (reemplaza la tabla) -->
+        <div *ngIf="isLoading" class="text-center p-5 my-5">
+          <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+          <p class="mt-2 text-muted">Cargando clientes...</p>
+        </div>
+
+        <div class="card shadow-sm" *ngIf="!isLoading && DataSourceClients.length > 0">
           <div class="card-header py-2 px-3">
             <h6 class="mb-0">Clientes</h6>
           </div>
           <div class="card-body p-0">
-            <nz-table #clientsTable [nzData]="DataSourceClients" class="w-100 compact-table" nzSize="small">
+            <nz-table #clientsTable [nzData]="DataSourceClients" [nzScroll]="{ x: '1000px' }" class="w-100 compact-table" nzSize="small">
               <thead>
                 <tr>
                   <th class="ps-2" style="color: #333;">ID</th>
@@ -129,6 +135,12 @@
                 </tr>
               </tbody>
             </nz-table>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoading && DataSourceClients.length === 0" class="card shadow-sm">
+          <div class="card-body text-center p-5">
+            <p class="text-muted">No se encontraron clientes con los filtros aplicados.</p>
           </div>
         </div>
       </div>
@@ -470,9 +482,9 @@
             </div>
           </div>
           <div class="card-body">
-            <div *ngIf="HistoryLoading" class="text-center py-4">
-              <i nz-icon nzType="loading" nzTheme="outline" style="font-size: 24px;"></i>
-              <p class="text-muted mt-2">Cargando historial...</p>
+            <div *ngIf="HistoryLoading" class="text-center p-5 my-5">
+              <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+              <p class="mt-2 text-muted">Cargando historial...</p>
             </div>
 
             <div *ngIf="!HistoryLoading && ClientHistory">

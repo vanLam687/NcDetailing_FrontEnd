@@ -269,12 +269,6 @@
   font-weight: 500;
 }
 
-/* Textos */
-.text-muted {
-  color: #7586a5 !important;
-  font-size: 10px;
-}
-
 .text-danger {
   color: #e74c3c !important;
   font-weight: 600;
