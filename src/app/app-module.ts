@@ -34,19 +34,32 @@ import { NzListModule } from 'ng-zorro-antd/list';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzNotificationComponent } from 'ng-zorro-antd/notification';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
-import {NzPopoverModule} from 'ng-zorro-antd/popover';
+import { NzPopoverModule } from 'ng-zorro-antd/popover';
 
-// NZ-Zorro locales
+// NZ-Zorro locales e Iconos
 import { NZ_I18N, es_ES } from 'ng-zorro-antd/i18n';
 import { NZ_ICONS } from 'ng-zorro-antd/icon';
 import { IconDefinition } from '@ant-design/icons-angular';
-import * as AllIcons from '@ant-design/icons-angular/icons';
+
+// --- IMPORTACIÓN OPTIMIZADA DE ICONOS ---
+// Importamos solo los iconos necesarios para reducir el tamaño del bundle
+import {
+  MenuUnfoldOutline, MenuFoldOutline, BellOutline, AlertOutline, CheckCircleOutline,
+  DashboardOutline, BarChartOutline, DollarOutline, UserOutline, ToolOutline,
+  ShoppingOutline, TeamOutline, AuditOutline, LogoutOutline, LockOutline,
+  EyeInvisibleOutline, EyeOutline, WarningOutline, LoginOutline, UnorderedListOutline,
+  PlusOutline, FolderOpenOutline, FolderAddOutline, ExclamationCircleOutline,
+  SearchOutline, ClearOutline, ReloadOutline, EditOutline, DeleteOutline,
+  ArrowLeftOutline, CarOutline, HistoryOutline, IdcardOutline, MailOutline,
+  PhoneOutline, CloseOutline, ShoppingCartOutline, FilePdfOutline, CalendarOutline,
+  RiseOutline, ClockCircleOutline, InfoCircleOutline, CopyOutline, NumberOutline
+} from '@ant-design/icons-angular/icons';
 
 import { registerLocaleData } from '@angular/common';
 import es from '@angular/common/locales/es';
 registerLocaleData(es);
 
-// App
+// App Components
 import { AppRoutingModule } from './app-routing-module';
 import { AppComponent } from './app.component';
 import { ContainerComponent } from './Components/container/container.component';
@@ -62,13 +75,17 @@ import { MetricsComponent } from './Components/metrics/metrics.component';
 import { DashboardComponent } from './Components/dashboard/dashboard.component';
 import { AuditComponent } from './Components/audit/audit.component';
 
-const antDesignIcons = AllIcons as {
-  [key: string]: IconDefinition;
-};
-
-const icons: IconDefinition[] = Object.keys(antDesignIcons)
-  .map(key => antDesignIcons[key])
-  .filter(icon => icon && typeof icon.name === 'string') as IconDefinition[];
+const icons: IconDefinition[] = [
+  MenuUnfoldOutline, MenuFoldOutline, BellOutline, AlertOutline, CheckCircleOutline,
+  DashboardOutline, BarChartOutline, DollarOutline, UserOutline, ToolOutline,
+  ShoppingOutline, TeamOutline, AuditOutline, LogoutOutline, LockOutline,
+  EyeInvisibleOutline, EyeOutline, WarningOutline, LoginOutline, UnorderedListOutline,
+  PlusOutline, FolderOpenOutline, FolderAddOutline, ExclamationCircleOutline,
+  SearchOutline, ClearOutline, ReloadOutline, EditOutline, DeleteOutline,
+  ArrowLeftOutline, CarOutline, HistoryOutline, IdcardOutline, MailOutline,
+  PhoneOutline, CloseOutline, ShoppingCartOutline, FilePdfOutline, CalendarOutline,
+  RiseOutline, ClockCircleOutline, InfoCircleOutline, CopyOutline, NumberOutline
+];
 
 @NgModule({
   declarations: [
