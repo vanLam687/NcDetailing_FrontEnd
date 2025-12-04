@@ -250,7 +250,7 @@
           </div>
 
           <div class="row g-2">
-            <div class="col-md-6">
+            <div class="col-12">
               <label class="form-label fw-bold mb-1">Cliente *</label>
               <div class="dropdown">
                 <input 
@@ -277,41 +277,7 @@
               </div>
             </div>
 
-            <div class="col-md-3">
-              <label class="form-label fw-bold mb-1">Método Pago *</label>
-              <select class="form-select form-select-sm" 
-                      [class.is-invalid]="formErrors.paymentMethod"
-                      [(ngModel)]="NewProdSale_PaymentMethodId"
-                      name="paymentMethod">
-                <option [ngValue]="0">Seleccionar...</option>
-                <option *ngFor="let method of DataSourcePaymentMethods" [ngValue]="method.id">
-                  {{ method.name }}
-                </option>
-              </select>
-              <div *ngIf="formErrors.paymentMethod" class="invalid-feedback d-block">
-                {{ formErrors.paymentMethod }}
-              </div>
-            </div>
-
-            <div class="col-md-3">
-              <label class="form-label fw-bold mb-1">Estado Pago</label>
-              <select class="form-select form-select-sm" [(ngModel)]="NewProdSale_PaymentStatusId" name="paymentStatus">
-                <option [ngValue]="1">Pendiente</option>
-                <option [ngValue]="2">Pagado</option>
-              </select>
-            </div>
-
-            <div class="col-12">
-              <label class="form-label fw-bold mb-1">Observaciones</label>
-              <textarea 
-                class="form-control form-control-sm" 
-                [(ngModel)]="NewProdSale_Observations" 
-                name="observations"
-                rows="2"
-                placeholder="Observaciones adicionales..."></textarea>
-            </div>
-
-            <div class="col-12">
+            <div class="col-12 mt-2">
               <label class="form-label fw-bold mb-1">Productos *</label>
               
               <div class="mb-2">
@@ -383,6 +349,41 @@
                 {{ formErrors.products }}
               </div>
             </div>
+
+            <div class="col-12 mt-2">
+              <label class="form-label fw-bold mb-1">Observaciones</label>
+              <textarea 
+                class="form-control form-control-sm" 
+                [(ngModel)]="NewProdSale_Observations" 
+                name="observations"
+                rows="2"
+                placeholder="Observaciones adicionales..."></textarea>
+            </div>
+
+            <div class="col-md-6 mt-2">
+              <label class="form-label fw-bold mb-1">Método Pago *</label>
+              <select class="form-select form-select-sm" 
+                      [class.is-invalid]="formErrors.paymentMethod"
+                      [(ngModel)]="NewProdSale_PaymentMethodId"
+                      name="paymentMethod">
+                <option [ngValue]="0">Seleccionar...</option>
+                <option *ngFor="let method of DataSourcePaymentMethods" [ngValue]="method.id">
+                  {{ method.name }}
+                </option>
+              </select>
+              <div *ngIf="formErrors.paymentMethod" class="invalid-feedback d-block">
+                {{ formErrors.paymentMethod }}
+              </div>
+            </div>
+
+            <div class="col-md-6 mt-2">
+              <label class="form-label fw-bold mb-1">Estado Pago</label>
+              <select class="form-select form-select-sm" [(ngModel)]="NewProdSale_PaymentStatusId" name="paymentStatus">
+                <option [ngValue]="1">Pendiente</option>
+                <option [ngValue]="2">Pagado</option>
+              </select>
+            </div>
+
           </div>
         </div>
         <div class="modal-footer">
@@ -478,41 +479,7 @@
               </div>
             </div>
 
-            <div class="col-md-4">
-              <label class="form-label fw-bold mb-1">Método Pago *</label>
-              <select class="form-select form-select-sm" 
-                      [class.is-invalid]="formErrors.paymentMethod"
-                      [(ngModel)]="NewSvcSale_PaymentMethodId"
-                      name="paymentMethodSvc">
-                <option [ngValue]="0">Seleccionar...</option>
-                <option *ngFor="let method of DataSourcePaymentMethods" [ngValue]="method.id">
-                  {{ method.name }}
-                </option>
-              </select>
-              <div *ngIf="formErrors.paymentMethod" class="invalid-feedback d-block">
-                {{ formErrors.paymentMethod }}
-              </div>
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label fw-bold mb-1">Estado Pago</label>
-              <select class="form-select form-select-sm" [(ngModel)]="NewSvcSale_PaymentStatusId" name="paymentStatusSvc">
-                <option [ngValue]="1">Pendiente</option>
-                <option [ngValue]="2">Pagado</option>
-              </select>
-            </div>
-
-            <div class="col-12">
-              <label class="form-label fw-bold mb-1">Observaciones</label>
-              <textarea 
-                class="form-control form-control-sm" 
-                [(ngModel)]="NewSvcSale_Observations" 
-                name="obsSvc"
-                rows="2"
-                placeholder="Observaciones adicionales..."></textarea>
-            </div>
-
-            <div class="col-12">
+            <div class="col-12 mt-2">
               <label class="form-label fw-bold mb-1">Servicios *</label>
               
               <div class="mb-2">
@@ -572,6 +539,41 @@
                 {{ formErrors.services }}
               </div>
             </div>
+
+            <div class="col-12 mt-2">
+              <label class="form-label fw-bold mb-1">Observaciones</label>
+              <textarea 
+                class="form-control form-control-sm" 
+                [(ngModel)]="NewSvcSale_Observations" 
+                name="obsSvc"
+                rows="2"
+                placeholder="Observaciones adicionales..."></textarea>
+            </div>
+
+            <div class="col-md-6 mt-2">
+              <label class="form-label fw-bold mb-1">Método Pago *</label>
+              <select class="form-select form-select-sm" 
+                      [class.is-invalid]="formErrors.paymentMethod"
+                      [(ngModel)]="NewSvcSale_PaymentMethodId"
+                      name="paymentMethodSvc">
+                <option [ngValue]="0">Seleccionar...</option>
+                <option *ngFor="let method of DataSourcePaymentMethods" [ngValue]="method.id">
+                  {{ method.name }}
+                </option>
+              </select>
+              <div *ngIf="formErrors.paymentMethod" class="invalid-feedback d-block">
+                {{ formErrors.paymentMethod }}
+              </div>
+            </div>
+
+            <div class="col-md-6 mt-2">
+              <label class="form-label fw-bold mb-1">Estado Pago</label>
+              <select class="form-select form-select-sm" [(ngModel)]="NewSvcSale_PaymentStatusId" name="paymentStatusSvc">
+                <option [ngValue]="1">Pendiente</option>
+                <option [ngValue]="2">Pagado</option>
+              </select>
+            </div>
+
           </div>
         </div>
         <div class="modal-footer">
@@ -624,6 +626,11 @@
             <h3 class="text-success fw-bold">${{ SelectedSale.sale_total | number:'1.2-2' }}</h3>
           </div>
         </div>
+
+        <div *ngIf="SelectedSale.observations" class="mb-3 pt-2 border-top">
+          <h6 class="text-primary">Observaciones</h6>
+          <p class="mb-0 small">{{ SelectedSale.observations }}</p>
+        </div>
         
         <h6 class="text-primary">Productos de la Venta</h6>
         <div class="table-responsive">
@@ -654,10 +661,6 @@
           </table>
         </div>
 
-        <div *ngIf="SelectedSale.observations" class="mt-3 pt-2 border-top">
-          <h6 class="text-primary">Observaciones</h6>
-          <p class="mb-0 small">{{ SelectedSale.observations }}</p>
-        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
@@ -724,6 +727,11 @@
           </div>
         </div>
         
+        <div *ngIf="SelectedSale.observations" class="mb-3 pt-2 border-top">
+          <h6 class="text-primary">Observaciones</h6>
+          <p class="mb-0 small">{{ SelectedSale.observations }}</p>
+        </div>
+
         <h6 class="text-primary">Servicios Contratados</h6>
         <div class="table-responsive">
           <table class="table table-sm">
@@ -749,10 +757,6 @@
           </table>
         </div>
 
-        <div *ngIf="SelectedSale.observations" class="mt-3 pt-2 border-top">
-          <h6 class="text-primary">Observaciones</h6>
-          <p class="mb-0 small">{{ SelectedSale.observations }}</p>
-        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
