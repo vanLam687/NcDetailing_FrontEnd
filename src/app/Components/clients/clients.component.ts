@@ -342,19 +342,29 @@ export class ClientsComponent implements OnInit {
     });
   }
 
+  // MODIFICADO: Simplificado para solo formatear a string con 2 decimales.
   formatNumber(value: any): string {
-    if (value === null || value === undefined) return '0';
     const num = Number(value);
-    if (isNaN(num)) return String(value).replace(/^0+/, '');
-    return num.toString().replace(/^0+/, '');
+    if (isNaN(num)) return '0.00';
+    return num.toFixed(2);
   }
 
+  // MODIFICADO: Suma de totales de servicios (precio)
   getServicesTotal(services: any[]): number {
-    return services.reduce((total, service) => total + (service.price || 0), 0);
+    return services.reduce((total, service) => {
+        const price = parseFloat(service.price) || 0;
+        return total + price;
+    }, 0);
   }
 
+  // MODIFICADO: Suma de totales de productos (subtotal = unit_price * quantity)
   getProductsTotal(products: any[]): number {
-    return products.reduce((total, product) => total + (product.subtotal || 0), 0);
+    return products.reduce((total, product) => {
+        const subtotal = parseFloat(product.subtotal) || 0;
+        // La propiedad subtotal ya existe en el historial de productos y es el total por línea.
+        // Anteriormente sumaba "subtotal || 0", que ya es el total por ítem.
+        return total + subtotal;
+    }, 0);
   }
 
   getVehiclesTooltip(vehicles: any[]): string {
