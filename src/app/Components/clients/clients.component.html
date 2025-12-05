@@ -65,7 +65,6 @@
           </div>
         </div>
 
-        <!-- Loading Spinner (reemplaza la tabla) -->
         <div *ngIf="isLoading" class="text-center p-5 my-5">
           <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
           <p class="mt-2 text-muted">Cargando clientes...</p>
@@ -517,7 +516,7 @@
                         </div>
                         <div class="col-md-6 text-end">
                           <small class="text-muted">Total:</small>
-                          <h5 class="text-success mb-0">${{ formatNumber(serviceSale.sale_total) }}</h5>
+                          <h5 class="text-success mb-0">${{ formatNumber(getServicesTotal(serviceSale.services)) }}</h5>
                         </div>
                       </div>
                       
@@ -570,11 +569,7 @@
                     </div>
                     <div class="card-body">
                       <div class="row mb-2">
-                        <div class="col-md-6">
-                          <small class="text-muted">Fecha:</small>
-                          <p class="mb-0">{{ formatDate(productSale.created_at) }}</p>
-                        </div>
-                        <div class="col-md-6 text-end">
+                        <div class="col-md-6 text-end ms-auto">
                           <small class="text-muted">Total:</small>
                           <h5 class="text-success mb-0">${{ formatNumber(productSale.sale_total) }}</h5>
                         </div>
