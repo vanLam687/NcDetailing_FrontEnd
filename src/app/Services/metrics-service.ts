@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { AuthService } from './auth-service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/enviroment.prod';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
