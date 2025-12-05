@@ -3,13 +3,14 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { AuthService } from './auth-service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/enviroment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MetricsService {
 
-  url = 'https://ncdetailing.up.railway.app/api/metrics';
+  url = environment.apiUrl + '/metrics';
 
   constructor(
     private http: HttpClient,
@@ -17,7 +18,6 @@ export class MetricsService {
     private router: Router
   ) {}
 
-  // Tu método getHeaders
   private getHeaders() {
     const token = this.authService.getToken();
     if (!token) {
