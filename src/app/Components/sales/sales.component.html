@@ -3,49 +3,40 @@
     <div class="col-12">
       <div class="card shadow-sm mb-2">
         <div class="card-body py-1 px-3">
-          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-            <div class="d-flex align-items-center gap-2 w-100 w-md-auto">
-              <h5 class="mb-0" style="color: #333;">Gestión de Ventas</h5>
-              <div class="vr" style="height: 16px;"></div>
+          <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2">
+            
+            <h5 class="mb-0 w-100 w-lg-auto" style="color: #333;">Gestión de Ventas</h5>
+
+            <div class="d-flex flex-column flex-sm-row align-items-center gap-2 w-100 w-lg-auto justify-content-center justify-content-lg-end">
               <div class="btn-group" role="group">
-                <button 
-                  type="button" 
-                  class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'products'"
-                  [class.btn-outline-primary]="activeView !== 'products'"
-                  (click)="showProductsView()">
-                  <i nz-icon nzType="shopping-cart"></i>
-                  Productos
+                <button type="button" class="btn btn-sm" [class.btn-primary]="activeView === 'products'"
+                  [class.btn-outline-primary]="activeView !== 'products'" (click)="showProductsView()">
+                  <i nz-icon nzType="shopping-cart"></i><span class="d-none d-sm-inline ms-1">Productos</span>
                 </button>
-                <button 
-                  type="button" 
-                  class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'services'"
-                  [class.btn-outline-primary]="activeView !== 'services'"
-                  (click)="showServicesView()">
-                  <i nz-icon nzType="car"></i>
-                  Servicios
+                <button type="button" class="btn btn-sm" [class.btn-primary]="activeView === 'services'"
+                  [class.btn-outline-primary]="activeView !== 'services'" (click)="showServicesView()">
+                  <i nz-icon nzType="car"></i><span class="d-none d-sm-inline ms-1">Servicios</span>
                 </button>
               </div>
-            </div>
-            
-            <div class="d-flex gap-1 w-100 w-md-auto justify-content-end">
-              <button 
-                class="btn btn-outline-primary btn-sm"
-                data-bs-toggle="modal" 
-                data-bs-target="#createServiceSaleModal"
-                (click)="showCreateServiceSale()">
-                <i nz-icon nzType="car"></i>
-                + Venta Servicio
-              </button>
-              <button 
-                class="btn btn-primary btn-sm"
-                data-bs-toggle="modal" 
-                data-bs-target="#createProductSaleModal"
-                (click)="showCreateProductSale()">
-                <i nz-icon nzType="shopping-cart"></i>
-                + Venta Producto
-              </button>
+
+              <div class="vr d-none d-sm-block my-1" style="opacity: 0.2;"></div>
+
+              <div class="btn-group" role="group">
+                <button 
+                  class="btn btn-outline-primary btn-sm"
+                  data-bs-toggle="modal" 
+                  data-bs-target="#createServiceSaleModal"
+                  (click)="showCreateServiceSale()">
+                  <i nz-icon nzType="plus"></i><span class="d-none d-sm-inline ms-1">Venta Servicio</span>
+                </button>
+                <button 
+                  class="btn btn-primary btn-sm"
+                  data-bs-toggle="modal" 
+                  data-bs-target="#createProductSaleModal"
+                  (click)="showCreateProductSale()">
+                  <i nz-icon nzType="plus"></i><span class="d-none d-sm-inline ms-1">Venta Producto</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -65,19 +56,19 @@
             <div class="col-md-2">
               <input 
                 type="text" 
-                class="form-control form-control-sm"
+                class="form-control form-control-sm w-100"
                 [(ngModel)]="FilterClientName"
                 name="filterClient"
                 placeholder="Buscar cliente...">
             </div>
             <div class="col-md-2">
-              <input type="date" class="form-control form-control-sm" [(ngModel)]="FilterStartDate" name="filterStart">
+              <input type="date" class="form-control form-control-sm w-100" [(ngModel)]="FilterStartDate" name="filterStart">
             </div>
             <div class="col-md-2">
-              <input type="date" class="form-control form-control-sm" [(ngModel)]="FilterEndDate" name="filterEnd">
+              <input type="date" class="form-control form-control-sm w-100" [(ngModel)]="FilterEndDate" name="filterEnd">
             </div>
             <div class="col-md-2">
-              <select class="form-select form-select-sm" [(ngModel)]="FilterPaymentStatus" name="filterPayment">
+              <select class="form-select form-select-sm w-100" [(ngModel)]="FilterPaymentStatus" name="filterPayment">
                 <option value="">Todo Estado Pago</option>
                 <option value="1">Pendiente</option>
                 <option value="2">Pagado</option>
@@ -85,7 +76,7 @@
               </select>
             </div>
             <div class="col-md-2" *ngIf="activeView === 'services'">
-              <select class="form-select form-select-sm" [(ngModel)]="FilterServiceStatus" name="filterService">
+              <select class="form-select form-select-sm w-100" [(ngModel)]="FilterServiceStatus" name="filterService">
                 <option value="">Todo Estado Servicio</option>
                 <option value="1">Pendiente</option>
                 <option value="2">En Progreso</option>
