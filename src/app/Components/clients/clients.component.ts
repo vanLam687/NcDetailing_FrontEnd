@@ -369,7 +369,7 @@ export class ClientsComponent implements OnInit {
       case 401: return 'Sesión expirada. Por favor inicie sesión nuevamente.';
       case 403: return 'No tiene permisos para realizar esta acción.';
       case 404: return 'Cliente no encontrado.';
-      case 409: return 'Ya existe un cliente con ese email o patente.';
+      case 409: return 'Ya existe un cliente con ese email o teléfono.';
       case 500: return 'Error interno del servidor.';
       default: return 'Ocurrió un error inesperado.';
     }
