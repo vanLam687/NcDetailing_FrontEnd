@@ -64,7 +64,7 @@ export class ProductsComponent implements OnInit {
   formErrors: any = {};
   isLoading: boolean = false;
   
-  // NUEVO: Estado de carga para categorías
+  // Estado de carga para categorías
   isLoadingCategories: boolean = false;
 
   get isAdmin(): boolean {
@@ -102,18 +102,18 @@ export class ProductsComponent implements OnInit {
   }
 
   GetCategories(): void {
-    this.isLoadingCategories = true; // <--- MODIFICADO
+    this.isLoadingCategories = true;
     this.service.getCategories(this.CategoryStatus).subscribe({
       next: (data: any) => {
         this.DataSourceCategories = data.data;
         this.filteredCategories = data.data;
         this.clearError();
-        this.isLoadingCategories = false; // <--- MODIFICADO
+        this.isLoadingCategories = false;
       },
       error: (error) => {
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleError(error);
-        this.isLoadingCategories = false; // <--- MODIFICADO
+        this.isLoadingCategories = false;
       }
     });
   }
@@ -166,7 +166,7 @@ export class ProductsComponent implements OnInit {
   }
 
   showCategoriesView(): void {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin) return; // RESTRINGIDO SOLO PARA ADMINS
     this.activeView = 'categories';
     this.SelectedProduct = null;
     this.clearError(); this.clearModalError(); this.clearFormErrors();
