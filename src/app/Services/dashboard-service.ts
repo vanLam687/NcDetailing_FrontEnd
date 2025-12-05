@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from './auth-service';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/enviroment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
 
-  url = 'https://ncdetailing.up.railway.app/api/home';
+  url = environment.apiUrl + '/home';
 
   constructor(
     private http: HttpClient, 
