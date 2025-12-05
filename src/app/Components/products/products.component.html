@@ -7,51 +7,44 @@
             
             <h5 class="mb-0 w-100 w-lg-auto" style="color: #333;">Gestión de Productos</h5>
 
-            <div class="d-flex flex-column flex-sm-row align-items-center gap-2 w-100 w-lg-auto">
+            <div class="d-flex flex-column flex-sm-row align-items-center gap-2 w-100 w-lg-auto justify-content-center justify-content-lg-end">
               
               <div class="btn-group" role="group">
-                <button 
-                  type="button" 
-                  class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'list'"
-                  [class.btn-outline-primary]="activeView !== 'list'"
-                  (click)="showListView()"
+                <button type="button" class="btn btn-sm" [class.btn-primary]="activeView === 'list'"
+                  [class.btn-outline-primary]="activeView !== 'list'" (click)="showListView()"
                   [disabled]="activeView === 'create' || activeView === 'edit'">
                   <i nz-icon nzType="unordered-list"></i>
-                  Lista Productos
+                  <span class="d-none d-sm-inline ms-1">Lista Productos</span>
                 </button>
-                <button *ngIf="isAdmin"
-                  type="button" 
-                  class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'create'"
-                  [class.btn-outline-primary]="activeView !== 'create'"
-                  (click)="showCreateForm()"
+                <button *ngIf="isAdmin" type="button" class="btn btn-sm" [class.btn-primary]="activeView === 'create'"
+                  [class.btn-outline-primary]="activeView !== 'create'" (click)="showCreateForm()"
                   [disabled]="activeView === 'create' || activeView === 'edit'">
                   <i nz-icon nzType="plus"></i>
-                  Nuevo Producto
+                  <span class="d-none d-sm-inline ms-1">Nuevo Producto</span>
                 </button>
               </div>
 
-              <div class="vr" style="height: 24px; opacity: 0.2;"></div>
+              <div class="vr d-none d-sm-block my-1" style="opacity: 0.2;"></div>
 
               <div class="btn-group" role="group" *ngIf="isAdmin">
-                <button 
-                  type="button" 
-                  class="btn btn-sm" 
-                  [class.btn-primary]="activeView === 'categories'"
-                  [class.btn-outline-primary]="activeView !== 'categories'"
-                  (click)="showCategoriesView()"
+                <button type="button" class="btn btn-sm" [class.btn-primary]="activeView === 'categories'"
+                  [class.btn-outline-primary]="activeView !== 'categories'" (click)="showCategoriesView()"
                   [disabled]="activeView === 'create' || activeView === 'edit'">
                   <i nz-icon nzType="folder-open"></i>
-                  Lista Categorías
+                  <span class="d-none d-sm-inline ms-1">Lista Categorías</span>
                 </button>
-                <button 
-                  class="btn btn-outline-primary btn-sm"
-                  data-bs-toggle="modal" 
-                  data-bs-target="#createCategoryModal"
-                  [disabled]="activeView === 'create' || activeView === 'edit'">
+                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                  data-bs-target="#createCategoryModal" [disabled]="activeView === 'create' || activeView === 'edit'">
                   <i nz-icon nzType="folder-add"></i>
-                  Nueva Categoría
+                  <span class="d-none d-sm-inline ms-1">Nueva Categoría</span>
+                </button>
+              </div>
+              <div class="btn-group" role="group" *ngIf="!isAdmin">
+                <button type="button" class="btn btn-sm" [class.btn-primary]="activeView === 'categories'"
+                  [class.btn-outline-primary]="activeView !== 'categories'" (click)="showCategoriesView()"
+                  [disabled]="activeView === 'create' || activeView === 'edit'">
+                  <i nz-icon nzType="folder-open"></i>
+                  <span class="d-none d-sm-inline ms-1">Lista Categorías</span>
                 </button>
               </div>
 
@@ -59,7 +52,6 @@
           </div>
         </div>
       </div>
-
       <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-2" role="alert">
         <div class="d-flex align-items-center">
           <i nz-icon nzType="exclamation-circle" class="me-2"></i>
