@@ -163,6 +163,12 @@ export class ClientsComponent implements OnInit {
     if (!email || email.trim() === '') {
       this.formErrors.email = 'El email es requerido';
       isValid = false;
+    } else {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(email)) {
+        this.formErrors.email = 'El formato del email es incorrecto.';
+        isValid = false;
+      }
     }
     if (!phone || phone.trim() === '') {
       this.formErrors.phone = 'El teléfono es requerido';
