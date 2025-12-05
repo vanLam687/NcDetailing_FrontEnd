@@ -150,63 +150,73 @@
         </div>
       </div>
 
-      <div *ngIf="activeView === 'categories' && isAdmin">
-        <div class="card shadow-sm">
-          <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center">
-            <div>
-              <h6 class="mb-0">
-                <i nz-icon nzType="folder-open"></i>
-                Categorías de Servicios
-              </h6>
-            </div>
-            <div class="d-flex gap-2 align-items-center">
-              <select class="form-select form-select-sm" [(ngModel)]="CategoryStatus"
-                (change)="onCategoryStatusChange(CategoryStatus)" style="width:160px;">
-                <option value="active">Activas</option>
-                <option value="inactive">Inactivas</option>
-              </select>
-            </div>
+          <div *ngIf="activeView === 'categories' && isAdmin">
+      <div class="card shadow-sm">
+        <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-0">
+              <i nz-icon nzType="folder-open"></i>
+              Categorías de Servicios
+            </h6>
           </div>
-          <div class="card-body p-0">
-            <nz-table #categoriesTable [nzData]="DataSourceCategories" [nzScroll]="{ x: '600px' }" class="w-100 compact-table" nzSize="small">
-              <thead>
-                <tr>
-                  <th class="ps-2" style="color: #333;">ID</th>
-                  <th style="color: #333;">Nombre</th>
-                  <th class="text-center pe-2" style="color: #333;">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let category of categoriesTable.data" class="table-row">
-                  <td class="ps-2" style="color: #333;"><strong>#{{ category.id }}</strong></td>
-                  <td style="color: #333;"><strong>{{ category.name }}</strong></td>
-                  <td class="text-center pe-2">
-                    <ng-container *ngIf="CategoryStatus === 'inactive'; else catActive">
-                      <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#restoreCategoryModal" (click)="DatosRestoreCategory(category)" nz-tooltip
-                        nzTooltipTitle="Restaurar">
-                        <i nz-icon nzType="reload"></i>
-                      </button>
-                    </ng-container>
-                    <ng-template #catActive>
-                      <button class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal"
-                        data-bs-target="#editCategoryModal" (click)="DatosEditCategory(category)" nz-tooltip
-                        nzTooltipTitle="Editar">
-                        <i nz-icon nzType="edit"></i>
-                      </button>
-                      <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
-                        data-bs-target="#deleteCategoryModal" (click)="DatosDeleteCategory(category)" nz-tooltip
-                        nzTooltipTitle="Eliminar">
-                        <i nz-icon nzType="delete"></i>
-                      </button>
-                    </ng-template>
-                  </td>
-                </tr>
-              </tbody>
-            </nz-table>
+          <div class="d-flex gap-2 align-items-center">
+            <select class="form-select form-select-sm" [(ngModel)]="CategoryStatus"
+              (change)="onCategoryStatusChange(CategoryStatus)" style="width:160px;">
+              <option value="active">Activas</option>
+              <option value="inactive">Inactivas</option>
+            </select>
           </div>
         </div>
+        
+        <div *ngIf="isLoadingCategories" class="text-center p-5 my-5">
+          <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+          <p class="mt-2 text-muted">Cargando categorías...</p>
+        </div>
+
+        <div *ngIf="!isLoadingCategories && DataSourceCategories.length === 0" class="card-body text-center p-5">
+          <p class="text-muted">No se encontraron categorías con el filtro aplicado.</p>
+        </div>
+
+        <div class="card-body p-0" *ngIf="!isLoadingCategories && DataSourceCategories.length > 0">
+          <nz-table #categoriesTable [nzData]="DataSourceCategories" [nzScroll]="{ x: '600px' }" class="w-100 compact-table" nzSize="small">
+            <thead>
+              <tr>
+                <th class="ps-2" style="color: #333;">ID</th>
+                <th style="color: #333;">Nombre</th>
+                <th class="text-center pe-2" style="color: #333;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let category of categoriesTable.data" class="table-row">
+                <td class="ps-2" style="color: #333;"><strong>#{{ category.id }}</strong></td>
+                <td style="color: #333;"><strong>{{ category.name }}</strong></td>
+                <td class="text-center pe-2">
+                  <ng-container *ngIf="CategoryStatus === 'inactive'; else catActive">
+                    <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal"
+                      data-bs-target="#restoreCategoryModal" (click)="DatosRestoreCategory(category)" nz-tooltip
+                      nzTooltipTitle="Restaurar">
+                      <i nz-icon nzType="reload"></i>
+                    </button>
+                  </ng-container>
+                  <ng-template #catActive>
+                    <button class="btn btn-outline-primary btn-sm me-1" data-bs-toggle="modal"
+                      data-bs-target="#editCategoryModal" (click)="DatosEditCategory(category)" nz-tooltip
+                      nzTooltipTitle="Editar">
+                      <i nz-icon nzType="edit"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                      data-bs-target="#deleteCategoryModal" (click)="DatosDeleteCategory(category)" nz-tooltip
+                      nzTooltipTitle="Eliminar">
+                      <i nz-icon nzType="delete"></i>
+                    </button>
+                  </ng-template>
+                </td>
+              </tr>
+            </tbody>
+          </nz-table>
+        </div>
       </div>
+    </div>
 
       <div *ngIf="activeView === 'create' && isAdmin">
         <div class="card shadow-sm">

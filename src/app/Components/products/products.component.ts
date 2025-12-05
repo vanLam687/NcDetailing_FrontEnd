@@ -63,6 +63,9 @@ export class ProductsComponent implements OnInit {
   modalError: string = '';
   formErrors: any = {};
   isLoading: boolean = false;
+  
+  // NUEVO: Estado de carga para categorías
+  isLoadingCategories: boolean = false;
 
   get isAdmin(): boolean {
     return this.authService.isAdmin();
@@ -99,15 +102,18 @@ export class ProductsComponent implements OnInit {
   }
 
   GetCategories(): void {
+    this.isLoadingCategories = true; // <--- MODIFICADO
     this.service.getCategories(this.CategoryStatus).subscribe({
       next: (data: any) => {
         this.DataSourceCategories = data.data;
         this.filteredCategories = data.data;
         this.clearError();
+        this.isLoadingCategories = false; // <--- MODIFICADO
       },
       error: (error) => {
         if (error.status === 401) { this.authService.logout(); return; }
         this.handleError(error);
+        this.isLoadingCategories = false; // <--- MODIFICADO
       }
     });
   }
