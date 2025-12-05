@@ -330,7 +330,7 @@
         </div>
       </div>
 
-      <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-hidden="true">
+            <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
@@ -341,9 +341,9 @@
               <div *ngIf="modalError" class="alert alert-danger mb-3">{{ modalError }}</div>
               <div *ngIf="formErrors.categoryName" class="alert alert-warning mb-3">{{ formErrors.categoryName }}</div>
               <div class="mb-3">
-                <label class="form-label fw-bold">Nombre</label>
+                <label class="form-label fw-bold">Nombre de la categoría *</label>
                 <input type="text" class="form-control" [class.is-invalid]="formErrors.categoryName"
-                  [(ngModel)]="CategoryName">
+                  [(ngModel)]="CategoryName" placeholder="Ingrese el nombre de la categoría">
               </div>
             </div>
             <div class="modal-footer">
