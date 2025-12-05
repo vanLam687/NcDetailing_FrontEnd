@@ -25,13 +25,13 @@
             <div class="col-md-3">
               <input 
                 type="text" 
-                class="form-control form-control-sm"
+                class="form-control form-control-sm w-100"
                 [(ngModel)]="SearchUsername"
                 placeholder="Usuario...">
             </div>
             
             <div class="col-md-2">
-              <select class="form-select form-select-sm" [(ngModel)]="SelectedActionType">
+              <select class="form-select form-select-sm w-100" [(ngModel)]="SelectedActionType">
                 <option value="">Todas las acciones</option>
                 <option *ngFor="let action of actionTypes" [value]="action">
                   {{ action }}
@@ -40,7 +40,7 @@
             </div>
 
             <div class="col-md-2">
-              <select class="form-select form-select-sm" [(ngModel)]="SelectedEntityType">
+              <select class="form-select form-select-sm w-100" [(ngModel)]="SelectedEntityType">
                 <option value="">Todas las entidades</option>
                 <option *ngFor="let entity of entityTypes" [value]="entity">
                   {{ entity }}
@@ -51,7 +51,7 @@
             <div class="col-md-2">
               <input 
                 type="date" 
-                class="form-control form-control-sm"
+                class="form-control form-control-sm w-100"
                 [(ngModel)]="StartDate"
                 placeholder="Desde...">
             </div>
@@ -59,7 +59,7 @@
             <div class="col-md-2">
               <input 
                 type="date" 
-                class="form-control form-control-sm"
+                class="form-control form-control-sm w-100"
                 [(ngModel)]="EndDate"
                 placeholder="Hasta...">
             </div>
