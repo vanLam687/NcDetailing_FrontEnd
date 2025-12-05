@@ -1,10 +1,18 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+  .brand-name {
+    font-family: "Orbitron", sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+</style>
+
 <div class="app-container">
   <header class="app-header">
     <div class="header-content">
       <div class="brand-section">
         <div class="brand-logo">
-          <!-- <div class="logo-icon">NC</div> -->
-          <h1 class="brand-name">NcDetailing</h1>
+          <h1 class="brand-name">NC Detailing</h1>
         </div>
         <button class="sidebar-toggle" (click)="toggleSidebar()">
           <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>

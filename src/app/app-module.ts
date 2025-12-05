@@ -5,11 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgApexchartsModule } from 'ng-apexcharts';
 
-// Angular Material
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
+
 
 // NG-ZORRO Modules
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -136,11 +132,7 @@ const icons: IconDefinition[] = [
     NzBadgeModule,
     NzPopoverModule,
     // ApexCharts + Material
-    NgApexchartsModule,
-    MatProgressSpinnerModule,
-    MatIconModule,
-    MatTableModule,
-    MatButtonModule
+    NgApexchartsModule
   ],
   providers: [
     { provide: NZ_I18N, useValue: es_ES },

@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { AuthService } from './auth-service';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/enviroment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SalesService {
-  // url = 'http://localhost:3000/api/sales';
-  url = 'https://ncdetailing.up.railway.app/api/sales'; // URL base de ventas
+  url = environment.apiUrl + '/sales'; 
 
   constructor(
     private http: HttpClient, 

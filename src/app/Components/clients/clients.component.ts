@@ -55,6 +55,7 @@ export class ClientsComponent implements OnInit {
   errorMessage: string = '';
   modalError: string = '';
   formErrors: any = {}; // Objeto para errores de validación
+  isLoading: boolean = false;
   
   // Control de envío
   isSubmitting: boolean = false;
@@ -126,13 +127,16 @@ export class ClientsComponent implements OnInit {
   }
 
   GetClients(): void {
+    this.isLoading = true;
     this.service.getClients(this.SearchTerm).subscribe({
       next: (data: any) => {
         this.DataSourceClients = data.data;
         this.clearError();
+        this.isLoading = false;
       },
       error: (error) => {
         this.handleError(error);
+        this.isLoading = false;
       }
     });
   }
@@ -159,6 +163,12 @@ export class ClientsComponent implements OnInit {
     if (!email || email.trim() === '') {
       this.formErrors.email = 'El email es requerido';
       isValid = false;
+    } else {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(email)) {
+        this.formErrors.email = 'El formato del email es incorrecto.';
+        isValid = false;
+      }
     }
     if (!phone || phone.trim() === '') {
       this.formErrors.phone = 'El teléfono es requerido';
@@ -365,7 +375,7 @@ export class ClientsComponent implements OnInit {
       case 401: return 'Sesión expirada. Por favor inicie sesión nuevamente.';
       case 403: return 'No tiene permisos para realizar esta acción.';
       case 404: return 'Cliente no encontrado.';
-      case 409: return 'Ya existe un cliente con ese email o patente.';
+      case 409: return 'Ya existe un cliente con ese email o teléfono.';
       case 500: return 'Error interno del servidor.';
       default: return 'Ocurrió un error inesperado.';
     }

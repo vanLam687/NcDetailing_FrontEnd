@@ -3,10 +3,10 @@
     <div class="col-12">
       <div class="card shadow-sm mb-2">
         <div class="card-body py-1 px-3">
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-2">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+            <div class="d-flex align-items-center gap-2 w-100 w-md-auto">
               <h5 class="mb-0" style="color: #333;">Gestión de Empleados</h5>
-              <div class="vr" style="height: 16px;"></div>
+              <div class="vr my-1" style="opacity: 0.2;"></div>
               <div class="btn-group" role="group">
                 <button 
                   type="button" 
@@ -16,7 +16,7 @@
                   (click)="showListView()"
                   [disabled]="activeView === 'form'">
                   <i nz-icon nzType="unordered-list"></i>
-                  Lista
+                  <span class="d-none d-sm-inline ms-1">Lista Empleados</span>
                 </button>
                 <button 
                   type="button" 
@@ -26,7 +26,7 @@
                   (click)="showCreateForm()"
                   [disabled]="activeView === 'form'">
                   <i nz-icon nzType="plus"></i>
-                  Nuevo Empleado
+                  <span class="d-none d-sm-inline ms-1">Nuevo Empleado</span>
                 </button>
               </div>
             </div>
@@ -56,12 +56,24 @@
           </div>
         </div>
 
-        <div class="card shadow-sm">
+        <div *ngIf="isLoading" class="text-center p-5 my-5">
+          <nz-spin nzSimple [nzSize]="'large'"></nz-spin>
+          <p class="mt-2 text-muted">Cargando empleados...</p>
+        </div>
+
+        <div *ngIf="!isLoading && DataSourceEmployees.length === 0" class="card shadow-sm">
+          <div class="card-body text-center p-5">
+            <p class="text-muted">No se encontraron empleados con los filtros aplicados.</p>
+          </div>
+        </div>
+
+
+        <div class="card shadow-sm" *ngIf="!isLoading && DataSourceEmployees.length > 0">
           <div class="card-header py-2 px-3">
             <h6 class="mb-0">Empleados</h6>
           </div>
           <div class="card-body p-0">
-            <nz-table #employeesTable [nzData]="DataSourceEmployees" class="w-100 compact-table" nzSize="small">
+            <nz-table #employeesTable [nzData]="DataSourceEmployees" [nzScroll]="{ x: '800px' }" class="w-100 compact-table" nzSize="small">
               <thead>
                 <tr>
                   <th class="ps-2" style="color: #333;">ID</th>

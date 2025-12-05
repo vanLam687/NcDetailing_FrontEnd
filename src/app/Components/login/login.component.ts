@@ -83,9 +83,6 @@ export class LoginComponent implements OnInit {
     if (!this.username || this.username.trim() === '') {
       this.formErrors.username = 'El usuario es requerido';
       isValid = false;
-    } else if (this.username.length < 3) {
-      this.formErrors.username = 'El usuario debe tener al menos 3 caracteres';
-      isValid = false;
     }
 
     if (!this.password || this.password.trim() === '') {
