@@ -2,13 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { AuthService } from './auth-service';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/enviroment';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SalesService {
-
   url = environment.apiUrl + '/sales'; 
 
   constructor(
